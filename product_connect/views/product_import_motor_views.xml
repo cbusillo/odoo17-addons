@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form view -->
+    <record id="view_product_import_motor_form" model="ir.ui.view">
+        <field name="name">product.import.motor.form</field>
+        <field name="model">product.import.motor</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="year"/>
+                        <field name="manufacturer"  options="{'no_create': True}"/>
+                        <field name="serial_number"/>
+                        <field name="model_number"/>
+                        <field name="shaft_length"/>
+                        <field name="rotation"/>
+                        <field name="horsepower"/>
+                        <field name="cost" />
+                    </group>
+                    <group string="Images">
+                        <field name="image_left" widget="image" />
+                        <field name="image_right" widget="image" />
+                        <field name="image_lower" widget="image" />
+                        <field name="image_trim" widget="image" />
+                        <field name="image_serial" widget="image" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree view -->
+    <record id="view_product_import_motor_tree" model="ir.ui.view">
+        <field name="name">product.import.motor.tree</field>
+        <field name="model">product.import.motor</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="year"/>
+                <field name="manufacturer" options="{'no_create': True}"/>
+                <field name="serial_number"/>
+                <field name="model_number"/>
+                <field name="shaft_length"/>
+                <field name="rotation"/>
+                <field name="horsepower"/>
+                <field name="cost" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Add action to open the views -->
+    <record id="action_product_import_motor" model="ir.actions.act_window">
+        <field name="name">Product Import Motors</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.import.motor</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_product_import_motor_tree"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                Create your first Product Import Motor
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu item to access the action -->
+    <menuitem name="Product Import Motors" id="menu_product_import_motor" action="action_product_import_motor"
+              parent="menu_subheader_product_import"/>
+
+</odoo>

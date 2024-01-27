@@ -1,0 +1,7 @@
+.drag-over {
+    background-color: #f0f0f0;
+    border: 2px dashed #000;
+    /* Add a border */
+    transition: all 0.5s ease;
+    /* Add transition for smoothness */
+}

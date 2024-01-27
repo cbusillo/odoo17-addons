@@ -1,0 +1,147 @@
+<odoo>
+    <!-- Product Scraper: Action -->
+    <record id="action_product_scraper" model="ir.actions.act_window">
+        <field name="name">Product Scraper</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.scraper</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+            No records yet.
+            </p>
+        </field>
+    </record>
+
+    <!-- Product Scraper: Search -->
+    <record id="product_scraper_search_view" model="ir.ui.view">
+        <field name="name">product.scraper.search.view</field>
+        <field name="model">product.scraper</field>
+        <field name="type">search</field>
+        <field name="arch" type="xml">
+            <search string="Custom Model Search">
+                <field name="name"/>
+                <field name="brand"/>
+                <field name="sku"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Product Scraper: List view -->
+    <record id="view_product_scraper_tree" model="ir.ui.view">
+        <field name="name">product.scraper.tree</field>
+        <field name="model">product.scraper</field>
+        <field name="arch" type="xml">
+            <tree string="Product Scraper">
+                <field name="id"/>
+                <field name="brand"/>
+                <field name="name"/>
+                <field name="sku"/>
+                <field name="source_url_count"/>
+                <field name="url_display"/>
+                <field name="price"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Product Scraper: Form view -->
+    <record id="view_product_scraper_form" model="ir.ui.view">
+        <field name="name">product.scraper.form</field>
+        <field name="model">product.scraper</field>
+        <field name="arch" type="xml">
+            <form string="Product Scraper">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="brand"/>
+                        <field name="sku"/>
+                        <field name="url_display"/>
+                        <field name="url" widget="url"/>
+                        <field name="price"/>
+                        <field name="product_ids">
+                            <tree string="Related Product">
+                                <field name="name"/>
+                            </tree>
+                        </field>
+                        <field name="source_url_html" widget="CopyClipboardChar"/>
+                        <field name="source_url_html"/>
+                    </group>
+                    <notebook>
+                        <page string="Source URLs">
+                            <field name="source_url_ids" widget="one2many">
+                                <tree string="Source URLs">
+                                    <field name="source_url_display"/>
+                                    <field name="source_url"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <field name="source_url_html" widget="html"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+
+    <!-- Product Scraper URL State: Action -->
+    <record id="action_product_scraper_url_state" model="ir.actions.act_window">
+        <field name="name">Product Scraper URL State</field>
+        <field name="res_model">product.scraper.url.state</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+            No records yet.
+            </p>
+        </field>
+    </record>
+
+    <!-- Product Scraper URL State: List View -->
+    <record id="view_product_scraper_url_state_tree" model="ir.ui.view">
+        <field name="name">product.scraper.url.state.tree</field>
+        <field name="model">product.scraper.url.state</field>
+        <field name="arch" type="xml">
+            <tree string="Start URL">
+                <field name="id"/>
+                <field name="url"/>
+                <field name="scraped"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Product Scraper Source: List View: Action -->
+    <record id="action_product_scraper_source" model="ir.actions.act_window">
+        <field name="name">Product Scraper Source</field>
+        <field name="res_model">product.scraper.source</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+            No records yet.
+            </p>
+        </field>
+    </record>
+
+    <!-- Product Scraper Source: List View -->
+    <record id="view_product_scraper_source_tree" model="ir.ui.view">
+        <field name="name">product.scraper.source.tree</field>
+        <field name="model">product.scraper.source</field>
+        <field name="arch" type="xml">
+            <tree string="Source">
+                <field name="id"/>
+                <field name="source_url"/>
+                <field name="product_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Menu item: accessible from the main menu -->
+    <menuitem id="menu_submenu_product_scraper" name="Product Connect" parent="stock.menu_stock_root"/>
+
+    <menuitem id="menu_product_scraper" name="Product Scraper" action="action_product_scraper" parent="menu_submenu_product_scraper"/>
+    <menuitem id="menu_product_scraper_url_state" name="Scraper URL State" action="action_product_scraper_url_state" parent="menu_submenu_product_scraper"/>
+    <menuitem id="menu_product_scraper_source" name="Scraper Source" action="action_product_scraper_source" parent="menu_submenu_product_scraper"/>
+    <menuitem id="menu_product_run_functions" name="Run functions" parent="menu_submenu_product_scraper"/>
+    <menuitem id="menu_product_scraper_run" name="Run Product Scrape" action="action_product_scraper_wizard" parent="menu_product_run_functions"/>
+    <menuitem id="menu_shopify_sync_run" name="Run Shopify Sync" action="action_product_scraper_wizard" parent="menu_product_run_functions"/>
+    <menuitem id="menu_product_shopify_functions" name="Shopify Functions" parent="menu_submenu_product_scraper"/>
+    <menuitem id="menu_product_shopify_zero_sales_wizard" name="Shopify Zero Sales" action="action_shopify_zero_sales_wizard" parent="menu_product_shopify_functions"/>
+</odoo>

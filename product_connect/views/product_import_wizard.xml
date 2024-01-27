@@ -1,0 +1,29 @@
+<odoo>
+    <record id="view_product_import_wizard" model="ir.ui.view">
+        <field name="name">product.import.wizard.form</field>
+        <field name="model">product.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Input Total Cost">
+                <group>
+                    <field name="total_cost"/>
+                </group>
+                <footer>
+                    <button name="apply_cost" string="Apply" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_product_import_wizard" model="ir.actions.act_window">
+        <field name="name">Input Total Cost</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem name="Input Total Cost" id="menu_action_open_product_import_wizard" parent="menu_subheader_product_import" action="action_open_product_import_wizard"/>
+
+
+</odoo>

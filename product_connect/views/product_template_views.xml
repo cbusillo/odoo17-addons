@@ -1,0 +1,108 @@
+<odoo>
+    <!-- Product Template: Server Action: Print Bin Labels -->
+    <record id="server_action_product_template_print_bin_labels" model="ir.actions.server">
+        <field name="name">Print Bin Labels</field>
+        <field name="model_id" ref="model_product_template"/>
+        <field name="binding_model_id" ref="model_product_template"/>
+        <field name="binding_type">action</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.print_bin_labels()
+        </field>
+    </record>
+
+    <!-- Product Template: Server Action: Print Product Labels -->
+    <record id="server_action_product_template_print_product_labels" model="ir.actions.server">
+        <field name="name">Print Product Labels</field>
+        <field name="model_id" ref="model_product_template"/>
+        <field name="binding_model_id" ref="model_product_template"/>
+        <field name="binding_type">action</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.print_product_labels()
+        </field>
+    </record>
+
+    <!-- Product Template: Tree View -->
+    <record id="view_product_template_tree_inherit" model="ir.ui.view">
+        <field name="name">product.template.tree.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="default_code" position="after">
+                <field name="bin"/>
+            </field>
+        </field>
+    </record>
+
+
+    <!-- Product Template: Form View -->
+    <record id="view_product_template_form_inherit" model="ir.ui.view">
+        <field name="name">product.template.form.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <field name="default_code" position="after">
+                <field name="condition"/>
+                <field name="manufacturer"/>
+                <field name="part_type"/>
+                <field name="mpn"/>
+                <field name="manufacturer_barcode"/>
+                <field name="bin"/>
+                <field name="lot_number"/>
+                <field name="shopify_product_id"/>
+
+            </field>
+            <notebook position="inside">
+                <page string="Related Product Scraper">
+                    <field name="product_scraper_id"/>
+                    <field name="product_scraper_html"/>
+                </page>
+            </notebook>
+        </field>
+    </record>
+    <record id="product_template_search_inherit" model="ir.ui.view">
+        <field name="name">product.template.search.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="filter_domain">['|', '|', '|', '|', '|', ('name', 'ilike', self), ('mpn', 'ilike', self),
+                                                 ('bin', 'ilike', self), ('description_sale', 'ilike', self),
+                                                 ('default_code', 'ilike', self),
+                                                 ('manufacturer_barcode', 'ilike', self)]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_template_tree_edit" model="ir.ui.view">
+        <field name="name">product.template.tree.edit</field>
+        <field name="model">product.template</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" multi_edit="1">
+                <field name="name"/>
+                <field name="default_code"/>
+                <field name="bin"/>
+                <field name="condition"/>
+                <field name="manufacturer"/>
+                <field name="part_type"/>
+                <field name="mpn"/>
+                <field name="manufacturer_barcode"/>
+                <field name="lot_number"/>
+                <field name="shopify_product_id"/>
+            </tree>
+        </field>
+    </record>
+    <record id="action_product_template_tree_edit" model="ir.actions.act_window">
+        <field name="name">Product Edit</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="product_template_tree_edit"/>
+    </record>
+
+
+    <menuitem id="menu_product_template_edit" name="Product Edit" action="action_product_template_tree_edit"
+              parent="stock.menu_stock_inventory_control" sequence="2"/>
+
+
+</odoo>
