@@ -1,135 +1,135 @@
 query GetProductIds($cursor: String, $limit: Int!, $query: String) {
-  products(first: $limit, after: $cursor, query: $query) {
-    pageInfo {
-      hasNextPage
+    products(first: $limit, after: $cursor, query: $query) {
+        pageInfo {
+            hasNextPage
+        }
+        edges {
+            cursor
+            node {
+                id
+            }
+        }
     }
-    edges {
-      cursor
-      node {
-        id
-      }
-    }
-  }
 }
 
 query GetProducts($cursor: String, $limit: Int!, $query: String) {
-  products(first: $limit, after: $cursor, query: $query) {
-    pageInfo {
-      hasNextPage
-    }
-    edges {
-      cursor
-      node {
-        id
-        title
-        descriptionHtml
-        vendor
-        productType
-        status
-        totalInventory
-        createdAt
-        updatedAt
-        images(first: 20) {
-          edges {
-            node {
-              url
-            }
-          }
+    products(first: $limit, after: $cursor, query: $query) {
+        pageInfo {
+            hasNextPage
         }
-        variants(first: 1) {
-          edges {
+        edges {
+            cursor
             node {
-              id
-              price
-              sku
-              barcode
-              weight
-              inventoryItem {
-                unitCost {
-                  amount
-                  currencyCode
+                id
+                title
+                descriptionHtml
+                vendor
+                productType
+                status
+                totalInventory
+                createdAt
+                updatedAt
+                images(first: 20) {
+                    edges {
+                        node {
+                            url
+                        }
+                    }
                 }
-              }
+                variants(first: 1) {
+                    edges {
+                        node {
+                            id
+                            price
+                            sku
+                            barcode
+                            weight
+                            inventoryItem {
+                                unitCost {
+                                    amount
+                                    currencyCode
+                                }
+                            }
+                        }
+                    }
+                }
+                metafields(first: 3, namespace: "custom") {
+                    edges {
+                        node {
+                            id
+                            key
+                            value
+                        }
+                    }
+                }
             }
-          }
         }
-        metafields(first: 3, namespace: "custom") {
-          edges {
-            node {
-              id
-              key
-              value
-            }
-          }
-        }
-      }
     }
-  }
 }
 
 query GetOrdersLineItems($limit: Int!, $query: String!, $cursor: String) {
-  orders(first: $limit, query: $query, after: $cursor) {
-    edges {
-      cursor
-      node {
-        id
-        lineItems(first: 10) {
-          edges {
+    orders(first: $limit, query: $query, after: $cursor) {
+        edges {
+            cursor
             node {
-              id
-              product {
                 id
-              }
+                lineItems(first: 10) {
+                    edges {
+                        node {
+                            id
+                            product {
+                                id
+                            }
+                        }
+                    }
+                }
             }
-          }
         }
-      }
+        pageInfo {
+            hasNextPage
+        }
     }
-    pageInfo {
-      hasNextPage
-    }
-  }
 }
 
 mutation CreateProduct($input: ProductInput!) {
-  productCreate(input: $input) {
-    product {
-      id
+    productCreate(input: $input) {
+        product {
+            id
+        }
+        userErrors {
+            field
+            message
+        }
     }
-    userErrors {
-      field
-      message
-    }
-  }
 }
 
 mutation UpdateProduct($input: ProductInput!) {
-  productUpdate(input: $input) {
-    product {
-      id
+    productUpdate(input: $input) {
+        product {
+            id
+        }
+        userErrors {
+            field
+            message
+        }
     }
-    userErrors {
-      field
-      message
-    }
-  }
 }
 
 query GetLocations {
-  locations(first: 5) {
-    edges {
-      node {
-        id
-      }
+    locations(first: 5) {
+        edges {
+            node {
+                id
+            }
+        }
     }
-  }
 }
 
 mutation UpdatePublications($id: ID!, $input: [PublicationInput!]!) {
-  publishablePublish(id: $id, input: $input) {
-    userErrors {
-      field
-      message
+    publishablePublish(id: $id, input: $input) {
+        userErrors {
+            field
+            message
+        }
     }
-  }
 }
