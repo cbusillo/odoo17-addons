@@ -11,7 +11,6 @@ from zoneinfo import ZoneInfo
 
 import requests
 
-# noinspection PyPackageRequirements
 import shopify
 from dateutil.parser import parse
 from requests.exceptions import RequestException
@@ -44,7 +43,7 @@ def apply_rate_limit_patch_to_shopify_execute() -> None:
     class ThrottledError(Exception):
         """Exception raised when Shopify returns a throttled response."""
 
-        pass  # pylint: disable=unnecessary-pass
+        pass
 
     def parse_and_raise_error(error_data: dict[str, Any]) -> None:
         error_code = error_data.get("extensions", {}).get("code")
@@ -204,7 +203,6 @@ class ShopifySync(models.AbstractModel):
         custom_query: str = "",
         operation_name: str = "GetProducts",
     ) -> list[dict[str, Any]]:
-        # This function fetches product edges from Shopify
         result = self.execute_graphql_query(
             cursor,
             last_import_time_str,
@@ -241,7 +239,6 @@ class ShopifySync(models.AbstractModel):
 
         match = re.search(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", base_query)
         if not match:
-            # noinspection SpellCheckingInspection
             raise ValueError(
                 f"Invalid date format in query: '{base_query}'. Expected format: 'YYYY-MM-DDTHH:MM:SSZ'"
             )
@@ -348,14 +345,14 @@ class ShopifySync(models.AbstractModel):
         self, current_import_start_time: datetime
     ) -> None:
         # This function finalizes the import process Added commits to ensure that the import is not rolled back if export fails
-        self.env.cr.commit()  # pylint: disable=invalid-commit
+        self.env.cr.commit()
         last_import_time = current_import_start_time.isoformat(
             timespec="seconds"
         ).replace("+00:00", "Z")
         self.env["ir.config_parameter"].sudo().set_param(
             "shopify.last_import_time", last_import_time
         )
-        self.env.cr.commit()  # pylint: disable=invalid-commit
+        self.env.cr.commit()
 
     @api.model
     def import_from_shopify(self) -> None:

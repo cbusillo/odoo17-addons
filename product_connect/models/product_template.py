@@ -24,7 +24,6 @@ class ProductTemplate(models.Model, ProductLabelsMixin):
         ],
         default="used",
     )
-    # Override fields:
     default_code = fields.Char("SKU", index=True, required=False)
     image_1920 = fields.Image(
         compute="_compute_image_1920", inverse="_inverse_image_1920", store=True
@@ -38,14 +37,10 @@ class ProductTemplate(models.Model, ProductLabelsMixin):
     )
 
     def is_condition_valid(self, shopify_condition):
-        return shopify_condition in dict(
-            self._fields["condition"].selection
-        )  # pylint: disable=no-member
+        return shopify_condition in dict(self._fields["condition"].selection)
 
     @api.constrains("default_code")
     def _check_default_code(self):
-        if not self.env.company.enable_custom_constraints:  # pass Odoo tests
-            return
         for record in self:
             if not re.match(r"^\d{4,8}$", record.default_code):
                 raise ValidationError(_("SKU must be 4-8 digits."))
