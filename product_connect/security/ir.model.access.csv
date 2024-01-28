@@ -1,15 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_product_scraper,access_product_scraper,model_product_scraper,base.group_user,1,1,1,1
-access_product_scraper_wizard,access_product_scraper_wizard,model_product_scraper_wizard,base.group_user,1,1,1,1
-access_product_scraper_source,access_product_scraper_source,model_product_scraper_source,base.group_user,1,1,1,1
 access_product_import,access.product.import,model_product_import,base.group_user,1,1,1,1
-access_product_scraper_url_state,model_product_scraper_url_state,model_product_scraper_url_state,base.group_user,1,1,1,1
 access_product_type,model_product_type,model_product_type,base.group_user,1,1,1,1
 access_product_manufacturer,model_product_manufacturer,model_product_manufacturer,base.group_user,1,1,1,1
 access_product_import_image,access_product_import_image,model_product_import_image,base.group_user,1,1,1,1
 access_shopify_sync,access_shopify_sync,model_shopify_sync,base.group_user,1,1,1,1
 access_printnode_interface,access_printnode_interface,model_printnode_interface,base.group_user,1,1,1,1
 access_product_import_wizard,access_product_import_wizard,model_product_import_wizard,base.group_user,1,1,1,1
-access_shopify_zero_sales_wizard_line,access_shopify_zero_sales_wizard_line,model_shopify_zero_sales_wizard_line,base.group_user,1,1,1,1
-access_shopify_zero_sales_wizard,access_shopify_zero_sales_wizard,model_shopify_zero_sales_wizard,base.group_user,1,1,1,1
-access_product_import_motor,access_product_import_motor,model_product_import_motor,base.group_user,1,1,1,1

@@ -22,13 +22,10 @@
         "views/shopify_sync_views.xml",
         "views/product_import_views.xml",
         "views/product_import_wizard.xml",
-        "views/product_scraper_wizard.xml",  # Needs to be before product_template_views.xml to allow button for action
         "views/product_product_views.xml",
-        "views/product_scraper_views.xml",
         "views/product_template_views.xml",
         "views/product_manufacturer_views.xml",
         "views/res_config_settings_views.xml",
-        "views/product_import_motor_views.xml",
     ],
     "assets": {
         "web.assets_backend": [

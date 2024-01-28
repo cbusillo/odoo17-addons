@@ -1,6 +1,7 @@
 import base64
 import logging
 import io
+from typing import Self
 
 import requests
 from PIL import Image
@@ -38,7 +39,9 @@ class ProductImport(models.Model, ProductLabelsMixin):
         ("default_code_uniq", "unique (default_code)", "SKU already exists !"),
     ]
 
-    default_code = fields.Char(string="SKU", required=True, copy=False, index=True, default=lambda self: "New")
+    default_code = fields.Char(
+        string="SKU", required=True, copy=False, index=True, default=lambda self: "New"
+    )
     mpn = fields.Char(string="MPN", index=True)
     manufacturer = fields.Many2one("product.manufacturer", index=True)
     manufacturer_barcode = fields.Char(index=True)
@@ -66,7 +69,7 @@ class ProductImport(models.Model, ProductLabelsMixin):
     )
     export_to_shopify = fields.Binary()
 
-    def name_get(self):
+    def name_get(self) -> list[tuple[int, str]]:
         result = []
         for record in self:
             name = f"[{record.default_code}] {record.name or 'No Name Yet'}"
@@ -74,15 +77,15 @@ class ProductImport(models.Model, ProductLabelsMixin):
         return result
 
     @api.model_create_multi
-    def create(self, vals_list):
+    def create(self, vals_list: list[dict]) -> Self:
         product_template = self.env["product.template"]
         for vals in vals_list:
             if vals.get("default_code", "") == "New" or not vals.get("default_code"):
                 while True:
                     new_sku = self.env["ir.sequence"].next_by_code("product.import")
-                    if not product_template.search([("default_code", "=", new_sku)]) and not self.search(
+                    if not product_template.search(
                         [("default_code", "=", new_sku)]
-                    ):
+                    ) and not self.search([("default_code", "=", new_sku)]):
                         vals["default_code"] = new_sku
                         break
 
@@ -102,7 +105,7 @@ class ProductImport(models.Model, ProductLabelsMixin):
                 temp_record.print_product_labels(print_quantity=True)
         return super().create(vals_list)
 
-    def write(self, vals):
+    def write(self, vals: dict) -> bool:
         for field in ["mpn", "bin"]:
             if field in vals:
                 vals[field] = vals[field].upper()
@@ -115,16 +118,24 @@ class ProductImport(models.Model, ProductLabelsMixin):
             temp_data.update(vals)
             temp_record = self.new(temp_data)
 
-            if any(getattr(temp_record, key) != getattr(record, key) for key in fields_of_interest):
-                if all(getattr(temp_record, key) or getattr(record, key) for key in fields_of_interest):
-                    if getattr(temp_record, "quantity", 0) > 0 or getattr(record, "quantity", 0) > 0:
+            if any(
+                getattr(temp_record, key) != getattr(record, key)
+                for key in fields_of_interest
+            ):
+                if all(
+                    getattr(temp_record, key) or getattr(record, key)
+                    for key in fields_of_interest
+                ):
+                    if (
+                        getattr(temp_record, "quantity", 0) > 0
+                        or getattr(record, "quantity", 0) > 0
+                    ):
                         temp_record.print_product_labels(print_quantity=True)
 
         return super().write(vals)
 
-    # noinspection PyShadowingNames
     @api.model
-    def load(self, fields, data):  # pylint: disable=redefined-outer-name
+    def load(self, fields: list[str], data: list[list[str]]) -> Self:
         for row in data:
             if "mpn" in fields:
                 idx = fields.index("mpn")
@@ -139,8 +150,8 @@ class ProductImport(models.Model, ProductLabelsMixin):
         if self.image_upload:
             image = self.env["product.import.image"].create(
                 {
-                    "image_data": self.image_upload["image"],  # pylint: disable=unsubscriptable-object
-                    "index": self.image_upload["index"],  # pylint: disable=unsubscriptable-object
+                    "image_data": self.image_upload["image"],
+                    "index": self.image_upload["index"],
                     "product_id": self.id,
                 }
             )
@@ -158,29 +169,51 @@ class ProductImport(models.Model, ProductLabelsMixin):
         if self._origin.mpn != self.mpn or self._origin.condition != self.condition:
             existing_products = self.products_from_mpn_condition_new()
             if existing_products:
-                existing_products_display = [f"{product['default_code']} - {product['bin']}" for product in existing_products]
-                raise UserError(f"A product with the same MPN already exists.  Its SKU is/are {existing_products_display}")
+                existing_products_display = [
+                    f"{product['default_code']} - {product['bin']}"
+                    for product in existing_products
+                ]
+                raise UserError(
+                    f"A product with the same MPN already exists.  Its SKU is/are {existing_products_display}"
+                )
         if self._origin.bin != self.bin and self.bin:
             if self.existing_bin() is False:
                 self.print_bin_labels()
 
-    def _products_from_existing_records(self, field_name: str, field_value: str) -> list[dict[str, str]]:
-        is_new_record = isinstance(self.id, models.NewId)  # pylint: disable=no-member
+    def _products_from_existing_records(
+        self, field_name: str, field_value: str
+    ) -> list[dict[str, str]]:
+        is_new_record = isinstance(self.id, models.NewId)
         if is_new_record:
-            product_imports = self.env["product.import"].search([(field_name, "=", field_value)])
+            product_imports = self.env["product.import"].search(
+                [(field_name, "=", field_value)]
+            )
         else:
             product_imports = self.env["product.import"].search(
-                [(field_name, "=", field_value), ("id", "!=", self.id)]  # pylint: disable=no-member
+                [
+                    (field_name, "=", field_value),
+                    ("id", "!=", self.id),
+                ]
             )
-        product_templates = self.env["product.template"].search([(field_name, "=", field_value)])
+        product_templates = self.env["product.template"].search(
+            [(field_name, "=", field_value)]
+        )
 
         existing_products = {}
         for product in product_imports:
-            product_to_add = {"default_code": product.default_code, "bin": product.bin, "condition": product.condition}
+            product_to_add = {
+                "default_code": product.default_code,
+                "bin": product.bin,
+                "condition": product.condition,
+            }
             existing_products[product.default_code] = product_to_add
 
         for product in product_templates:
-            product_to_add = {"default_code": product.default_code, "bin": product.bin, "condition": product.condition}
+            product_to_add = {
+                "default_code": product.default_code,
+                "bin": product.bin,
+                "condition": product.condition,
+            }
             existing_products[product.default_code] = product_to_add
 
         return list(existing_products.values())
@@ -188,7 +221,11 @@ class ProductImport(models.Model, ProductLabelsMixin):
     def products_from_mpn_condition_new(self) -> [str]:
         if self.mpn and self.condition == "new":
             existing_products = self._products_from_existing_records("mpn", self.mpn)
-            existing_new_products = [product for product in existing_products if product["condition"] == "new"]
+            existing_new_products = [
+                product
+                for product in existing_products
+                if product["condition"] == "new"
+            ]
             if existing_new_products:
                 return existing_new_products
         return None
@@ -202,7 +239,7 @@ class ProductImport(models.Model, ProductLabelsMixin):
 
     def open_record(self):
         self.ensure_one()
-        return {  # pylint: disable=no-member
+        return {
             "type": "ir.actions.act_window",
             "res_model": "product.import",
             "view_mode": "form",
@@ -214,7 +251,7 @@ class ProductImport(models.Model, ProductLabelsMixin):
             return False
         try:
             headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",  # pylint: disable=line-too-long
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
             }
             session = requests.Session()
             session.headers.update(headers)
@@ -224,31 +261,54 @@ class ProductImport(models.Model, ProductLabelsMixin):
                 image_base64 = base64.b64encode(response.content)
                 return image_base64
             except IOError:
-                _logger.error("The binary data could not be decoded as an image. URL: %s", url)
+                _logger.error(
+                    "The binary data could not be decoded as an image. URL: %s", url
+                )
 
         except requests.exceptions.Timeout:
-            _logger.error("Timeout Error getting image from SKU: %s, URL: %s", self.default_code, url)
+            _logger.error(
+                "Timeout Error getting image from SKU: %s, URL: %s",
+                self.default_code,
+                url,
+            )
 
         except requests.exceptions.RequestException:
-            _logger.error("Request Error getting image from SKU: %s, URL: %s", self.default_code, url)
+            _logger.error(
+                "Request Error getting image from SKU: %s, URL: %s",
+                self.default_code,
+                url,
+            )
         return False
 
     def import_to_products(self):
-        missing_data_records = self.filtered(lambda current_record: not current_record.default_code or not current_record.name)
+        missing_data_records = self.filtered(
+            lambda current_record: not current_record.default_code
+            or not current_record.name
+        )
         if missing_data_records:
             _logger.warning("Missing data for records: %s", missing_data_records)
 
         for record in self - missing_data_records:
             existing_products = record.products_from_mpn_condition_new()
             if existing_products:
-                existing_products_display = [f"{product['default_code']} - {product['bin']}" for product in existing_products]
-                raise UserError(f"A product with the same MPN already exists.  Its SKU is/are {existing_products_display}")
-            product = self.env["product.product"].search([("default_code", "=", record.default_code)], limit=1)
+                existing_products_display = [
+                    f"{product['default_code']} - {product['bin']}"
+                    for product in existing_products
+                ]
+                raise UserError(
+                    f"A product with the same MPN already exists.  Its SKU is/are {existing_products_display}"
+                )
+            product = self.env["product.product"].search(
+                [("default_code", "=", record.default_code)], limit=1
+            )
             image_from_url_data = None
             if record.image_1_url:
                 image_from_url_data = record.get_image_from_url(record.image_1_url)
                 if not image_from_url_data:
-                    _logger.warning("Skipping import of record with SKU: %s due to image error.", record.default_code)
+                    _logger.warning(
+                        "Skipping import of record with SKU: %s due to image error.",
+                        record.default_code,
+                    )
                     continue
 
             product_data = {
@@ -261,12 +321,15 @@ class ProductImport(models.Model, ProductLabelsMixin):
                 "part_type": record.product_type.id or product.part_type.id,
                 "weight": record.weight if record.weight > 0 else product.weight,
                 "list_price": record.price if record.price > 0 else product.list_price,
-                "standard_price": record.cost if record.cost > 0 else product.standard_price,
+                "standard_price": (
+                    record.cost if record.cost > 0 else product.standard_price
+                ),
                 "condition": record.condition or product.condition,
                 "detailed_type": "product",
                 "is_published": True,
                 "shopify_next_export": True,
-                "manufacturer_barcode": record.manufacturer_barcode or product.manufacturer_barcode,
+                "manufacturer_barcode": record.manufacturer_barcode
+                or product.manufacturer_barcode,
                 "lot_number": record.lot_number or product.lot_number,
             }
 
@@ -277,7 +340,9 @@ class ProductImport(models.Model, ProductLabelsMixin):
             if record.quantity > 0:
                 product.update_quantity(record.quantity)
 
-            current_images = self.env["product.image"].search([("product_tmpl_id", "=", product.product_tmpl_id.id)])
+            current_images = self.env["product.image"].search(
+                [("product_tmpl_id", "=", product.product_tmpl_id.id)]
+            )
 
             current_index = 1
             for image in current_images:

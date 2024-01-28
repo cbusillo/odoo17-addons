@@ -53,12 +53,6 @@
                 <field name="shopify_product_id"/>
 
             </field>
-            <notebook position="inside">
-                <page string="Related Product Scraper">
-                    <field name="product_scraper_id"/>
-                    <field name="product_scraper_html"/>
-                </page>
-            </notebook>
         </field>
     </record>
     <record id="product_template_search_inherit" model="ir.ui.view">

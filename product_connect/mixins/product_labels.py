@@ -12,8 +12,7 @@ class ProductLabelsMixin(models.AbstractModel):
     quantity = None
     name = None
 
-    def print_bin_labels(self):
-        # noinspection PyUnresolvedReferences
+    def print_bin_labels(self) -> None:
         unique_bins = list(set(self.mapped("bin")))
         unique_bins = [bin_location for bin_location in unique_bins if bin_location]
         unique_bins.sort()
@@ -23,10 +22,12 @@ class ProductLabelsMixin(models.AbstractModel):
             if product_bin.strip().lower() in ["", " ", "back"]:
                 continue
             label_data = ["", "Bin: ", product_bin]
-            label = self.env["printnode.interface"].generate_label(label_data, barcode=product_bin)
+            label = self.env["printnode.interface"].generate_label(
+                label_data, barcode=product_bin
+            )
             self.env["printnode.interface"].print_label(label)
 
-    def print_product_labels(self, print_quantity=False):
+    def print_product_labels(self, print_quantity: bool = False) -> None:
         labels = []
         for record in self:
             label_data = [
@@ -38,7 +39,10 @@ class ProductLabelsMixin(models.AbstractModel):
             ]
             quantity = record.quantity if print_quantity and record.quantity > 0 else 1
             label = record.env["printnode.interface"].generate_label(
-                label_data, bottom_text=self.wrap_text(record.name, 50), barcode=record.default_code, quantity=quantity
+                label_data,
+                bottom_text=self.wrap_text(record.name, 50),
+                barcode=record.default_code,
+                quantity=quantity,
             )
             labels.append(label)
         combined_label_base64 = self.env["printnode.interface"].combine_labels(labels)
