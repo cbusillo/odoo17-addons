@@ -42,7 +42,7 @@ class ProductTemplate(models.Model, ProductLabelsMixin):
     @api.constrains("default_code")
     def _check_default_code(self) -> None:
         for record in self:
-            if not re.match(r"^\d{4,8}$", record.default_code):
+            if not re.match(r"^\d{4,8}$", str(record.default_code)):
                 raise ValidationError(_("SKU must be 4-8 digits."))
 
             duplicate_count = self.search_count(
