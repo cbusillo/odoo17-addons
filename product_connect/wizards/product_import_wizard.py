@@ -7,13 +7,19 @@ class ProductImportWizard(models.TransientModel):
 
     total_cost = fields.Float(required=True)
 
-    def apply_cost(self):
+    def apply_cost(self) -> dict[str, str]:
         products = self.env["product.import"].search([])
         total_price = sum(record.price * record.quantity for record in products)
 
         for product in products:
-            cost_proportion = (product.price * product.quantity) / total_price if total_price else 0
-            product.cost = (cost_proportion * self.total_cost) / product.quantity if product.quantity else 0
+            cost_proportion = (
+                (product.price * product.quantity) / total_price if total_price else 0
+            )
+            product.cost = (
+                (cost_proportion * self.total_cost) / product.quantity
+                if product.quantity
+                else 0
+            )
         return {
             "type": "ir.actions.act_window",
             "res_model": "product.import",

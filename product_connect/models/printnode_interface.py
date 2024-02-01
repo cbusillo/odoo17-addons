@@ -5,13 +5,14 @@ import logging
 from printnodeapi import Gateway
 from printnodeapi.model import Printer
 from simple_zpl2 import ZPLDocument
-from odoo import models, api, fields, _
-from odoo.exceptions import UserError
+
+from odoo import _, api, fields, models
+from ..mixins.notification_manager import NotificationManagerMixin
 
 logger = logging.getLogger(__name__)
 
 
-class PrintNodeInterface(models.Model):
+class PrintNodeInterface(NotificationManagerMixin, models.Model):
     _name = "printnode.interface"
     _description = "PrintNode Interface"
     _sql_constraints = [
@@ -45,14 +46,16 @@ class PrintNodeInterface(models.Model):
     def get_gateway(self) -> Gateway:
         api_key = self.env["ir.config_parameter"].sudo().get_param("printnode.api_key")
         if not api_key:
-            raise UserError(_("No PrintNode API key found"))
+            message = _("No PrintNode API key found")
+            self.notify_channel_on_error("PrintNode Error", message)
         return Gateway(apikey=api_key)
 
     def get_printers(self) -> list[Printer]:
         gateway = self.get_gateway()
         printers = gateway.printers()
         if not printers:
-            raise UserError(_("No printers found on PrintNode"))
+            message = _("No printers found on PrintNode")
+            self.notify_channel_on_error("PrintNode Error", message)
         return printers
 
     def get_printer_tuple(self) -> list[tuple[int, str]]:

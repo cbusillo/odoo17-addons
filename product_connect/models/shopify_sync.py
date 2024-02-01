@@ -18,6 +18,8 @@ from requests.exceptions import RequestException
 from odoo import api, fields, models
 from odoo.tools import config
 
+from ..mixins.notification_manager import NotificationManagerMixin
+
 shopify_original_execute_function = shopify.GraphQL.execute
 MAX_RETRIES = 5
 MIN_SHOPIFY_REMAINING_API_POINTS = 500
@@ -120,7 +122,7 @@ def current_utc_time() -> datetime:
     return datetime.now(UTC)
 
 
-class ShopifySync(models.AbstractModel):
+class ShopifySync(NotificationManagerMixin, models.AbstractModel):
     _name = "shopify.sync"
     _description = "Shopify Sync"
 
@@ -164,12 +166,12 @@ class ShopifySync(models.AbstractModel):
 
     @api.model
     def sync_with_shopify(self) -> None:
-        original_config = self.set_temp_config()
+        original_config = self.set_temp_config()  # TODO: do I still need this?
 
         try:
             self.initialize_shopify_session()
             self.import_from_shopify()
-            self.export_to_shopify()
+            # self.export_to_shopify()  #TODO: uncomment this line when ready to export to shopify
         finally:
             self.reset_config(original_config)
 
@@ -303,7 +305,10 @@ class ShopifySync(models.AbstractModel):
                 status = self.create_or_update_odoo_product(shopify_product)
         except ValueError as error:
             self.notify_channel_on_error(
-                "Import from Shopify failed", str(error), record=odoo_product_product
+                "Import from Shopify failed",
+                str(error),
+                record=odoo_product_product,
+                memory_handler=memory_handler,
             )
             raise error
 
@@ -387,7 +392,7 @@ class ShopifySync(models.AbstractModel):
                 )
                 if total_count % self.COMMIT_AFTER == 0:
                     # Commit every 50 products to avoid re downloading all images if the import fails
-                    self.env.cr.commit()  # pylint: disable=invalid-commit
+                    self.env.cr.commit()
 
             if shopify_products:
                 cursor = shopify_products[-1].get("cursor")
@@ -753,6 +758,10 @@ class ShopifySync(models.AbstractModel):
                 )
 
             try:
+                raise ValueError(
+                    "Test error"
+                )  # TODO: remove this line (and next) when ready to export to shopify
+                # noinspection PyUnreachableCode
                 shopify_product_data = {
                     "title": odoo_product.name,
                     "bodyHtml": odoo_product.description_sale,
@@ -791,11 +800,11 @@ class ShopifySync(models.AbstractModel):
                     )
                 result_dict = self.parse_and_validate_shopify_response(result)
             except ValueError as error:
-                self.notify_channel(
+                self.notify_channel_on_error(
                     "Export from Shopify failed",
                     str(error),
                     record=odoo_product,
-                    channel_name="shopify_sync",
+                    memory_handler=memory_handler,
                 )
                 raise error
 
@@ -943,54 +952,3 @@ class ShopifySync(models.AbstractModel):
             date_filter,
         )
         return products_with_no_sales
-
-    def notify_channel(
-        self,
-        subject: str,
-        body: str,
-        channel_name: str,
-        record: models.Model | None = None,
-        env=None,
-    ):
-        env = env or self.env
-        channel = env["mail.channel"].search([("name", "=", channel_name)], limit=1)
-        if not channel:
-            channel = env["mail.channel"].create({"name": channel_name})
-        if channel_name == "error":
-            body += "\n\nRecent logs:\n"
-            body += "\n".join(memory_handler.logs)
-
-        logger.debug(
-            "Sending message to channel %s with message %s for record %s",
-            channel,
-            body,
-            record,
-        )
-
-        if record:
-            message = record.message_post(
-                body=body,
-                subject=subject,
-            )
-            channel.message_post_with_view(
-                message.id,
-                values={"subject": subject, "body": body},
-                author_id=self.env.user.partner_id.id,
-                message_type="comment",
-                subtype_id=self.env.ref("mail.mt_comment").id,
-            )
-        else:
-            channel.message_post(
-                body=body, subject=subject, author_id=self.env.user.partner_id.id
-            )
-
-    def notify_channel_on_error(
-        self, subject: str, body: str, record: models.Model | None = None
-    ):
-        new_cr = self.env.registry.cursor()
-        try:
-            new_env = api.Environment(new_cr, self.env.uid, self.env.context)
-            self.notify_channel(subject, body, "errors", record, new_env)
-            new_cr.commit()
-        finally:
-            new_cr.close()

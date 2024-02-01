@@ -1,63 +1,63 @@
 import base64
 import logging
 import io
-from typing import Self
+from typing import Any, TYPE_CHECKING
 
 import requests
 from PIL import Image
-from odoo import fields, models, api
+import odoo
 from odoo.exceptions import UserError
 from ..mixins.product_labels import ProductLabelsMixin
 
 _logger = logging.getLogger(__name__)
 
 
-class ProductType(models.Model):
+class ProductType(odoo.models.Model):
     _name = "product.type"
     _description = "Product Type"
     _sql_constraints = [
         ("name_uniq", "unique (name)", "Product Type name already exists !"),
     ]
 
-    name = fields.Char(required=True, index=True)
+    name = odoo.fields.Char(required=True, index=True)
 
 
-class ProductImportImage(models.Model):
+class ProductImportImage(odoo.models.Model):
     _name = "product.import.image"
     _description = "Product Import Image"
     _order = "index"
 
-    image_data = fields.Image(max_width=1920, max_height=1920)
-    index = fields.Integer()
-    product_id = fields.Many2one("product.import", ondelete="cascade")
+    image_data = odoo.fields.Image(max_width=1920, max_height=1920)
+    index = odoo.fields.Integer()
+    product_id = odoo.fields.Many2one("product.import", ondelete="cascade")
 
 
-class ProductImport(models.Model, ProductLabelsMixin):
+class ProductImport(ProductLabelsMixin, odoo.models.Model):
     _name = "product.import"
     _description = "Product Import"
     _sql_constraints = [
         ("default_code_uniq", "unique (default_code)", "SKU already exists !"),
     ]
 
-    default_code = fields.Char(
+    default_code = odoo.fields.Char(
         string="SKU", required=True, copy=False, index=True, default=lambda self: "New"
     )
-    mpn = fields.Char(string="MPN", index=True)
-    manufacturer = fields.Many2one("product.manufacturer", index=True)
-    manufacturer_barcode = fields.Char(index=True)
-    quantity = fields.Integer()
-    bin = fields.Char(index=True)
-    lot_number = fields.Char(index=True)
-    name = fields.Char(index=True)
-    description = fields.Char()
-    product_type = fields.Many2one("product.type", index=True)
-    weight = fields.Float()
-    price = fields.Float()
-    cost = fields.Float()
-    image_1_url = fields.Char(string="Image 1 URL")
-    image_upload = fields.Json()
-    image_ids = fields.One2many("product.import.image", "product_id")
-    condition = fields.Selection(
+    mpn = odoo.fields.Char(string="MPN", index=True)
+    manufacturer = odoo.fields.Many2one("product.manufacturer", index=True)
+    manufacturer_barcode = odoo.fields.Char(index=True)
+    quantity = odoo.fields.Integer()
+    bin = odoo.fields.Char(index=True)
+    lot_number = odoo.fields.Char(index=True)
+    name = odoo.fields.Char(index=True)
+    description = odoo.fields.Char()
+    product_type = odoo.fields.Many2one("product.type", index=True)
+    weight = odoo.fields.Float()
+    price = odoo.fields.Float()
+    cost = odoo.fields.Float()
+    image_1_url = odoo.fields.Char(string="Image 1 URL")
+    image_upload = odoo.fields.Json()
+    image_ids = odoo.fields.One2many("product.import.image", "product_id")
+    condition = odoo.fields.Selection(
         [
             ("used", "Used"),
             ("new", "New"),
@@ -67,7 +67,7 @@ class ProductImport(models.Model, ProductLabelsMixin):
         ],
         default="used",
     )
-    export_to_shopify = fields.Binary()
+    export_to_shopify = odoo.fields.Binary()
 
     def name_get(self) -> list[tuple[int, str]]:
         result = []
@@ -76,8 +76,8 @@ class ProductImport(models.Model, ProductLabelsMixin):
             result.append((record.id, name))
         return result
 
-    @api.model_create_multi
-    def create(self, vals_list: list[dict]) -> Self:
+    @odoo.api.model_create_multi
+    def create(self, vals_list: list[dict]) -> "ProductImport":
         product_template = self.env["product.template"]
         for vals in vals_list:
             if vals.get("default_code", "") == "New" or not vals.get("default_code"):
@@ -134,8 +134,8 @@ class ProductImport(models.Model, ProductLabelsMixin):
 
         return super().write(vals)
 
-    @api.model
-    def load(self, fields: list[str], data: list[list[str]]) -> Self:
+    @odoo.api.model
+    def load(self, fields: list[str], data: list[list[str]]) -> dict[str, Any]:
         for row in data:
             if "mpn" in fields:
                 idx = fields.index("mpn")
@@ -145,8 +145,8 @@ class ProductImport(models.Model, ProductLabelsMixin):
                 row[idx] = row[idx].upper()
         return super(ProductImport, self).load(fields, data)
 
-    @api.onchange("image_upload")
-    def _onchange_image_upload(self):
+    @odoo.api.onchange("image_upload")
+    def _onchange_image_upload(self) -> None:
         if self.image_upload:
             image = self.env["product.import.image"].create(
                 {
@@ -158,14 +158,14 @@ class ProductImport(models.Model, ProductLabelsMixin):
             self.image_ids |= image
             self.image_upload = False
 
-    @api.onchange("default_code", "condition", "bin", "quantity")
-    def _onchange_product_details(self):
+    @odoo.api.onchange("default_code", "condition", "bin", "quantity")
+    def _onchange_product_details(self) -> None:
         if self._origin.bin != self.bin and self.bin:
             if self.existing_bin() is False:
                 self.print_bin_labels()
 
-    @api.onchange("default_code", "mpn", "condition", "bin", "quantity")
-    def _onchange_product_details(self):
+    @odoo.api.onchange("default_code", "mpn", "condition", "bin", "quantity")
+    def _onchange_product_details(self) -> None:
         if self._origin.mpn != self.mpn or self._origin.condition != self.condition:
             existing_products = self.products_from_mpn_condition_new()
             if existing_products:
@@ -183,7 +183,7 @@ class ProductImport(models.Model, ProductLabelsMixin):
     def _products_from_existing_records(
         self, field_name: str, field_value: str
     ) -> list[dict[str, str]]:
-        is_new_record = isinstance(self.id, models.NewId)
+        is_new_record = isinstance(self.id, odoo.models.NewId)
         if is_new_record:
             product_imports = self.env["product.import"].search(
                 [(field_name, "=", field_value)]
@@ -237,7 +237,7 @@ class ProductImport(models.Model, ProductLabelsMixin):
                 return True
         return False
 
-    def open_record(self):
+    def open_record(self) -> dict[str, str | int]:
         self.ensure_one()
         return {
             "type": "ir.actions.act_window",
@@ -280,7 +280,7 @@ class ProductImport(models.Model, ProductLabelsMixin):
             )
         return False
 
-    def import_to_products(self):
+    def import_to_products(self) -> dict[str, str]:
         missing_data_records = self.filtered(
             lambda current_record: not current_record.default_code
             or not current_record.name
@@ -372,7 +372,7 @@ class ProductImport(models.Model, ProductLabelsMixin):
             record.unlink()
         return {"type": "ir.actions.client", "tag": "reload"}
 
-    def open_product_import_wizard(self):
+    def open_product_import_wizard(self) -> dict[str, str | dict[str, int]]:
         return {
             "name": "Calculate Costs",
             "type": "ir.actions.act_window",

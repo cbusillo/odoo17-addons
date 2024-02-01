@@ -1,7 +1,9 @@
 from odoo import models, fields
 
+from ..mixins.notification_manager import NotificationManagerMixin
 
-class ProductProduct(models.Model):
+
+class ProductProduct(NotificationManagerMixin, models.Model):
     _inherit = "product.product"
 
     shopify_product_id = fields.Char(copy=False)
@@ -12,7 +14,11 @@ class ProductProduct(models.Model):
     shopify_created_at = fields.Datetime()
 
     def update_quantity(self, quantity: float) -> None:
-        stock_location = self.env.ref("stock.stock_location_stock")
+        stock_location_ref = "stock.stock_location_stock"
+        if not self.env.ref(stock_location_ref, raise_if_not_found=False):
+            self.notify_channel_on_error("Stock Location Not Found", stock_location_ref)
+        stock_location = self.env.ref(stock_location_ref)
+
         for product in self:
             quant = self.env["stock.quant"].search(
                 [

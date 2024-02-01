@@ -1,18 +1,19 @@
+from typing import TYPE_CHECKING
+
 from odoo import models
+
+if TYPE_CHECKING:
+    from ..models.product_import import ProductImport
+    from ..models.product_template import ProductTemplate
 
 
 class ProductLabelsMixin(models.AbstractModel):
     _name = "product.labels.mixin"
     _description = "Product Labels Mixin"
 
-    bin = None
-    default_code = None
-    mpn = None
-    condition = None
-    quantity = None
-    name = None
-
     def print_bin_labels(self) -> None:
+        if TYPE_CHECKING:
+            assert isinstance(self, (ProductImport, ProductTemplate))
         unique_bins = list(set(self.mapped("bin")))
         unique_bins = [bin_location for bin_location in unique_bins if bin_location]
         unique_bins.sort()
@@ -30,6 +31,8 @@ class ProductLabelsMixin(models.AbstractModel):
     def print_product_labels(self, print_quantity: bool = False) -> None:
         labels = []
         for record in self:
+            if TYPE_CHECKING:
+                assert isinstance(record, (ProductImport, ProductTemplate))
             label_data = [
                 f"SKU: {record.default_code}",
                 "MPN: ",
@@ -37,7 +40,7 @@ class ProductLabelsMixin(models.AbstractModel):
                 f"Bin: {record.bin or '       '}",
                 record.condition.title() if record.condition else "",
             ]
-            quantity = record.quantity if print_quantity and record.quantity > 0 else 1
+            quantity = getattr(record, "quantity", 1) if print_quantity else 1
             label = record.env["printnode.interface"].generate_label(
                 label_data,
                 bottom_text=self.wrap_text(record.name, 50),

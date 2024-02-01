@@ -1,13 +1,13 @@
 <odoo>
     <!-- Product Import: Action -->
-    <record id= "action_product_import" model="ir.actions.act_window">
+    <record id="action_product_import" model="ir.actions.act_window">
         <field name="name">Product Import</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">product.import</field>
         <field name="view_mode">tree</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-            No records yet.
+                No records yet.
             </p>
         </field>
     </record>
@@ -36,12 +36,25 @@
         </field>
     </record>
 
+    <!-- Product Import: Server Action: Start Shopify Sync -->
+    <record id="server_action_product_import_start_shopify_sync" model="ir.actions.server">
+        <field name="name">Start Shopify Sync</field>
+        <field name="model_id" ref="model_product_import"/>
+        <field name="binding_model_id" ref="model_product_import"/>
+        <field name="binding_type">action</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = env["shopify.sync"].sync_with_shopify()
+        </field>
+    </record>
+
     <!-- Product Import: List View -->
     <record id="view_product_import_tree" model="ir.ui.view">
         <field name="name">product.import.tree</field>
         <field name="model">product.import</field>
         <field name="arch" type="xml">
-            <tree string="Product Import" editable="bottom" multi_edit="1" decoration-danger="not name or not price or price == 0 or not cost or cost == 0">
+            <tree string="Product Import" editable="bottom" multi_edit="1"
+                  decoration-danger="not name or not price or price == 0 or not cost or cost == 0">
                 <header>
                     <button string="Import" type="object" name="import_to_products"/>
                 </header>
@@ -118,5 +131,8 @@
 
     <menuitem id="menu_subheader_product_import" name="Product Import" parent="stock.menu_stock_inventory_control"/>
     <menuitem id="menu_product_import" name="Product Import" action="action_product_import" parent="menu_subheader_product_import"/>
+    <menuitem id="menu_product_import_start_shopify_sync" name="Start Shopify Sync"
+              action="server_action_product_import_start_shopify_sync" parent="menu_subheader_product_import"/>
+
 </odoo>
 

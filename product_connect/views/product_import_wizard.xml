@@ -23,7 +23,8 @@
         <field name="target">new</field>
     </record>
 
-    <menuitem name="Input Total Cost" id="menu_action_open_product_import_wizard" parent="menu_subheader_product_import" action="action_open_product_import_wizard"/>
+    <menuitem name="Input Total Cost" id="menu_action_open_product_import_wizard" parent="menu_subheader_product_import"
+              action="action_open_product_import_wizard"/>
 
 
 </odoo>

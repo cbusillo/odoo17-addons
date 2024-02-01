@@ -11,6 +11,3 @@ from . import (
 
 # noinspection PyUnresolvedReferences
 from . import shopify_sync
-
-# noinspection PyUnresolvedReferences
-from . import res_company, res_config_settings

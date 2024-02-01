@@ -36,11 +36,11 @@ class ProductTemplate(models.Model, ProductLabelsMixin):
         store=True,
     )
 
-    def is_condition_valid(self, shopify_condition):
+    def is_condition_valid(self, shopify_condition) -> bool:
         return shopify_condition in dict(self._fields["condition"].selection)
 
     @api.constrains("default_code")
-    def _check_default_code(self):
+    def _check_default_code(self) -> None:
         for record in self:
             if not re.match(r"^\d{4,8}$", record.default_code):
                 raise ValidationError(_("SKU must be 4-8 digits."))
@@ -52,14 +52,14 @@ class ProductTemplate(models.Model, ProductLabelsMixin):
                 raise ValidationError(_("SKU must be unique."))
 
     @api.depends("product_template_image_ids")
-    def _compute_image_1920(self):
+    def _compute_image_1920(self) -> None:
         for record in self:
             if record.product_template_image_ids:
                 record.image_1920 = record.product_template_image_ids[0].image_1920
             else:
                 record.image_1920 = False
 
-    def _inverse_image_1920(self):
+    def _inverse_image_1920(self) -> None:
         for record in self:
             if record.product_template_image_ids:
                 record.product_template_image_ids[0].write(

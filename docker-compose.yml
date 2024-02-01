@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web:
+    depends_on:
+      - db
+    build: .
+    ports:
+      - "8069:8069"
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ../odoo.dev.cfg:/etc/odoo/odoo.conf
+      - .:/mnt/extra-addons
+      - ./entrypoint.sh:/entrypoint.sh
+
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_DB=odoo
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data
+
+volumes:
+  odoo-web-data:
+  odoo-db-data:
