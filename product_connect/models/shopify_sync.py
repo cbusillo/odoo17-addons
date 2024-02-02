@@ -128,7 +128,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
     MAX_SHOPIFY_PRODUCTS_PER_FETCH = 5
     COMMIT_AFTER = 50
-    RESOURCE_LIMIT_MULTIPLIER = 20
+    RESOURCE_LIMIT_MULTIPLIER = 200
     DEFAULT_DATETIME = datetime(2000, 1, 1, tzinfo=UTC)
     CONFIG_KEYS = [
         "limit_time_real",
@@ -172,6 +172,13 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
             self.initialize_shopify_session()
             self.import_from_shopify()
             # self.export_to_shopify()  #TODO: uncomment this line when ready to export to shopify
+        except Exception as error:
+            self.notify_channel_on_error(
+                "Shopify sync failed",
+                str(error),
+                memory_handler=memory_handler,
+            )
+            raise error
         finally:
             self.reset_config(original_config)
 
