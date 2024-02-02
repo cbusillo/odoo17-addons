@@ -16,7 +16,6 @@ from dateutil.parser import parse
 from requests.exceptions import RequestException
 
 from odoo import api, fields, models
-from odoo.tools import config
 
 from ..mixins.notification_manager import NotificationManagerMixin
 
@@ -128,15 +127,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
     MAX_SHOPIFY_PRODUCTS_PER_FETCH = 5
     COMMIT_AFTER = 50
-    RESOURCE_LIMIT_MULTIPLIER = 200
     DEFAULT_DATETIME = datetime(2000, 1, 1, tzinfo=UTC)
-    CONFIG_KEYS = [
-        "limit_time_real",
-        "limit_time_cpu",
-        "limit_time_real_cron",
-        "limit_memory_hard",
-        "limit_memory_soft",
-    ]
     ONLINE_STORE_ID = 19453116480
     POINT_OF_SALE_ID = 42683596853
     GOOGLE_ID = 88268636213
@@ -150,24 +141,8 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         formatted_time = current_time.strftime("%Y-%m-%d %I:%M:%S %p")
         return formatted_time
 
-    def set_temp_config(self) -> dict[str, Any]:
-        """Set temporary configuration values for the Odoo instance."""
-        original_values = {key: config[key] for key in self.CONFIG_KEYS}
-
-        for key in self.CONFIG_KEYS:
-            config[key] = original_values[key] * self.RESOURCE_LIMIT_MULTIPLIER
-
-        return original_values
-
-    def reset_config(self, original_config: dict[str, Any]) -> None:
-        """Reset the configuration values of the Odoo instance to their original state."""
-        for key in self.CONFIG_KEYS:
-            config[key] = original_config[key]
-
     @api.model
     def sync_with_shopify(self) -> None:
-        original_config = self.set_temp_config()  # TODO: do I still need this?
-
         try:
             self.initialize_shopify_session()
             self.import_from_shopify()
@@ -179,8 +154,6 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 memory_handler=memory_handler,
             )
             raise error
-        finally:
-            self.reset_config(original_config)
 
     @api.model
     def initialize_shopify_session(self) -> None:
