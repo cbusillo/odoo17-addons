@@ -30,7 +30,7 @@ db_registry = odoo.modules.registry.Registry(odoo.tools.config['db_name'])
 with db_registry.cursor() as cr:
     env = api.Environment(cr, SUPERUSER_ID, {})
     env['ir.config_parameter'].sudo().set_param('shopify.api_token', config.get('shopify_api_token'))
-    env['ir.config_parameter'].sudo().set_param('shopify.shop_url', config.get('shopify_url'))
+    env['ir.config_parameter'].sudo().set_param('shopify.shop_url', config.get('shopify_shop_url'))
     admin_user = config.get('default_admin_user')
     admin_password = config.get('default_admin_passwd')
 
