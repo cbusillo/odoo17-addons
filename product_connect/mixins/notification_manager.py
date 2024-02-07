@@ -77,6 +77,10 @@ class NotificationManagerMixin(models.AbstractModel):
             "subject": subject,
             "body_html": f"<div>{body}</div>",
             "recipient_ids": [(4, recipient_partner.id)],
+            "email_from": self.env["ir.mail_server"]
+            .sudo()
+            .search([], limit=1)
+            .smtp_user,
         }
-        mail = self.env["mail.mail"].create(mail_values)
+        mail = self.env["mail.mail"].sudo().create(mail_values)
         mail.send()
