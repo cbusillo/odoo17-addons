@@ -146,7 +146,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         try:
             self.initialize_shopify_session()
             self.import_from_shopify()
-            # self.export_to_shopify()  #TODO: uncomment this line when ready to export to shopify
+            self.export_to_shopify()  # TODO: uncomment this line when ready to export to shopify
         except Exception as error:
             self.notify_channel_on_error(
                 "Shopify sync failed",
@@ -738,10 +738,6 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 )
 
             try:
-                raise ValueError(
-                    "Test error"
-                )  # TODO: remove this line (and next) when ready to export to shopify
-                # noinspection PyUnreachableCode
                 shopify_product_data = {
                     "title": odoo_product.name,
                     "bodyHtml": odoo_product.description_sale,
