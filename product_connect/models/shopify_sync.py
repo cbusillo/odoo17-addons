@@ -381,14 +381,8 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 has_more_data = False
 
         self.finalize_import_and_commit_changes(current_import_start_time)
-        logger.info(
-            "Finished processing %s products out of %s products retrieved from Shopify.",
-            updated_count,
-            total_count,
-        )
-        if updated_count > 0:
-            message = f"Shopify imported {updated_count} items successfully at {self.now_in_localtime_formatted()}"
-            self.notify_channel("Shopify sync", message, "shopify_sync")
+        message = f"Shopify imported {updated_count} out of {total_count} items successfully at {self.now_in_localtime_formatted()}"
+        self.notify_channel("Shopify sync", message, "shopify_sync")
 
     def parse_shopify_product_data(self, product) -> dict[str, Any]:
         product_variant = (
@@ -838,10 +832,8 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
             )
             if total_count % self.COMMIT_AFTER == 0:
                 self.env.cr.commit()
-        logger.info("Finished processing %s products sent to Shopify.", total_count)
-        if total_count > 0:
-            message = f"Shopify exported {total_count} items sucessfully at {self.now_in_localtime_formatted()}"
-            self.notify_channel("Shopify sync", message, "shopify_sync")
+        message = f"Shopify exported {total_count} items sucessfully at {self.now_in_localtime_formatted()}"
+        self.notify_channel("Shopify sync", message, "shopify_sync")
 
     def get_orders_since_date(self, last_import_date_str) -> Generator[Any, Any, None]:
         cursor, has_more_data = None, True
