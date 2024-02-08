@@ -63,7 +63,7 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
         return [(printer.id, printer.name) for printer in printers]
 
     @api.model
-    def print_label(self, label: base64, quantity: int = 1):
+    def print_label(self, label_base64: str, quantity: int = 1):
         gateway = self.get_gateway()
         user = self.env["printnode.interface"].search(
             [("user_id", "=", self.env.user.id)], limit=1
@@ -80,21 +80,21 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
                 job_type="raw",
                 title="Odoo Product Label",
                 options={"copies": quantity},
-                base64=label,
+                base64=label_base64,
             )
         except LookupError as error:
             logger.exception(f"Error printing label: {error}")
         finally:
             return print_job
 
-    def generate_label(
+    def generate_label_base64(
         self,
         text: list[str] | str,
         bottom_text: str | list[str] | None = None,
         barcode: str | None = None,
         quantity: int = 1,
         print_date: bool = True,
-    ) -> base64:
+    ) -> str:
         if not isinstance(text, list):
             text = [text]
 

@@ -23,7 +23,7 @@ class ProductLabelsMixin(models.AbstractModel):
             if product_bin.strip().lower() in ["", " ", "back"]:
                 continue
             label_data = ["", "Bin: ", product_bin]
-            label = self.env["printnode.interface"].generate_label(
+            label = self.env["printnode.interface"].generate_label_base64(
                 label_data, barcode=product_bin
             )
             self.env["printnode.interface"].print_label(label)
@@ -41,7 +41,7 @@ class ProductLabelsMixin(models.AbstractModel):
                 record.condition.title() if record.condition else "",
             ]
             quantity = getattr(record, "quantity", 1) if print_quantity else 1
-            label = record.env["printnode.interface"].generate_label(
+            label = record.env["printnode.interface"].generate_label_base64(
                 label_data,
                 bottom_text=self.wrap_text(record.name, 50),
                 barcode=record.default_code,
