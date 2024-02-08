@@ -1,7 +1,7 @@
 import base64
 import logging
 import io
-from typing import Any, TYPE_CHECKING
+from typing import Any
 
 import requests
 from PIL import Image

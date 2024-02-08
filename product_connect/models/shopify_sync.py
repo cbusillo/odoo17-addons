@@ -16,7 +16,6 @@ from dateutil.parser import parse
 from requests.exceptions import RequestException
 
 from odoo import api, fields, models
-from odoo.tools import config
 
 from ..mixins.notification_manager import NotificationManagerMixin
 
@@ -128,15 +127,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
     MAX_SHOPIFY_PRODUCTS_PER_FETCH = 5
     COMMIT_AFTER = 50
-    RESOURCE_LIMIT_MULTIPLIER = 20
     DEFAULT_DATETIME = datetime(2000, 1, 1, tzinfo=UTC)
-    CONFIG_KEYS = [
-        "limit_time_real",
-        "limit_time_cpu",
-        "limit_time_real_cron",
-        "limit_memory_hard",
-        "limit_memory_soft",
-    ]
     ONLINE_STORE_ID = 19453116480
     POINT_OF_SALE_ID = 42683596853
     GOOGLE_ID = 88268636213
@@ -150,30 +141,19 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         formatted_time = current_time.strftime("%Y-%m-%d %I:%M:%S %p")
         return formatted_time
 
-    def set_temp_config(self) -> dict[str, Any]:
-        """Set temporary configuration values for the Odoo instance."""
-        original_values = {key: config[key] for key in self.CONFIG_KEYS}
-
-        for key in self.CONFIG_KEYS:
-            config[key] = original_values[key] * self.RESOURCE_LIMIT_MULTIPLIER
-
-        return original_values
-
-    def reset_config(self, original_config: dict[str, Any]) -> None:
-        """Reset the configuration values of the Odoo instance to their original state."""
-        for key in self.CONFIG_KEYS:
-            config[key] = original_config[key]
-
     @api.model
     def sync_with_shopify(self) -> None:
-        original_config = self.set_temp_config()  # TODO: do I still need this?
-
         try:
             self.initialize_shopify_session()
             self.import_from_shopify()
-            # self.export_to_shopify()  #TODO: uncomment this line when ready to export to shopify
-        finally:
-            self.reset_config(original_config)
+            self.export_to_shopify()  # TODO: uncomment this line when ready to export to shopify
+        except Exception as error:
+            self.notify_channel_on_error(
+                "Shopify sync failed",
+                str(error),
+                memory_handler=memory_handler,
+            )
+            raise error
 
     @api.model
     def initialize_shopify_session(self) -> None:
@@ -401,14 +381,8 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 has_more_data = False
 
         self.finalize_import_and_commit_changes(current_import_start_time)
-        logger.info(
-            "Finished processing %s products out of %s products retrieved from Shopify.",
-            updated_count,
-            total_count,
-        )
-        if updated_count > 0:
-            message = f"Shopify imported {updated_count} items successfully at {self.now_in_localtime_formatted()}"
-            self.notify_channel("Shopify sync", message, "shopify_sync")
+        message = f"Shopify imported {updated_count} out of {total_count} items successfully at {self.now_in_localtime_formatted()}"
+        self.notify_channel("Shopify sync", message, "shopify_sync")
 
     def parse_shopify_product_data(self, product) -> dict[str, Any]:
         product_variant = (
@@ -758,10 +732,6 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 )
 
             try:
-                raise ValueError(
-                    "Test error"
-                )  # TODO: remove this line (and next) when ready to export to shopify
-                # noinspection PyUnreachableCode
                 shopify_product_data = {
                     "title": odoo_product.name,
                     "bodyHtml": odoo_product.description_sale,
@@ -862,10 +832,8 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
             )
             if total_count % self.COMMIT_AFTER == 0:
                 self.env.cr.commit()
-        logger.info("Finished processing %s products sent to Shopify.", total_count)
-        if total_count > 0:
-            message = f"Shopify exported {total_count} items sucessfully at {self.now_in_localtime_formatted()}"
-            self.notify_channel("Shopify sync", message, "shopify_sync")
+        message = f"Shopify exported {total_count} items sucessfully at {self.now_in_localtime_formatted()}"
+        self.notify_channel("Shopify sync", message, "shopify_sync")
 
     def get_orders_since_date(self, last_import_date_str) -> Generator[Any, Any, None]:
         cursor, has_more_data = None, True
