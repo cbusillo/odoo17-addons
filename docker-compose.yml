@@ -2,17 +2,19 @@ version: '3.8'
 
 services:
   web:
+    environment:
+      - ODOO_DEBUG=true 
     depends_on:
       - db
     build: .
     ports:
       - "8069:8069"
+      - "5678:5678"
     volumes:
-      - odoo-web-data:/var/lib/odoo
-      - ../odoo.dev.cfg:/etc/odoo/odoo.conf
+      - odoo-web-data:/mnt/filestore
+      - ./odoo.dev.cfg:/etc/odoo/odoo.conf
       - .:/mnt/extra-addons
       - ./entrypoint.sh:/entrypoint.sh
-
   db:
     image: postgres:16
     environment:
@@ -25,3 +27,4 @@ services:
 volumes:
   odoo-web-data:
   odoo-db-data:
+

@@ -1,4 +1,3 @@
 printnodeapi==0.2.0
 simple_zpl2==0.3.0
 shopifyapi==12.3.0
-pydevd-odoo==1.2.1

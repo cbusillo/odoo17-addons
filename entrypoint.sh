@@ -7,7 +7,7 @@ until pg_isready -h db -U odoo; do
 done
 
 
-INIT_FILE="/var/lib/odoo/init_done.flag"
+INIT_FILE="/mnt/filestore/init_done.flag"
 
 # Check if initialization has already been done
 if [ ! -f "$INIT_FILE" ]; then
@@ -18,10 +18,10 @@ if [ ! -f "$INIT_FILE" ]; then
     done
 
     # Run Odoo to initialize the database if needed and start the server
-    odoo --stop-after-init -i product_connect
+    /opt/odoo/odoo17/odoo-bin --stop-after-init -i product_connect
 
     # Set system parameters using odoo shell
-    odoo shell -d odoo --no-http -c /etc/odoo/odoo.conf <<EOF
+    /opt/odoo/odoo17/odoo-bin shell -d odoo --no-http -c /etc/odoo/odoo.conf <<EOF
 from passlib.context import CryptContext
 from odoo import api, SUPERUSER_ID
 from odoo.tools import config
@@ -49,5 +49,31 @@ EOF
     touch "$INIT_FILE"
 fi
 
-# Start Odoo normally
-exec "$@"
+start_odoo() {
+    if [ $# -eq 0 ]; then
+        echo "Starting Odoo in normal mode..."
+        exec /opt/odoo/odoo17/odoo-bin -c /etc/odoo/odoo.conf
+    else
+        echo "Executing command: $@"
+        exec "$@"
+    fi
+}
+
+# Function to start Odoo in debug mode
+start_odoo_debug() {
+    if [ $# -eq 0 ]; then
+        echo "Starting Odoo in debug mode..."
+        exec python -m debugpy --listen 0.0.0.0:5678 --wait-for-client /opt/odoo/odoo17/odoo-bin -c /etc/odoo/odoo.conf --dev=all
+    else
+        echo "Starting Odoo in debug mode with additional arguments: $@"
+        # Modify or add the logic here to handle arguments appropriately in debug mode
+        exec python -m debugpy --listen 0.0.0.0:5678 --wait-for-client "$@" --dev=all
+    fi
+}
+
+# Decide whether to start in debug mode or normal mode based on ODOO_DEBUG flag
+if [ "$ODOO_DEBUG" = "true" ]; then
+    start_odoo_debug "$@"
+else
+    start_odoo "$@"
+fi
