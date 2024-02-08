@@ -158,12 +158,6 @@ class ProductImport(ProductLabelsMixin, odoo.models.Model):
             self.image_ids |= image
             self.image_upload = False
 
-    @odoo.api.onchange("default_code", "condition", "bin", "quantity")
-    def _onchange_product_details(self) -> None:
-        if self._origin.bin != self.bin and self.bin:
-            if self.existing_bin() is False:
-                self.print_bin_labels()
-
     @odoo.api.onchange("default_code", "mpn", "condition", "bin", "quantity")
     def _onchange_product_details(self) -> None:
         if self._origin.mpn != self.mpn or self._origin.condition != self.condition:
@@ -218,7 +212,7 @@ class ProductImport(ProductLabelsMixin, odoo.models.Model):
 
         return list(existing_products.values())
 
-    def products_from_mpn_condition_new(self) -> [str]:
+    def products_from_mpn_condition_new(self) -> list[str]:
         if self.mpn and self.condition == "new":
             existing_products = self._products_from_existing_records("mpn", self.mpn)
             existing_new_products = [
