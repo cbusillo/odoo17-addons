@@ -18,15 +18,15 @@ class NotificationManagerMixin(models.AbstractModel):
         channel_name: str,
         record: models.Model | None = None,
         env: api.Environment | None = None,
-        memory_handler: MemoryHandler | None = None,
+        logs: list[str] | None = None,
     ):
         env = env or self.env
         channel = env["discuss.channel"].search([("name", "=", channel_name)], limit=1)
         if not channel:
             channel = env["discuss.channel"].create({"name": channel_name})
-        if hasattr(memory_handler, "logs"):
+        if logs:
             body += "\n\nRecent logs:\n"
-            body += "\n".join(memory_handler.logs)
+            body += "\n".join(logs)
 
         logger.debug(
             "Sending message to channel %s with message %s for record %s",
@@ -47,13 +47,13 @@ class NotificationManagerMixin(models.AbstractModel):
         subject: str,
         body: str,
         record: models.Model | None = None,
-        memory_handler: MemoryHandler | None = None,
+        logs: list[str] | None = None,
     ):
         new_cr = self.env.registry.cursor()
         try:
             new_env = api.Environment(new_cr, self.env.uid, self.env.context)
             self.notify_channel(
-                subject, body, "errors", record, new_env, memory_handler
+                subject, body, "errors", record, new_env, logs
             )
             new_cr.commit()
         finally:

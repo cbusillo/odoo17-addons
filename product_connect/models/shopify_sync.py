@@ -308,7 +308,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 "Import from Shopify failed",
                 str(error),
                 record=odoo_product_product,
-                memory_handler=memory_handler,
+                logs=memory_handler.logs,
             )
             raise error
 
@@ -804,7 +804,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                     "Export from Shopify failed",
                     str(error),
                     record=odoo_product,
-                    memory_handler=memory_handler,
+                    logs=memory_handler,
                 )
                 raise error
 
