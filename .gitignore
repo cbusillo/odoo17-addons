@@ -188,3 +188,4 @@ cython_debug/
 #.idea/
 
 odoo.*.cfg
+init_done.flag

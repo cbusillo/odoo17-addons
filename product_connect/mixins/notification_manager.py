@@ -1,5 +1,3 @@
-from logging.handlers import MemoryHandler
-
 import logging
 
 from odoo import api, models

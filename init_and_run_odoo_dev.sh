@@ -1,27 +1,25 @@
 #!/bin/bash
 set -e
 
-# Wait for Odoo to start up
-until pg_isready -h db -U odoo; do
+INIT_FILE="init_done.flag"
+ODOO_CONFIG_FILE="odoo.dev.cfg"
+ODOO_DB_SERVER="localhost"
+ODOO_USER="odoo"
+ODOO_BIN="../odoo/odoo-bin"
+ODOO_RUN="$ODOO_BIN -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
+ODOO_SHELL="$ODOO_BIN shell -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
+
+until pg_isready -h "$ODOO_DB_SERVER" -U "$ODOO_USER"; do
   sleep 1
 done
 
-
-INIT_FILE="/mnt/filestore/init_done.flag"
-
-# Check if initialization has already been done
 if [ ! -f "$INIT_FILE" ]; then
+    dropdb -U odoo odoo
+    createdb -U odoo odoo
+    rm -rf ../filestore
 
-    # Wait for Odoo to start up
-    until pg_isready -h db -U odoo; do
-      sleep 1
-    done
-
-    # Run Odoo to initialize the database if needed and start the server
-    /opt/odoo/odoo17/odoo-bin --stop-after-init -i product_connect
-
-    # Set system parameters using odoo shell
-    /opt/odoo/odoo17/odoo-bin shell -d odoo --no-http -c /etc/odoo/odoo.conf <<EOF
+    $ODOO_RUN --stop-after-init -i product_connect
+    $ODOO_SHELL --no-http <<EOF
 from passlib.context import CryptContext
 from odoo import api, SUPERUSER_ID
 from odoo.tools import config
@@ -44,34 +42,29 @@ with db_registry.cursor() as cr:
 
     cr.commit()
 EOF
-
-    # Mark initialization as done
     touch "$INIT_FILE"
 fi
 
 start_odoo() {
     if [ $# -eq 0 ]; then
         echo "Starting Odoo in normal mode..."
-        exec /opt/odoo/odoo17/odoo-bin -c /etc/odoo/odoo.conf
+        eval exec "$ODOO_RUN"
     else
-        echo "Executing command: $@"
-        exec "$@"
+        echo "Executing command: $ODOO_RUN $@"
+        eval exec "$ODOO_RUN '$@'"
     fi
 }
 
-# Function to start Odoo in debug mode
 start_odoo_debug() {
     if [ $# -eq 0 ]; then
         echo "Starting Odoo in debug mode..."
-        exec python -m debugpy --listen 0.0.0.0:5678 --wait-for-client /opt/odoo/odoo17/odoo-bin -c /etc/odoo/odoo.conf --dev=all
+        exec python -m debugpy --listen 0.0.0.0:5678 --wait-for-client "$ODOO_RUN" --dev=all
     else
-        echo "Starting Odoo in debug mode with additional arguments: $@"
-        # Modify or add the logic here to handle arguments appropriately in debug mode
-        exec python -m debugpy --listen 0.0.0.0:5678 --wait-for-client "$@" --dev=all
+        echo "Starting Odoo in debug mode with additional arguments: $ODOO_RUN $@"
+        exec python -m debugpy --listen 0.0.0.0:5678 --wait-for-client "$ODOO_RUN '$@'" --dev=all
     fi
 }
 
-# Decide whether to start in debug mode or normal mode based on ODOO_DEBUG flag
 if [ "$ODOO_DEBUG" = "true" ]; then
     start_odoo_debug "$@"
 else
