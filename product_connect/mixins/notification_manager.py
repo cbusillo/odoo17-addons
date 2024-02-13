@@ -52,19 +52,17 @@ class NotificationManagerMixin(models.AbstractModel):
         new_cr = self.env.registry.cursor()
         try:
             new_env = api.Environment(new_cr, self.env.uid, self.env.context)
-            self.notify_channel(
-                subject, body, "errors", record, new_env, logs
-            )
+            self.notify_channel(subject, body, "errors", record, new_env, logs)
             self.send_email_notification_to_admin(subject, body)
             new_cr.commit()
         finally:
             new_cr.close()
 
     def send_email_notification_to_admin(self, subject: str, body: str) -> None:
-        recipient_partner = self.env["res.partner"].search(
-            [("email", "=", self.ADMIN_EMAIL)], limit=1
+        recipient_user = self.env["res.users"].search(
+            [("login", "=", self.ADMIN_EMAIL)], limit=1
         )
-        if not recipient_partner:
+        if not recipient_user:
             logger.error(
                 "Recipient email %s not found among partners.", self.ADMIN_EMAIL
             )
@@ -74,7 +72,7 @@ class NotificationManagerMixin(models.AbstractModel):
         mail_values = {
             "subject": subject,
             "body_html": f"<div>{body}</div>",
-            "recipient_ids": [(4, recipient_partner.id)],
+            "recipient_ids": [(4, recipient_user.id)],
             "email_from": self.env["ir.mail_server"]
             .sudo()
             .search([], limit=1)
