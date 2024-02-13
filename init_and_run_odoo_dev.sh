@@ -9,14 +9,20 @@ ODOO_BIN="../odoo/odoo-bin"
 ODOO_RUN="$ODOO_BIN -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
 ODOO_SHELL="$ODOO_BIN shell -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
 
-until pg_isready -h "$ODOO_DB_SERVER" -U "$ODOO_USER"; do
+wait_for_db() {
+  until pg_isready -h "$ODOO_DB_SERVER" -U "$ODOO_USER"; do
   sleep 1
 done
+}
+
+wait_for_db
 
 if [ ! -f "$INIT_FILE" ]; then
+    brew services restart postgresql@16
+    wait_for_db
     dropdb -U odoo odoo
     createdb -U odoo odoo
-    rm -rf ../filestore
+    sudo rm -rf ../filestore
 
     $ODOO_RUN --stop-after-init -i product_connect
     $ODOO_SHELL --no-http <<EOF
@@ -45,25 +51,31 @@ EOF
     touch "$INIT_FILE"
 fi
 
+
+
 start_odoo() {
     if [ $# -eq 0 ]; then
         echo "Starting Odoo in normal mode..."
         eval exec "$ODOO_RUN"
     else
-        echo "Executing command: $ODOO_RUN $@"
-        eval exec "$ODOO_RUN '$@'"
+        echo "Executing command: $ODOO_RUN" "$@"
+        eval exec "$ODOO_RUN" "$@"
     fi
 }
 
 start_odoo_debug() {
     if [ $# -eq 0 ]; then
         echo "Starting Odoo in debug mode..."
-        exec python -m debugpy --listen 0.0.0.0:5678 --wait-for-client "$ODOO_RUN" --dev=all
+        exec "$ODOO_RUN" --dev=all
     else
-        echo "Starting Odoo in debug mode with additional arguments: $ODOO_RUN $@"
-        exec python -m debugpy --listen 0.0.0.0:5678 --wait-for-client "$ODOO_RUN '$@'" --dev=all
+        echo "Starting Odoo in debug mode with additional arguments: $ODOO_RUN" "$@"
+        exec "$ODOO_RUN" "$@" --dev=all
     fi
 }
+
+if [ "$1" = "init" ]; then
+    exit
+fi
 
 if [ "$ODOO_DEBUG" = "true" ]; then
     start_odoo_debug "$@"
