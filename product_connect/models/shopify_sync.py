@@ -151,7 +151,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
             self.notify_channel_on_error(
                 "Shopify sync failed",
                 str(error),
-                memory_handler=memory_handler,
+                logs=memory_handler.logs,
             )
             raise error
 
@@ -774,7 +774,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                     "Export from Shopify failed",
                     str(error),
                     record=odoo_product,
-                    logs=memory_handler,
+                    logs=memory_handler.logs,
                 )
                 raise error
 
