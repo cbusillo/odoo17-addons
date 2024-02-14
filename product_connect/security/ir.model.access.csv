@@ -1,8 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_product_import,access.product.import,model_product_import,base.group_user,1,1,1,1
-access_product_type,model_product_type,model_product_type,base.group_user,1,1,1,1
-access_product_manufacturer,model_product_manufacturer,model_product_manufacturer,base.group_user,1,1,1,1
-access_product_import_image,access_product_import_image,model_product_import_image,base.group_user,1,1,1,1
-access_shopify_sync,access_shopify_sync,model_shopify_sync,base.group_user,1,1,1,1
-access_printnode_interface,access_printnode_interface,model_printnode_interface,base.group_user,1,1,1,1
-access_product_import_wizard,access_product_import_wizard,model_product_import_wizard,base.group_user,1,1,1,1
+access_product_import,access.product.import,model_product_import,stock.group_stock_user,1,1,1,1
+access_product_type,model_product_type,model_product_type,stock.group_stock_user,1,1,1,1
+access_product_manufacturer,model_product_manufacturer,model_product_manufacturer,stock.group_stock_user,1,1,1,1
+access_product_import_image,access.product.import_image,model_product_import_image,stock.group_stock_user,1,1,1,1
+access_shopify_sync,access.shopify_sync,model_shopify_sync,stock.group_stock_user,1,1,1,1
+access_printnode_interface,access.printnode_interface,model_printnode_interface,stock.group_stock_user,1,1,1,1
+access_product_import_wizard,access.product_import_wizard,model_product_import_wizard,stock.group_stock_user,1,1,1,1
