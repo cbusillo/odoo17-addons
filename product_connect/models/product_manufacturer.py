@@ -21,6 +21,11 @@ class ProductManufacturer(models.Model):
     image_1920 = fields.Image(
         max_width=1920, max_height=1920, store=True, attachment=True, string="Image"
     )
+    is_engine_manufacturer = fields.Boolean(
+        "Is Engine Manufacturer",
+        default=False,
+        help="Indicates if the manufacturer produces engines.",
+    )
 
     @api.depends("name")
     def _compute_name_normalized(self) -> None:

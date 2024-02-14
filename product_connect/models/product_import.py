@@ -1,7 +1,7 @@
 import base64
 import logging
 import io
-from typing import Any
+from typing import Any, Self
 
 import requests
 from PIL import Image
@@ -212,7 +212,7 @@ class ProductImport(ProductLabelsMixin, odoo.models.Model):
 
         return list(existing_products.values())
 
-    def products_from_mpn_condition_new(self) -> list[str]:
+    def products_from_mpn_condition_new(self) -> list[Self] | None:
         if self.mpn and self.condition == "new":
             existing_products = self._products_from_existing_records("mpn", self.mpn)
             existing_new_products = [
