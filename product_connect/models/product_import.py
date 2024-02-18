@@ -231,15 +231,6 @@ class ProductImport(ProductLabelsMixin, odoo.models.Model):
                 return True
         return False
 
-    def open_record(self) -> dict[str, str | int]:
-        self.ensure_one()
-        return {
-            "type": "ir.actions.act_window",
-            "res_model": "product.import",
-            "view_mode": "form",
-            "res_id": self.id,
-        }
-
     def get_image_from_url(self, url: str) -> bytes | bool:
         if not url:
             return False

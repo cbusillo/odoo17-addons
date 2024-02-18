@@ -53,7 +53,7 @@
         <field name="name">product.import.tree</field>
         <field name="model">product.import</field>
         <field name="arch" type="xml">
-            <tree class="product_import_tree_view" string="Product Import" editable="bottom" multi_edit="1"
+            <tree class="product_import_tree_view" string="Product Import" editable="bottom" multi_edit="1" open_form_view="True"
                   decoration-danger="not name or not price or price == 0 or not cost or cost == 0">
                 <header>
                     <button string="Import" type="object" name="import_to_products"/>
@@ -75,7 +75,6 @@
                 <field name="image_1_url"/>
                 <field name="image_ids"/>
                 <field name="image_upload" widget="file_drop" string="Upload"/>
-                <button name="open_record" type="object" string="Open"/>
                 <field name="default_code" readonly=""/>
             </tree>
         </field>
