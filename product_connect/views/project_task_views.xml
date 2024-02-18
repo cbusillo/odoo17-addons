@@ -21,7 +21,7 @@
         <field name="name">In Progress</field>
         <field name="res_model">project.task</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('parent_id', '!=', False), ('stage_id', 'not in', [5])]</field>
+        <field name="domain">[('stage_id', 'not in', [5])]</field>
         <field name="context">{'search_default_parent_id': False}</field>
     </record>
     <menuitem id="menu_project_subtasks_all"
