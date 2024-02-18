@@ -3,7 +3,7 @@
     <t t-name="FileDropWidget">
         <div class="o_field_file_drop drag-over" t-on-drop="onDrop" t-on-dragover="onDragOver" t-on-dragenter="onDragEnter"
              t-on-dragleave="onDragLeave" t-att-allowDrop="true">
-            Drop files here...
+            Drop...
         </div>
     </t>
 </templates>

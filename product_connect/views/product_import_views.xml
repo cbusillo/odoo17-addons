@@ -53,14 +53,14 @@
         <field name="name">product.import.tree</field>
         <field name="model">product.import</field>
         <field name="arch" type="xml">
-            <tree string="Product Import" editable="bottom" multi_edit="1"
+            <tree class="product_import_tree_view" string="Product Import" editable="bottom" multi_edit="1"
                   decoration-danger="not name or not price or price == 0 or not cost or cost == 0">
                 <header>
                     <button string="Import" type="object" name="import_to_products"/>
                 </header>
                 <field name="default_code"/>
                 <field name="condition"/>
-                <field name="manufacturer_barcode"/>
+                <field name="manufacturer_barcode" string="Barcode"/>
                 <field name="manufacturer" options="{'no_create': True}"/>
                 <field name="mpn" widget="search_mpn_online"/>
                 <field name="quantity" sum="Total Quantity"/>
@@ -74,7 +74,7 @@
                 <field name="cost"/>
                 <field name="image_1_url"/>
                 <field name="image_ids"/>
-                <field name="image_upload" widget="file_drop"/>
+                <field name="image_upload" widget="file_drop" string="Upload"/>
                 <button name="open_record" type="object" string="Open"/>
                 <field name="default_code" readonly=""/>
             </tree>

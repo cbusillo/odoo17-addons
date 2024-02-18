@@ -17,7 +17,6 @@
     ],
     "description": "Module to scrape websites for model data.",
     "data": [
-        "data/res_config_data.xml",
         "security/ir.model.access.csv",
         "views/printnode_interface_views.xml",
         "views/product_import_views.xml",
@@ -28,6 +27,7 @@
     ],
     "assets": {
         "web.assets_backend": [
+            "product_connect/static/src/css/custom_tree_view.scss",
             "product_connect/static/src/css/search_mpn_online_widget.css",
             "product_connect/static/src/js/search_mpn_online_widget.js",
             "product_connect/static/src/xml/search_mpn_online_widget.xml",
