@@ -7,8 +7,9 @@
             <xpath expr="//tree" position="attributes">
                 <attribute name="default_order">priority desc,stage_id asc, date_deadline asc</attribute>
             </xpath>
-            <xpath expr="//field[@name='name']" position="before">
+            <xpath expr="//field[@name='name']" position="after">
                 <field name="parent_id"/>
+                <field name="date_deadline"/>
             </xpath>
         </field>
     </record>
