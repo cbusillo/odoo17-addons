@@ -10,17 +10,15 @@
             <xpath expr="//field[@name='name']" position="after">
                 <field name="parent_id"/>
                 <field name="date_deadline"/>
-                <field name="project_id" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='user_ids']" position="replace"/>
-            <xpath expr="//field[@name='project_id']" position="replace"/>
             <xpath expr="//field[@name='stage_id']" position="replace"/>
             <xpath expr="//field[@name='activity_ids']" position="replace"/>
         </field>
     </record>
 
     <record id="action_project_tasks_subtasks_all" model="ir.actions.act_window">
-        <field name="name">All Subtasks</field>
+        <field name="name">In Progress</field>
         <field name="res_model">project.task</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[('parent_id', '!=', False), ('stage_id', 'not in', [5])]</field>
