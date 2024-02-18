@@ -14,6 +14,7 @@
         "base_automation",
         "stock",
         "mail",
+        "project",
     ],
     "description": "Module to scrape websites for model data.",
     "data": [
@@ -24,6 +25,7 @@
         "views/product_product_views.xml",
         "views/product_template_views.xml",
         "views/product_manufacturer_views.xml",
+        "views/project_task_views.xml",
     ],
     "assets": {
         "web.assets_backend": [
