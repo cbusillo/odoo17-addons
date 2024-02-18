@@ -18,14 +18,15 @@
     ],
     "description": "Module to scrape websites for model data.",
     "data": [
-        "security/ir.model.access.csv",
         "views/printnode_interface_views.xml",
+        "views/product_color_views.xml",
         "views/product_import_views.xml",
         "views/product_import_wizard.xml",
         "views/product_product_views.xml",
         "views/product_template_views.xml",
         "views/product_manufacturer_views.xml",
         "views/project_task_views.xml",
+        "security/ir.model.access.csv",
     ],
     "assets": {
         "web.assets_backend": [

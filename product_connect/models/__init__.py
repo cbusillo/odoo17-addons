@@ -3,9 +3,10 @@ from . import printnode_interface
 
 # noinspection PyUnresolvedReferences
 from . import (
+    product_color,
     product_import,
-    product_product,
     product_manufacturer,
+    product_product,
     product_template,
 )
 
