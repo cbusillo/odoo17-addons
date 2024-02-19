@@ -9,7 +9,7 @@ export class FileDropWidget extends Component {
   }
 
   onDrop(ev) {
-    ev.target.classList.remove("drag-over");
+    ev.target.classList.add("drag-over");
     ev.target.textContent = "Drop...";
     ev.preventDefault();
     ev.stopPropagation();
@@ -48,13 +48,13 @@ export class FileDropWidget extends Component {
 
   onDragEnter(ev) {
     ev.preventDefault();
-    ev.target.classList.add("drag-over");
+    ev.target.classList.remove("drag-over");
     ev.target.textContent = "Release";
   }
 
   onDragLeave(ev) {
     ev.preventDefault();
-    ev.target.classList.remove("drag-over");
+    ev.target.classList.add("drag-over");
     ev.target.textContent = "Drop...";
   }
 
