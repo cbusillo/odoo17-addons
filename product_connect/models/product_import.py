@@ -131,10 +131,7 @@ class ProductImport(ProductLabelsMixin, odoo.models.Model):
                         getattr(temp_record, "quantity", 0) > 0
                         or getattr(record, "quantity", 0) > 0
                     ):
-                        to_print.append(temp_record)
-
-        for record in to_print:
-            record.print_product_labels(print_quantity=True)
+                        temp_record.print_product_labels(print_quantity=True)
 
         return super().write(vals)
 
