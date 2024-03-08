@@ -77,7 +77,7 @@ class ProductImport(ProductLabelsMixin, odoo.models.Model):
         return result
 
     @odoo.api.model_create_multi
-    def create(self, vals_list: list[dict]) -> "ProductImport":
+    def create(self, vals_list: list[dict]) -> Self:
         product_template = self.env["product.template"]
         for vals in vals_list:
             if vals.get("default_code", "") == "New" or not vals.get("default_code"):
@@ -111,6 +111,7 @@ class ProductImport(ProductLabelsMixin, odoo.models.Model):
                 vals[field] = vals[field].upper()
 
         fields_of_interest = ["mpn", "condition", "quantity"]
+        to_print = []
         for record in self:
             if any(key in vals and not vals[key] for key in fields_of_interest):
                 continue
@@ -130,7 +131,10 @@ class ProductImport(ProductLabelsMixin, odoo.models.Model):
                         getattr(temp_record, "quantity", 0) > 0
                         or getattr(record, "quantity", 0) > 0
                     ):
-                        temp_record.print_product_labels(print_quantity=True)
+                        to_print.append(temp_record)
+
+        for record in to_print:
+            record.print_product_labels(print_quantity=True)
 
         return super().write(vals)
 
