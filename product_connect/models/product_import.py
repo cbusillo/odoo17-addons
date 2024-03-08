@@ -12,16 +12,6 @@ from ..mixins.product_labels import ProductLabelsMixin
 _logger = logging.getLogger(__name__)
 
 
-class ProductType(odoo.models.Model):
-    _name = "product.type"
-    _description = "Product Type"
-    _sql_constraints = [
-        ("name_uniq", "unique (name)", "Product Type name already exists !"),
-    ]
-
-    name = odoo.fields.Char(required=True, index=True)
-
-
 class ProductImportImage(odoo.models.Model):
     _name = "product.import.image"
     _description = "Product Import Image"
