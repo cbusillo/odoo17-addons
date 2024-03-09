@@ -5,6 +5,27 @@ from odoo.exceptions import ValidationError
 from ..mixins.product_labels import ProductLabelsMixin
 
 
+class ProductType(models.Model):
+    _name = "product.type"
+    _description = "Product Type"
+    _sql_constraints = [
+        ("name_uniq", "unique (name)", "Product Type name already exists !"),
+    ]
+
+    name = fields.Char(required=True, index=True)
+    ebay_category_id = fields.Integer(string="eBay Category ID", index=True)
+    product_count = fields.Integer(
+        string="Number of Products", compute="_compute_product_count", store=True
+    )
+
+    @api.depends("product_ids")
+    def _compute_product_count(self) -> None:
+        for record in self:
+            record.product_count = len(record.product_ids)
+
+    product_ids = fields.One2many("product.template", "part_type", string="Products")
+
+
 class ProductTemplate(models.Model, ProductLabelsMixin):
     _inherit = "product.template"
 

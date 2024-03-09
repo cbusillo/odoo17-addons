@@ -1,17 +1,6 @@
-from odoo import models, fields
+from odoo import models, fields, api
 
 from ..mixins.notification_manager import NotificationManagerMixin
-
-
-class ProductType(models.Model):
-    _name = "product.type"
-    _description = "Product Type"
-    _sql_constraints = [
-        ("name_uniq", "unique (name)", "Product Type name already exists !"),
-    ]
-
-    name = fields.Char(required=True, index=True)
-    ebay_category_id = fields.Integer(string="eBay Category ID", index=True)
 
 
 class ProductProduct(NotificationManagerMixin, models.Model):

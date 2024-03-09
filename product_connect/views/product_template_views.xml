@@ -61,9 +61,9 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="attributes">
                 <attribute name="filter_domain">['|', '|', '|', '|', '|', ('name', 'ilike', self), ('mpn', 'ilike', self),
-                    ('bin', 'ilike', self), ('description_sale', 'ilike', self),
-                    ('default_code', 'ilike', self),
-                    ('manufacturer_barcode', 'ilike', self)]
+                                                 ('bin', 'ilike', self), ('description_sale', 'ilike', self),
+                                                 ('default_code', 'ilike', self),
+                                                 ('manufacturer_barcode', 'ilike', self)]
                 </attribute>
             </xpath>
         </field>
@@ -87,16 +87,14 @@
             </tree>
         </field>
     </record>
+
+
     <record id="action_product_template_tree_edit" model="ir.actions.act_window">
         <field name="name">Product Edit</field>
         <field name="res_model">product.template</field>
         <field name="view_mode">tree</field>
         <field name="view_id" ref="product_template_tree_edit"/>
     </record>
-
-
-    <menuitem id="menu_product_template_edit" name="Product Edit" action="action_product_template_tree_edit"
-              parent="stock.menu_stock_inventory_control" sequence="2"/>
 
     <!-- Tree view -->
     <record id="product_type_tree_view" model="ir.ui.view">
@@ -106,6 +104,7 @@
             <tree string="Product Type" editable="bottom">
                 <field name="name"/>
                 <field name="ebay_category_id"/>
+                <field name="product_count"/>
             </tree>
         </field>
     </record>
@@ -125,5 +124,8 @@
         <field name="sequence" eval="20"/>
     </record>
 
+
+    <menuitem id="menu_product_template_edit" name="Product Edit" action="action_product_template_tree_edit"
+              parent="stock.menu_stock_inventory_control" sequence="2"/>
 
 </odoo>
