@@ -694,7 +694,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         )
         total_count = 0
         for odoo_product in odoo_products:
-            logger.info("Starting export of Odoo product ID:", odoo_product.id)
+            logger.info(f"Starting export of Odoo product ID: {odoo_product.id}")
             variant_data = {
                 "price": odoo_product.list_price,
                 "sku": f"{odoo_product.default_code} - {odoo_product.bin or ''}",
