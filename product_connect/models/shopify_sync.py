@@ -446,10 +446,6 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 if shopify_product_data["vendor"]
                 else None
             ),
-            "part_type": self.find_or_add_product_type(
-                shopify_product_data["product_type"],
-                shopify_product_data["shopify_ebay_category_id"],
-            ).id,
             "is_published": shopify_product_data["status"].lower() == "active",
         }
 
@@ -464,6 +460,12 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
             if metafield.get("key") == "ebay_category_id":
                 odoo_product_data["shopify_ebay_category_id"] = (
                     self.extract_id_from_global_id(metafield.get("id"))
+                )
+                odoo_product_data["part_type"] = (
+                    self.find_or_add_product_type(
+                        shopify_product_data["product_type"],
+                        shopify_product_data["shopify_ebay_category_id"],
+                    ).id,
                 )
 
         if self.env["product.template"].is_condition_valid(shopify_condition):
