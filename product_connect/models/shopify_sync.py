@@ -695,7 +695,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         total_count = 0
         for odoo_product in odoo_products:
             logger.info(
-                f"Starting export of Odoo product ID: {odoo_product.id} - {odoo_product.name}"
+                f"Starting export of Odoo product ID: {odoo_product.default_code} - {odoo_product.name}"
             )
             variant_data = {
                 "price": odoo_product.list_price,
@@ -775,7 +775,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
             except ValueError as error:
                 self.notify_channel_on_error(
                     "Export from Shopify failed",
-                    str(error),
+                    f"{str(error)}\n{shopify_product_data}",
                     record=odoo_product,
                     logs=memory_handler.logs,
                 )
