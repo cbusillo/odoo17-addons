@@ -541,9 +541,12 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
     @api.model
     def find_or_add_product_type(
-        self, product_type_name: str, ebay_category_id: int
+        self, product_type_name: str, ebay_category_id: str
     ) -> Self | None:
-        if ebay_category_id < 1 or not product_type_name:
+        try:
+            if int(ebay_category_id) < 1 or not product_type_name:
+                return
+        except ValueError:
             return
         product_type = self.env["product.type"].search(
             [
