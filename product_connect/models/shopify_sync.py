@@ -461,12 +461,11 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 odoo_product_data["shopify_ebay_category_id"] = (
                     self.extract_id_from_global_id(metafield.get("id"))
                 )
-                odoo_product_data["part_type"] = (
-                    self.find_or_add_product_type(
+                part_type = self.find_or_add_product_type(
                         shopify_product_data["product_type"],
                         metafield.get("value"),
-                    ).id,
-                )
+                    )
+                odoo_product_data["part_type"] = part_type.id if part_type else None
 
         if self.env["product.template"].is_condition_valid(shopify_condition):
             odoo_product_data["condition"] = shopify_condition
