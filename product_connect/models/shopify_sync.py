@@ -5,7 +5,7 @@ import re
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Literal, Generator
+from typing import Any, Literal, Generator, Self
 from urllib.error import HTTPError
 from zoneinfo import ZoneInfo
 
@@ -446,11 +446,10 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 if shopify_product_data["vendor"]
                 else None
             ),
-            "part_type": (
-                self.find_or_add_product_type(shopify_product_data["product_type"]).id
-                if shopify_product_data["product_type"]
-                else None
-            ),
+            "part_type": self.find_or_add_product_type(
+                shopify_product_data["product_type"],
+                shopify_product_data["shopify_ebay_category_id"],
+            ).id,
             "is_published": shopify_product_data["status"].lower() == "active",
         }
 
@@ -540,14 +539,22 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
     @api.model
     def find_or_add_product_type(
-        self, product_type_name: str
-    ) -> "odoo.model.product_type":
+        self, product_type_name: str, ebay_category_id: int
+    ) -> Self | None:
+        if ebay_category_id < 1 or not product_type_name:
+            return
         product_type = self.env["product.type"].search(
-            [("name", "=", product_type_name)], limit=1
+            [
+                ("name", "=", product_type_name),
+                ("ebay_category_id", "=", ebay_category_id),
+            ],
+            limit=1,
         )
 
         if not product_type:
-            product_type = self.env["product.type"].create({"name": product_type_name})
+            product_type = self.env["product.type"].create(
+                {"name": product_type_name, "ebay_category_id": ebay_category_id}
+            )
 
         return product_type
 
