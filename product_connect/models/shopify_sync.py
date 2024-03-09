@@ -146,7 +146,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         try:
             self.initialize_shopify_session()
             self.import_from_shopify()
-            self.export_to_shopify()  # TODO: uncomment this line when ready to export to shopify
+            self.export_to_shopify()
         except Exception as error:
             self.notify_channel_on_error(
                 "Shopify sync failed",
@@ -462,7 +462,10 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 odoo_product_data["shopify_condition_id"] = (
                     self.extract_id_from_global_id(metafield.get("id"))
                 )
-                break
+            if metafield.get("key") == "ebay_category_id":
+                odoo_product_data["shopify_ebay_category_id"] = (
+                    self.extract_id_from_global_id(metafield.get("id"))
+                )
 
         if self.env["product.template"].is_condition_valid(shopify_condition):
             odoo_product_data["condition"] = shopify_condition
@@ -734,6 +737,22 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                     }
                 )
 
+            ebay_category_id_metafield = {
+                "value": str(odoo_product.part_type.ebay_category_id) or ""
+            }
+            if odoo_product.shopify_ebay_category_id:
+                ebay_category_id_metafield["id"] = self.convert_to_shopify_gid_format(
+                    "Metafield", odoo_product.shopify_ebay_category_id
+                )
+            else:
+                ebay_category_id_metafield.update(
+                    {
+                        "key": "ebay_category_id",
+                        "type": "number_integer",
+                        "namespace": "custom",
+                    }
+                )
+
             try:
                 shopify_product_data = {
                     "title": odoo_product.name,
@@ -748,7 +767,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                     ),
                     "status": "ACTIVE" if odoo_product.qty_available > 0 else "DRAFT",
                     "variants": [variant_data],
-                    "metafields": [condition_metafield],
+                    "metafields": [condition_metafield, ebay_category_id_metafield],
                 }
 
                 if odoo_product.shopify_product_id:
@@ -772,10 +791,11 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                         operation_name="CreateProduct",
                     )
                 result_dict = self.parse_and_validate_shopify_response(result)
+
             except ValueError as error:
                 self.notify_channel_on_error(
                     "Export from Shopify failed",
-                    f"{str(error)}\n{shopify_product_data}",
+                    f"{str(error)}",
                     record=odoo_product,
                     logs=memory_handler.logs,
                 )
