@@ -103,7 +103,7 @@
         <field name="arch" type="xml">
             <tree string="Product Type" editable="bottom">
                 <field name="name"/>
-                <field name="ebay_category_id"/>
+                <field name="ebay_category_id" widget="char"/>
                 <field name="product_count"/>
             </tree>
         </field>
