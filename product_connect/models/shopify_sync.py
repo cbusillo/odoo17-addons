@@ -277,7 +277,10 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 latest_write_date = self.determine_latest_product_modification_time(
                     odoo_product_product, last_import_time
                 )
-                if shopify_updated_at > latest_write_date:
+                if (
+                    shopify_updated_at > latest_write_date
+                    or last_import_time.year < 2001
+                ):
                     status = self.create_or_update_odoo_product(
                         shopify_product, existing_product=odoo_product_product
                     )
@@ -802,7 +805,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                         variables={"input": shopify_product_data},
                         operation_name="CreateProduct",
                     )
-                logger.info("Shopify export result: %s", shopify_product_data)
+                # logger.info("Shopify export result: %s", shopify_product_data)
                 result_dict = self.parse_and_validate_shopify_response(result)
 
             except ValueError as error:
