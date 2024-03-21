@@ -53,7 +53,7 @@ query GetProducts($cursor: String, $limit: Int!, $query: String) {
                         }
                     }
                 }
-                metafields(first: 3, namespace: "custom") {
+                metafields(first: 6, namespace: "custom") {
                     edges {
                         node {
                             id
