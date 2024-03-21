@@ -655,7 +655,6 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                     f"(Message: {error.get('message')}) "
                     f"(Extension: {error.get('extensions')}) "
                     f"(Field: {error.get('field')})"
-                    f"(Code: {error})"
                 )
                 error_messages.append(error_message)
                 logger.error(error_message)
@@ -803,6 +802,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                         variables={"input": shopify_product_data},
                         operation_name="CreateProduct",
                     )
+                logger.info("Shopify export result: %s", result)
                 result_dict = self.parse_and_validate_shopify_response(result)
 
             except ValueError as error:
