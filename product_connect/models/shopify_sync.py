@@ -277,10 +277,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 latest_write_date = self.determine_latest_product_modification_time(
                     odoo_product_product, last_import_time
                 )
-                if (
-                    shopify_updated_at > latest_write_date
-                    or last_import_time.year < 2001
-                ):
+                if shopify_updated_at > latest_write_date:
                     status = self.create_or_update_odoo_product(
                         shopify_product, existing_product=odoo_product_product
                     )
