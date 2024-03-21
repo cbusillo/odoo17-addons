@@ -297,6 +297,10 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
     def determine_latest_product_modification_time(
         self, odoo_product_product, last_import_time
     ) -> datetime:
+        if (
+            last_import_time.year < 2001
+        ):  # set the import time to 2001 in Odoo to import all products
+            return self.DEFAULT_DATETIME
         odoo_product_template = odoo_product_product.product_tmpl_id
         odoo_product_product_write_date = (
             odoo_product_product.write_date.replace(tzinfo=UTC)
@@ -313,18 +317,14 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
             if odoo_product_product.shopify_last_exported
             else None
         )
-        if (
-            last_import_time.year < 2001
-        ):  # set the import time to 2001 in Odoo to import all products
-            return self.DEFAULT_DATETIME
-        else:
-            dates = [
-                odoo_product_product_write_date,
-                odoo_product_template_write_date,
-                odoo_product_product_shopify_last_exported,
-                self.DEFAULT_DATETIME,
-            ]
-            return max(filter(None, dates))
+
+        dates = [
+            odoo_product_product_write_date,
+            odoo_product_template_write_date,
+            odoo_product_product_shopify_last_exported,
+            self.DEFAULT_DATETIME,
+        ]
+        return max(filter(None, dates))
 
     def finalize_import_and_commit_changes(
         self, current_import_start_time: datetime
