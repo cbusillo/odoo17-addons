@@ -802,7 +802,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                         variables={"input": shopify_product_data},
                         operation_name="CreateProduct",
                     )
-                logger.info("Shopify export result: %s", result)
+                logger.info("Shopify export result: %s", shopify_product_data)
                 result_dict = self.parse_and_validate_shopify_response(result)
 
             except ValueError as error:
