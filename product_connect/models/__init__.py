@@ -6,6 +6,7 @@ from . import (
     product_color,
     product_import,
     product_manufacturer,
+    product_motor,
     product_product,
     product_template,
 )

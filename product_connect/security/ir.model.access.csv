@@ -8,3 +8,7 @@ access_printnode_interface,access.printnode_interface,model_printnode_interface,
 access_product_import_wizard,access.product_import_wizard,model_product_import_wizard,stock.group_stock_manager,1,1,1,1
 access_product_color,product.color,model_product_color,,1,1,1,1
 access_product_color_tag,product.color.tag,model_product_color_tag,,1,1,1,1
+
+access_product_motor_compression,access_product_motor_compression,model_product_motor_compression,base.group_user,1,1,1,1
+access_product_motor_image,access_product_motor_image,model_product_motor_image,base.group_user,1,1,1,1
+access_product_motor,access_product_motor,model_product_motor,base.group_user,1,1,1,1

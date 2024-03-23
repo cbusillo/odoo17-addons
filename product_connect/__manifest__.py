@@ -25,6 +25,7 @@
         "views/product_product_views.xml",
         "views/product_template_views.xml",
         "views/product_manufacturer_views.xml",
+        "views/product_motor_views.xml",
         "views/project_task_views.xml",
         "security/ir.model.access.csv",
     ],

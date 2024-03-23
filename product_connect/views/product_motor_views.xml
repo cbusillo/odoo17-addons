@@ -1,0 +1,146 @@
+<odoo>
+    <record id="view_product_motor_tree" model="ir.ui.view">
+        <field name="name">product.motor.tree</field>
+        <field name="model">product.motor</field>
+        <field name="arch" type="xml">
+            <tree string="Motors List">
+                <field name="motor_number"/>
+                <field name="manufacturer_id"/>
+                <field name="horsepower"/>
+                <field name="model"/>
+                <field name="serial_number"/>
+                <field name="year"/>
+                <field name="color_id"/>
+                <field name="cost"/>
+                <field name="engine_ecu_hours"/>
+                <!-- Add any other fields you want to display in the tree view here -->
+            </tree>
+        </field>
+    </record>
+    <record id="view_product_motor_form" model="ir.ui.view">
+        <field name="name">product.motor.form</field>
+        <field name="model">product.motor</field>
+        <field name="arch" type="xml">
+            <form string="Motor Check-In">
+                <header>
+                    <field name="stage" widget="statusbar"
+                           statusbar_visible="basic_info,basic_testing,extended_testing,finalization"/>
+                </header>
+                <sheet>
+
+                    <notebook>
+                        <page string="Basic Info">
+                            <group>
+                                <field name="motor_number" readonly="1"/>
+                                <field name="manufacturer_id" options="{'no_create': True, 'no_edit': True}"/>
+                                <field name="horsepower"/>
+                                <field name="motor_stroke" widget="selection_badge"/>
+                                <field name="motor_configuration" widget="selection_badge"/>
+                                <field name="model"/>
+                                <field name="serial_number"/>
+                                <field name="year" widget="char"/>
+                                <field name="color_id" widget="selection_badge"/>
+                                <field name="cost"/>
+                                <field name="tag_readable" widget="selection_badge"/>
+                            </group>
+                        </page>
+                        <page string="Images"
+                              invisible="stage not in ('images', 'basic_testing', 'extended_testing', 'finalization')">
+                            <field name="image_ids">
+                                <tree editable="bottom" delete="False">
+                                    <field name="name"/>
+                                    <field name="image" widget="image"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Basic Testing" invisible="stage not in ('basic_testing', 'extended_testing', 'finalization')">
+                            <group>
+                                <!-- Engine Details -->
+                                <group string="Engine Details" colspan="2">
+                                    <field name="engine_ecu_hours" widget="integer"/>
+                                    <field name="motor_spins" widget="selection_badge"/>
+                                </group>
+
+                                <!-- Compression Details -->
+                                <group string="Compression Details" colspan="2">
+                                    <field name="compression_numbers">
+                                        <tree editable="bottom" delete="False" create="False">
+                                            <field name="cylinder_number" readonly="1"/>
+                                            <field name="compression_psi" string="PSI"/>
+                                            <field name="compression_image" string="Image" widget="binary"/>
+                                        </tree>
+                                    </field>
+                                </group>
+
+                                <!-- Shaft and Lower Unit -->
+                                <group string="Shaft and Lower Unit" colspan="2">
+                                    <field name="shaft_length" widget="selection_badge"/>
+                                    <field name="lower_unit_rotation_check" widget="selection_badge"/>
+                                    <field name="lower_unit_gear_engages" widget="selection_badge"/>
+                                    <field name="lower_unit_fluid_has_water" widget="selection_badge"/>
+                                    <field name="lower_unit_fluid_has_metal" widget="selection_badge"/>
+                                    <field name="lower_unit_holds_pressure" widget="selection_badge"/>
+                                </group>
+
+                                <!-- Fuel and Tilt System -->
+                                <group string="Fuel System" colspan="2">
+                                    <field name="fuel_pump_is_electric" widget="selection_badge"/>
+                                    <field name="fuel_pump_status" widget="selection_badge"/>
+                                </group>
+                                <group string="Trim and Tilt System" colspan="2">
+                                    <field name="trim_tilt_unit_status" widget="selection_badge"/>
+                                    <field name="trim_tilt_unit_leaks" widget="selection_badge"
+                                           invisible="trim_tilt_unit_status != 'functional'"/>
+
+                                </group>
+
+                                <!-- Drive Engagement -->
+                                <group string="Drive Engagement" colspan="2">
+                                    <field name="drive_engages_forward" widget="selection_badge"/>
+                                    <field name="drive_engages_neutral" widget="selection_badge"/>
+                                    <field name="drive_engages_reverse" widget="selection_badge"/>
+                                </group>
+
+                                <!-- Additional Information -->
+                                <group string="Additional Information" colspan="2">
+                                    <field name="engine_history_report_pdf"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Extended Testing" invisible="stage not in ('extended_testing', 'finalization')">
+                            <group>
+                                <field name="lower_unit_rotation_check_when_removed" widget="selection_badge"
+                                       invisible="lower_unit_rotation_check in ['counter', 'standard']"/>
+                                />
+                                <field name="lower_unit_rotation_check" widget="selection_badge"
+                                       invisible="lower_unit_rotation_check in ['counter', 'standard'] or lower_unit_rotation_check_when_removed != 'yes' "/>
+
+                                <field name="drive_shaft_seals_leaking" widget="selection_badge"
+                                       invisible="lower_unit_holds_pressure != 'no'"/>
+                                <field name="prop_shaft_seals_leaking" widget="selection_badge"
+                                       invisible="lower_unit_holds_pressure != 'no'"/>
+                                <field name="shift_shaft_seals_leaking" widget="selection_badge"
+                                       invisible="lower_unit_holds_pressure != 'no'"/>
+                            </group>
+                        </page>
+                        <page string="Finalization" invisible="stage != 'finalization'">
+                            <!-- Add fields relevant for the finalization stage here -->
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_product_motor_form">
+        <field name="name">Motors</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.motor</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_product_motor" name="Motors" parent="menu_subheader_product_import" action="action_product_motor_form"
+              sequence="10"/>
+
+</odoo>
