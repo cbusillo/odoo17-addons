@@ -4,7 +4,7 @@
         <field name="name">printnode.interface.tree</field>
         <field name="model">printnode.interface</field>
         <field name="arch" type="xml">
-            <tree string="PrintNode Interface" editable="bottom">
+            <tree string="PrintNode Interface">
                 <field name="user_id"/>
                 <field name="printer_selection"/>
                 <field name="print_job_type"/>
