@@ -49,7 +49,7 @@
                             <field name="image_ids">
                                 <tree editable="bottom" delete="False">
                                     <field name="name"/>
-                                    <field name="image" widget="image"/>
+                                    <field name="image" widget="image" options="{'size': [512, 0]}"/>
                                 </tree>
                             </field>
                         </page>

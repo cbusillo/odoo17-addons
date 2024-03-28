@@ -5,6 +5,7 @@ from odoo import models
 if TYPE_CHECKING:
     from ..models.product_import import ProductImport
     from ..models.product_template import ProductTemplate
+    from ..models.product_motor import ProductMotor
 
 
 class ProductLabelsMixin(models.AbstractModel):
@@ -26,7 +27,14 @@ class ProductLabelsMixin(models.AbstractModel):
             label = self.env["printnode.interface"].generate_label_base64(
                 label_data, barcode=product_bin
             )
-            self.env["printnode.interface"].print_label(label)
+            self.env["printnode.interface"].print_label_base64(label)
+
+    def print_motor_labels(self) -> None:
+        labels = []
+        for record in self:
+            if TYPE_CHECKING:
+                assert isinstance(record, ProductMotor)
+            label_data = []
 
     def print_product_labels(self, print_quantity: bool = False) -> None:
         labels = []
@@ -48,8 +56,10 @@ class ProductLabelsMixin(models.AbstractModel):
                 quantity=quantity,
             )
             labels.append(label)
-        combined_label_base64 = self.env["printnode.interface"].combine_labels(labels)
-        self.env["printnode.interface"].print_label(combined_label_base64)
+        combined_label_base64 = self.env["printnode.interface"].combine_labels_baes64(
+            labels
+        )
+        self.env["printnode.interface"].print_label_base64(combined_label_base64)
 
     @staticmethod
     def wrap_text(text: str, max_line_length: int) -> list[str]:

@@ -18,6 +18,7 @@
     ],
     "description": "Module to scrape websites for model data.",
     "data": [
+        "report/product_reports.xml",
         "views/printnode_interface_views.xml",
         "views/product_color_views.xml",
         "views/product_import_views.xml",

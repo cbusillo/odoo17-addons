@@ -2,7 +2,7 @@
 <templates>
     <t t-name="SearchMpnOnlineWidget">
         <t t-if="props.readonly">
-            <span t-esc="formattedValue"/>
+            <span t-out="formattedValue"/>
         </t>
         <t t-else="">
             <div class="search-mpn-online-container">

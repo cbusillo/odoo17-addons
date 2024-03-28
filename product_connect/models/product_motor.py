@@ -42,8 +42,8 @@ class ProductMotor(models.Model):
     horsepower = fields.Float(digits=(3, 1))
     motor_stroke = fields.Selection(
         [
-            ("2", "2-Stroke"),
-            ("4", "4-Stroke"),
+            ("2", "2 Stroke"),
+            ("4", "4 Stroke"),
         ]
     )
     motor_configuration = fields.Selection(
@@ -134,6 +134,11 @@ class ProductMotor(models.Model):
         default="basic_info",
         required=True,
     )
+
+    def get_horsepower_formatted(self) -> str:
+        if self.horsepower.is_integer():
+            return f"{int(self.horsepower)}HP"
+        return f"{self.horsepower}HP"
 
     @api.constrains("horsepower")
     def _check_horsepower(self) -> None:

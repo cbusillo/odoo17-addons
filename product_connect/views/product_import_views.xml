@@ -120,13 +120,6 @@
 
 
     <!-- Product Import: Sequence -->
-    <record id="sequence_product_import" model="ir.sequence">
-        <field name="name">Product Import</field>
-        <field name="code">product.import</field>
-        <field name="prefix"></field>
-        <field name="padding">6</field>
-        <field name="number_next">8000</field>
-    </record>
 
     <menuitem id="menu_subheader_product_import" name="Product Import" parent="stock.menu_stock_inventory_control"/>
     <menuitem id="menu_product_import" name="Product Import" action="action_product_import" parent="menu_subheader_product_import"/>

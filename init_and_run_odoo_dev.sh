@@ -11,7 +11,7 @@ TEMP_DB_BACKUP="/tmp/$PROD_DB-$(date +%F).sql"
 
 # Configuration for Odoo development environment
 INIT_FILE="init_done.flag"
-ODOO_CONFIG_FILE="odoo.dev.cfg"
+ODOO_CONFIG_FILE="../odoo.dev.cfg"
 ODOO_DB_SERVER="localhost"
 ODOO_DB="odoo"
 ODOO_USER="odoo"
