@@ -19,7 +19,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519
-          ping -c 1 ${{ vars.DEV_SERVER }}
+          ping -c 5 ${{ vars.DEV_SERVER }}
           ssh-keyscan -H ${{ vars.DEV_SERVER }} >> ~/.ssh/known_hosts
         shell: bash
       - name: Clone & Install
