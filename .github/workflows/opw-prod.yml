@@ -1,4 +1,4 @@
-name: Deploy to Dev
+name: Deploy to Prod
 on:
   workflow_dispatch:
   push:
@@ -19,12 +19,25 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519
-          ping -c 1 ${{ vars.PRODUCTION_SERVER }}
+          
+          # Ping loop
+          host="${{ vars.PRODUCTION_SERVER }}"
+          count=0
+          max_attempts=30
+          while ! ping -c 1 -W 1 $host > /dev/null 2>&1; do
+            count=$((count+1))
+            echo "Attempt $count: Ping to $host failed, retrying..."
+            if [ $count -ge $max_attempts ]; then
+              echo "Failed to reach $host after $max_attempts attempts, stopping."
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Ping to $host successful."
+          
           ssh-keyscan -H ${{ vars.PRODUCTION_SERVER }} >> ~/.ssh/known_hosts
         shell: bash
       - name: Clone & Install
         run: |
-          ssh ${{ vars.PRODUCTION_USER }}@${{ vars.PRODUCTION_SERVER }} "cd /opt/odoo/odoo17-addons/; \
-          git pull; \ 
-          systemctl restart odoo"
+          ssh ${{ vars.PRODUCTION_USER }}@${{ vars.PRODUCTION_SERVER }} 'cd /opt/odoo/odoo17-addons; git pull; sudo systemctl restart odoo'
         shell: bash
