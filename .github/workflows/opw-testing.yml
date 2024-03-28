@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - opw-dev
+      - opw-testing
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -21,7 +21,7 @@ jobs:
           chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519
           
           # Ping loop
-          host="${{ vars.DEV_SERVER }}"
+          host="${{ vars.TESTING_SERVER }}"
           count=0
           max_attempts=30
           while ! ping -c 1 -W 1 $host > /dev/null 2>&1; do
@@ -35,9 +35,9 @@ jobs:
           done
           echo "Ping to $host successful."
           
-          ssh-keyscan -H ${{ vars.DEV_SERVER }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ vars.TESTING_SERVER }} >> ~/.ssh/known_hosts
         shell: bash
       - name: Clone & Install
         run: |
-          ssh ${{ vars.DEV_USER }}@${{ vars.DEV_SERVER }} 'cd /opt/odoo/odoo17-addons; git pull; sudo systemctl restart odoo'
+          ssh ${{ vars.TESTING_USER }}@${{ vars.TESTING_SERVER }} 'cd /opt/odoo/odoo17-addons; git pull; sudo systemctl restart odoo'
         shell: bash
