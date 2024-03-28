@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - opw-dev
+      - opw-prod
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -19,12 +19,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519
-          ping -c 1 ${{ vars.DEV_SERVER }}
-          ssh-keyscan -H ${{ vars.DEV_SERVER }} >> ~/.ssh/known_hosts
+          ping -c 1 ${{ vars.PRODUCTION_SERVER }}
+          ssh-keyscan -H ${{ vars.PRODUCTION_SERVER }} >> ~/.ssh/known_hosts
         shell: bash
       - name: Clone & Install
         run: |
-          ssh ${{ vars.DEV_USER }}@${{ vars.DEV_SERVER }} "cd /opt/odoo/odoo17-addons/; \
+          ssh ${{ vars.PRODUCTION_USER }}@${{ vars.PRODUCTION_SERVER }} "cd /opt/odoo/odoo17-addons/; \
           git pull; \ 
           systemctl restart odoo"
         shell: bash
