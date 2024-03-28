@@ -103,6 +103,7 @@ class ProductMotor(models.Model):
             ("bad_motor", "Bad Motor"),
             ("no_movement", "No Movement"),
             ("not_tested", "Not Tested"),
+            ("manual", "Manual"),
         ],
     )
     trim_tilt_unit_leaks = fields.Selection(YES_NO_SELECTION)
