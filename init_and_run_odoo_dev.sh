@@ -39,26 +39,25 @@ sync_from_prod() {
 
     echo "Database restore completed."
 
-    $ODOO_RUN --stop-after-init --database=$ODOO_DB --db_user=$ODOO_USER --db_password=$ODOO_PASSWORD <<EOF
+    $ODOO_RUN --stop-after-init --database=$ODOO_DB --db_user=$ODOO_USER --db_password=$ODOO_PASSWORD
+    $ODOO_SHELL --no-http <<EOF
 from passlib.context import CryptContext
 from odoo import api, SUPERUSER_ID
 from odoo.tools import config
 
 # Initialize the environment for script execution
-with api.Environment.manage():
+db_registry = odoo.modules.registry.Registry(odoo.tools.config['db_name'])
+with db_registry.cursor() as cr:
     db_registry = odoo.modules.registry.Registry.new(odoo.tools.config['db_name'])
     with db_registry.cursor() as cr:
         env = api.Environment(cr, SUPERUSER_ID, {})
-
         # Neutralize email sending
         env['ir.mail_server'].search([]).write({'active': False})
         env['ir.config_parameter'].sudo().set_param('mail.catchall.domain', False)
         env['ir.config_parameter'].sudo().set_param('mail.catchall.alias', False)
         env['ir.config_parameter'].sudo().set_param('mail.bounce.alias', False)
-
         # Deactivate scheduled actions
         env['ir.cron'].search([]).write({'active': False})
-
         cr.commit()
 EOF
 
@@ -146,3 +145,5 @@ case "$1" in
         start_odoo "$@"
         ;;
 esac
+
+echo "Completed."
