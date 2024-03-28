@@ -39,7 +39,5 @@ jobs:
         shell: bash
       - name: Clone & Install
         run: |
-          ssh ${{ vars.DEV_USER }}@${{ vars.DEV_SERVER }} 'cd /opt/odoo/odoo17-addons/; \
-          git pull; \ 
-          systemctl restart odoo'
+          ssh ${{ vars.DEV_USER }}@${{ vars.DEV_SERVER }} 'cd /opt/odoo/odoo17-addons; git pull; sudo systemctl restart odoo'
         shell: bash
