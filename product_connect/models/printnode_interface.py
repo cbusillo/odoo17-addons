@@ -85,7 +85,7 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
         print_job = None
         try:
             print_job = gateway.PrintJob(
-                printer=printer_id,
+                printer=int(printer_id),
                 job_type="raw",
                 title="Odoo Product Label",
                 options={"copies": quantity},
