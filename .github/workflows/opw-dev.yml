@@ -1,0 +1,30 @@
+name: Deploy to Dev
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - opw-dev
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Tailscale VPN
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+      - name: Create SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519
+          ping -c 1 ${{ vars.PRODUCTION_SERVER }}
+          ssh-keyscan -H ${{ vars.PRODUCTION_SERVER }} >> ~/.ssh/known_hosts
+        shell: bash
+      - name: Clone & Install
+        run: |
+          ssh ${{ vars.PRODUCTION_USER }}@${{ vars.PRODUCTION_SERVER }} "cd /opt/odoo/odoo17-addons/; \
+          git pull; \ 
+          systemctl restart odoo"
+        shell: bash
