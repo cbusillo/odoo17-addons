@@ -7,6 +7,7 @@
             <tree string="PrintNode Interface" editable="bottom">
                 <field name="user_id"/>
                 <field name="printer_selection"/>
+                <field name="print_job_type"/>
             </tree>
         </field>
     </record>

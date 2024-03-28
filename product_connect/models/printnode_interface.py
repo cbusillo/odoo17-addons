@@ -28,10 +28,10 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
     )
     print_job_type = fields.Selection(
         selection=[
-            ("product_import_label", "Product Import Label"),
-            ("receipt", "Receipt"),
+            ("product_label", "Product Import Label"),
+            ("motor_label", "Motor Label"),
         ],
-        default="product_import_label",
+        default="product_label",
     )
     user_id = fields.Many2one("res.users", default=lambda self: self.env.user)
 
@@ -63,10 +63,13 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
         return [(printer.id, printer.name) for printer in printers]
 
     @api.model
-    def print_label(self, label_base64: str, quantity: int = 1):
+    def print_label(
+        self, label_base64: str, quantity: int = 1, label_type: str = "product_label"
+    ):
         gateway = self.get_gateway()
         user = self.env["printnode.interface"].search(
-            [("user_id", "=", self.env.user.id)], limit=1
+            [("user_id", "=", self.env.user.id), ("print_job_type", "=", label_type)],
+            limit=1,
         )
         if not user:
             return False
