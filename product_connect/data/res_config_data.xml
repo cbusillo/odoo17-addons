@@ -4,8 +4,6 @@
             <field name="key">shopify.last_import_time</field>
             <field name="value">2000-01-01T00:00:00Z</field>
         </record>
-    </data>
-    <data>
         <record id="sequence_product_import" model="ir.sequence">
             <field name="name">Product Import</field>
             <field name="code">product.import</field>

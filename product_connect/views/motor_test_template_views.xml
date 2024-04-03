@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_motor_test_template_tree" model="ir.ui.view">
+        <field name="name">motor.test.template.tree</field>
+        <field name="model">motor.test.template</field>
+        <field name="arch" type="xml">
+            <tree string="Motor Test Templates">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="result_type"/>
+                <field name="stage"/>
+                <field name="section"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_motor_test_template_form" model="ir.ui.view">
+        <field name="name">motor.test.template.form</field>
+        <field name="model">motor.test.template</field>
+        <field name="arch" type="xml">
+            <form string="Motor Test Template">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="result_type"/>
+                        <field name="selection_options" invisible="result_type !='selection'"/>
+                        <field name="stage"/>
+                        <field name="section"/>
+                        <field name="sequence"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_motor_test_template" model="ir.actions.act_window">
+        <field name="name">Motor Test Templates</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">motor.test.template</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_motor_test_template" name="Motor Tests" parent="menu_subheader_product_motor"
+              action="action_motor_test_template" sequence="30"/>
+
+</odoo>

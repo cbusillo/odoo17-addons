@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="product_connect.MotorTestWidget">
+        <div class="container">
+            <div class="row">
+                <t t-foreach="Object.entries(motorTestsBySection)" t-as="sectionEntry" t-key="sectionEntry[0]">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-white text-white p-2">
+                                <h3 class="card-title mb-0">
+                                    <t t-esc="sectionEntry[0]"/>
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <t t-foreach="sectionEntry[1]" t-as="test" t-key="test.id">
+                                    <div class="o_motor_test mb-3" t-att-data-test-id="test.id">
+                                        <strong>
+                                            <t t-esc="test.name"/>
+                                        </strong>
+                                        <div>
+                                            <t t-if="test.result_type === 'yes_no' || test.result_type === 'selection'">
+                                                <BadgeSelectionField
+                                                        name="test.name"
+                                                        record="test.custom_record"
+                                                        value="test.custom_record.data[test.name]"
+                                                        readonly="false"
+                                                        t-on-update="onBadgeSelectionUpdate"
+                                                />
+                                            </t>
+                                            <t t-if="test.result_type === 'numeric'">
+                                                <input type="number" class="o_motor_test_field" data-field-name="numeric_result" t-att-value="test.numeric_result" t-on-change="(ev) => this.onChangeMotorTestField(ev)" t-att-data-test-id="test.id"/>
+                                            </t>
+                                            <t t-if="test.result_type === 'text'">
+                                                <textarea class="o_motor_test_field" data-field-name="text_result" t-on-change="(ev) => this.onChangeMotorTestField(ev)" t-att-data-test-id="test.id">
+                                                    <t t-esc="test.text_result"/>
+                                                </textarea>
+                                            </t>
+                                            <t t-if="test.result_type === 'file'">
+                                                <input type="file" class="o_motor_test_field" data-field-name="file_result" t-on-change="(ev) => this.onChangeMotorTestField(ev)" t-att-data-test-id="test.id"/>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>

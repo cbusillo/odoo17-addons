@@ -9,6 +9,12 @@ access_product_import_wizard,access.product_import_wizard,model_product_import_w
 access_product_color,product.color,model_product_color,,1,1,1,1
 access_product_color_tag,product.color.tag,model_product_color_tag,,1,1,1,1
 
-access_product_motor_compression,access_product_motor_compression,model_product_motor_compression,base.group_user,1,1,1,1
-access_product_motor_image,access_product_motor_image,model_product_motor_image,base.group_user,1,1,1,1
-access_product_motor,access_product_motor,model_product_motor,base.group_user,1,1,1,1
+access_motor_compression,access_motor_compression,model_motor_compression,base.group_user,1,1,1,1
+access_motor_image,access_motor_image,model_motor_image,base.group_user,1,1,1,1
+access_motor,access_motor,model_motor,base.group_user,1,1,1,1
+access_motor_test_template,access_motor_test_template,model_motor_test_template,base.group_user,1,1,1,1
+access_motor_part,access_motor_part,model_motor_part,base.group_user,1,1,1,1
+access_motor_part_template,access_motor_part_template,model_motor_part_template,base.group_user,1,1,1,1
+access_motor_test,access_motor_test,model_motor_test,base.group_user,1,1,1,1
+access_motor_test_selection,access_motor_test_selection,model_motor_test_selection,base.group_user,1,1,1,1
+access_motor_test_section,access_motor_test_section,model_motor_test_section,base.group_user,1,1,1,1

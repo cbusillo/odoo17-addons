@@ -5,7 +5,7 @@ from odoo import models
 if TYPE_CHECKING:
     from ..models.product_import import ProductImport
     from ..models.product_template import ProductTemplate
-    from ..models.product_motor import ProductMotor
+    from ..models.motor import ProductMotor
 
 
 class ProductLabelsMixin(models.AbstractModel):

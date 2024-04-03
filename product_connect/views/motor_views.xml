@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_motor_tree" model="ir.ui.view">
+        <field name="name">motor.tree</field>
+        <field name="model">motor</field>
+        <field name="arch" type="xml">
+            <tree string="Motors List">
+                <field name="motor_number"/>
+                <field name="manufacturer"/>
+                <field name="horsepower"/>
+                <field name="model"/>
+                <field name="serial_number"/>
+                <field name="year"/>
+                <field name="color"/>
+                <field name="cost"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_motor_form" model="ir.ui.view">
+        <field name="name">motor.form</field>
+        <field name="model">motor</field>
+        <field name="arch" type="xml">
+            <form string="Motor Check-In">
+                <header>
+                    <field name="stage" widget="statusbar" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <notebook>
+                        <page id="basic_info" string="Basic Info">
+                            <group>
+                                <field name="motor_number" readonly="1"/>
+                                <field name="manufacturer" options="{'no_create': True, 'no_edit': True}"/>
+                                <field name="horsepower"/>
+                                <field name="motor_stroke" widget="selection_badge"/>
+                                <field name="motor_configuration" widget="selection_badge"/>
+                                <field name="model"/>
+                                <field name="serial_number"/>
+                                <field name="year" widget="selection_badge"/>
+                                <field name="color" widget="selection_badge"/>
+                                <field name="cost"/>
+                                <field name="tag_readable" widget="selection_badge"/>
+                            </group>
+                        </page>
+                        <page string="Images"
+                              invisible="stage not in ['images', 'parts', 'basic_testing', 'extended_testing', 'finalization']">
+                            <field name="images">
+                                <tree editable="bottom" delete="False">
+                                    <field name="name"/>
+                                    <field name="image_data" widget="image" options="{'size': [512, 0]}"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Missing Parts"
+                              invisible="stage not in ['parts', 'basic_testing', 'extended_testing', 'finalization']">
+                            <field name="parts">
+                                <tree editable="bottom" create="False" delete="False" default_order="sequence" open_form_view="1">
+                                    <field name="name"/>
+                                    <field name="missing" widget="boolean_toggle" class="large-toggle"/>
+                                    <field name="missing_selection" widget="selection_badge"/>
+                                    <field name="sequence" invisible="0"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <field name="name"/>
+                                        <field name="missing" widget="selection_badge"/>
+                                        <field name="missing_selection" widget="selection_badge"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Compression Testing">
+                            <!-- Compression Details -->
+                            <field name="compression">
+                                <tree editable="bottom" delete="False" create="False">
+                                    <field name="cylinder_number" readonly="1"/>
+                                    <field name="compression_psi" string="PSI"/>
+                                    <field name="compression_image" string="Image" widget="binary"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page id="basic_testing" string="Basic Testing" invisible="stage not in ['basic_testing', 'extended_testing', 'finalization']">
+                            <field name="basic_tests" widget="motor_test_widget"/>
+                            <field name="basic_tests" invisible="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="result_type"/>
+                                    <field name="section"/>
+                                    <field name="sequence"/>
+                                    <field name="section_sequence"/>
+                                    <field name="template"/>
+                                    <field name="yes_no_result"/>
+                                    <field name="selection_result"/>
+                                    <field name="numeric_result"/>
+                                    <field name="text_result"/>
+                                    <field name="file_result"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page id="extended_testing" string="Extended Testing" invisible="stage not in ['extended_testing', 'finalization']">
+                            <field name="extended_tests" widget="motor_test_widget"/>
+                            <field name="extended_tests" invisible="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="result_type"/>
+                                    <field name="section"/>
+                                    <field name="sequence"/>
+                                    <field name="section_sequence"/>
+                                    <field name="template"/>
+                                    <field name="yes_no_result"/>
+                                    <field name="selection_result"/>
+                                    <field name="numeric_result"/>
+                                    <field name="text_result"/>
+                                    <field name="file_result"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Finalization" invisible="stage != 'finalization'">
+                            <!-- Add fields relevant for the finalization stage here -->
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record model="ir.actions.act_window" id="action_motor_form">
+        <field name="name">Motors</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">motor</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_subheader_product_motor" name="Motors" parent="stock.menu_stock_inventory_control"/>
+    <menuitem id="menu_product_motor" name="Motors" parent="menu_subheader_product_motor" action="action_motor_form" sequence="10"/>
+
+</odoo>
