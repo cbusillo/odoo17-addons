@@ -61,7 +61,7 @@ sync_from_prod() {
       restart_postgres
     wait_for_db
     dropdb -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB"
-    createdb -U "$ODOO_USER" "$ODOO_DB"
+    createdb -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB"
     psql -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB" < "$TEMP_DB_BACKUP"
 
     echo "Database restore completed."
