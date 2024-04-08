@@ -31,6 +31,18 @@ fi
 ODOO_RUN="$ODOO_BIN -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
 ODOO_SHELL="$ODOO_BIN shell -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
 
+restart_postgres() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        brew services restart postgresql@16
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        # Linux
+        sudo systemctl restart postgresql@16
+    else
+        echo "Unsupported operating system."
+        exit 1
+    fi
+}
 
 sync_from_prod() {
     echo "Starting backup of production database..."
@@ -43,7 +55,7 @@ sync_from_prod() {
     rsync -avz "$PROD_SERVER:$PROD_FILESTORE_PATH/" "$LOCAL_FILESTORE_PATH/"
 
     echo "Filestore sync completed. Restoring database on development environment..."
-      brew services restart postgresql@16
+      restart_postgres
     wait_for_db
     dropdb -U $ODOO_USER $ODOO_DB
     createdb -U $ODOO_USER $ODOO_DB
@@ -88,7 +100,7 @@ wait_for_db
 
 init_dev_env() {
   if [ ! -f "$INIT_FILE" ]; then
-      brew services restart postgresql@16
+      restart_postgres
       wait_for_db
       dropdb -U odoo odoo
       createdb -U odoo odoo
