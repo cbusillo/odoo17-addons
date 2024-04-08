@@ -1,63 +1,61 @@
 /** @odoo-module **/
-const {Component, useState} = owl;
-import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { Component, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { registry } from "@web/core/registry";
+import { groupBy, sortBy } from "@web/core/utils/arrays"
 import { BadgeSelectionField } from "@web/views/fields/badge_selection/badge_selection_field";
 import { FloatField } from "@web/views/fields/float/float_field";
 import { CharField } from "@web/views/fields/char/char_field";
 import { BinaryField } from "@web/views/fields/binary/binary_field";
 
 export class MotorTestWidget extends Component {
-  static props = standardFieldProps;
-
   setup() {
-    super.setup();
     this.motorTestsBySection = useState({});
     this.selectionFieldDomains = useState({});
     this.orm = useService("orm");
 
+    const {name, record} = this.props;
+
+    const motorTestsRecords = record.data[name].records;
+    this.sortMotorTests(motorTestsRecords);
+    this.groupMotorTestsBySection(motorTestsRecords);
+  }
+
+  onWillStart() {
+    if (this.props.name) {
+      this.loadMotorTests();
+    }
+  }
+
+  loadMotorTests() {
     const motorTestsRecords = this.props.record.data[this.props.name].records;
     this.sortMotorTests(motorTestsRecords);
     this.groupMotorTestsBySection(motorTestsRecords);
   }
 
   sortMotorTests(motorTests) {
-    motorTests.sort((a, b) => {
-      const sectionSequenceA = a.data.section_sequence || Infinity;
-      const sectionSequenceB = b.data.section_sequence || Infinity;
-      return sectionSequenceA - sectionSequenceB || (a.data.sequence || 0) - (b.data.sequence || 0);
-    });
+    sortBy(motorTests, ({data: {section_sequence = Infinity, sequence = 0}}) => section_sequence - sequence);
   }
 
   groupMotorTestsBySection(motorTests) {
-    for (const test of motorTests) {
-      this.setSelectionFieldDomain(test);
-      this.addTestToSection(test);
+    this.motorTestsBySection = groupBy(motorTests, test => test.data.section[1]);
+    for (const tests of Object.values(this.motorTestsBySection)) {
+      for (const test of tests) {
+        this.setSelectionFieldDomain(test);
+      }
     }
-    console.log('Motor tests by section:', this.motorTestsBySection);
   }
 
-  setSelectionFieldDomain(test) {
-    if (test.data.result_type === 'selection') {
-      this.selectionFieldDomains[test.id] = [
-        ['id', '=', test.data.selection_options.currentIds],
+
+  setSelectionFieldDomain({data: {result_type: resultType, selection_options: selectionOptions}, id}) {
+    if (resultType === 'selection') {
+      this.selectionFieldDomains[id] = [
+        ['id', '=', selectionOptions.currentIds],
       ];
-      console.log('Selection Field Domain:', this.selectionFieldDomains[test.id]);
-    } else {
-      console.log('No selection options found for test:', test.data.name);
     }
   }
 
-  addTestToSection(test) {
-    const section = test.data.section[1];
-    if (!this.motorTestsBySection[section]) {
-      this.motorTestsBySection[section] = [];
-    }
-    this.motorTestsBySection[section].push(test);
-    console.log(`Added test ${test} to section ${section}`);
-  }
-
+  // noinspection JSUnusedGlobalSymbols
   getSelectionFieldDomain(testId) {
     return this.selectionFieldDomains[testId] || false;
   }
