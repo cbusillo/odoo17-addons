@@ -13,14 +13,14 @@ if [ -z "$2" ] || [ "$2" = "dev" ]; then
     ODOO_CONFIG_FILE="../odoo.dev.cfg"
     LOCAL_FILESTORE_PATH="/Users/cbusillo/PycharmProjects/Odoo17/filestore/filestore/odoo/"
 elif [ "$2" = "testing" ]; then
-    ODOO_CONFIG_FILE="/etc/odoo.cfg"
+    ODOO_CONFIG_FILE="/etc/odoo.conf"
     LOCAL_FILESTORE_PATH="/opt/odoo/.local/share/Odoo/filestore/opw"  # Replace with the actual path on your testing server
 else
     echo "Invalid environment. Please specify 'dev' or 'test'."
     exit 1
 fi
 INIT_FILE="init_done.flag"
-DB_CREDENTIALS=$(python3 get_odoo_config_values.py /etc/odoo.cfg)
+DB_CREDENTIALS=$(python3 get_odoo_config_values.py "$ODOO_CONFIG_FILE")
 ODOO_DB_SERVER=$(echo "$DB_CREDENTIALS" | cut -d' ' -f1)
 #DB_PORT=$(echo "$DB_CREDENTIALS" | cut -d' ' -f2)
 ODOO_DB=$(echo "$DB_CREDENTIALS" | cut -d' ' -f3)
