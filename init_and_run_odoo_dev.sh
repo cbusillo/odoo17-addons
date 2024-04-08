@@ -60,14 +60,14 @@ sync_from_prod() {
     echo "Filestore sync completed. Restoring database on development environment..."
       restart_postgres
     wait_for_db
-    dropdb -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB"
+    dropdb --if-exists  -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB"
     createdb -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB"
     psql -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB" < "$TEMP_DB_BACKUP"
 
     echo "Database restore completed."
 
-    $ODOO_RUN --stop-after-init --database="$ODOO_DB" --db_user="$ODOO_USER" --db_password="$ODOO_PASSWORD"
-    $ODOO_SHELL --no-http <<EOF
+    $ODOO_RUN --stop-after-init -c "$ODOO_CONFIG_FILE" -i product_connect
+    $ODOO_SHELL --no-http -c "$ODOO_CONFIG_FILE" <<EOF
 from passlib.context import CryptContext
 from odoo import api, SUPERUSER_ID
 from odoo.tools import config
