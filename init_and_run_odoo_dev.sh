@@ -28,6 +28,7 @@ ODOO_DB_SERVER=$(echo "$DB_CREDENTIALS" | jq -r '.db_host')
 ODOO_DB=$(echo "$DB_CREDENTIALS" | jq -r '.db_name')
 ODOO_USER=$(echo "$DB_CREDENTIALS" | jq -r '.db_user')
 ODOO_PASSWORD=$(echo "$DB_CREDENTIALS" | jq -r '.db_password')
+export PGPASSWORD="$ODOO_PASSWORD"
 
 
 ODOO_BIN="../odoo/odoo-bin"
