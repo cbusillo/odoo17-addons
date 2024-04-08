@@ -9,12 +9,7 @@ PROD_FILESTORE_PATH="/opt/odoo/.local/share/Odoo/filestore/$PROD_DB"
 TEMP_DB_BACKUP="/tmp/$PROD_DB-$(date +%F).sql"
 
 # Configuration for Odoo development environment
-INIT_FILE="init_done.flag"
-ODOO_DB_SERVER="localhost"
-ODOO_DB="odoo"
-ODOO_USER="odoo"
-ODOO_PASSWORD="odoo"
-ODOO_BIN="../odoo/odoo-bin"
+
 
 # Set the configuration file path and local filestore path based on the environment
 if [ -z "$2" ] || [ "$2" = "dev" ]; then
@@ -27,16 +22,22 @@ else
     echo "Invalid environment. Please specify 'dev' or 'test'."
     exit 1
 fi
+INIT_FILE="init_done.flag"
+DB_CREDENTIALS=$(python3 get_odoo_config_values.py /etc/odoo.cfg)
+ODOO_DB_SERVER=$(echo "$DB_CREDENTIALS" | cut -d' ' -f1)
+#DB_PORT=$(echo $DB_CREDENTIALS | cut -d' ' -f2)
+ODOO_DB=$(echo "$DB_CREDENTIALS" | cut -d' ' -f3)
+ODOO_USER=$(echo "$DB_CREDENTIALS" | cut -d' ' -f4)
+ODOO_PASSWORD=$(echo "$DB_CREDENTIALS" | cut -d' ' -f5)
+ODOO_BIN="../odoo/odoo-bin"
 
 ODOO_RUN="$ODOO_BIN -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
 ODOO_SHELL="$ODOO_BIN shell -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
 
 restart_postgres() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS
         brew services restart postgresql@16
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        # Linux
         sudo systemctl restart postgresql
     else
         echo "Unsupported operating system."
