@@ -28,14 +28,6 @@ ODOO_USER=$(echo "$DB_CREDENTIALS" | cut -d' ' -f4)
 ODOO_PASSWORD=$(echo "$DB_CREDENTIALS" | cut -d' ' -f5)
 ODOO_BIN="../odoo/odoo-bin"
 
-
-if [ "$ODOO_DB_SERVER" = "False" ]; then
-    ODOO_DB_SERVER="localhost"
-fi
-if [ "$ODOO_PASSWORD" = "False" ]; then
-    ODOO_PASSWORD=""
-fi
-
 ODOO_RUN="$ODOO_BIN -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
 ODOO_SHELL="$ODOO_BIN shell -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
 
