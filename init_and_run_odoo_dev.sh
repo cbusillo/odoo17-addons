@@ -37,7 +37,7 @@ restart_postgres() {
         brew services restart postgresql@16
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # Linux
-        sudo systemctl restart postgresql@16
+        sudo systemctl restart postgresql
     else
         echo "Unsupported operating system."
         exit 1
