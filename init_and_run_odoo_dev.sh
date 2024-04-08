@@ -60,7 +60,7 @@ sync_from_prod() {
     echo "Filestore sync completed. Restoring database on development environment..."
       restart_postgres
     wait_for_db
-    dropdb -U "$ODOO_USER" "$ODOO_DB"
+    dropdb -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB"
     createdb -U "$ODOO_USER" "$ODOO_DB"
     psql -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB" < "$TEMP_DB_BACKUP"
 
