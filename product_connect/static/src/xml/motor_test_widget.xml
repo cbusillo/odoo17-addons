@@ -15,31 +15,32 @@
                                 <t t-foreach="sectionEntry[1]" t-as="test" t-key="test.id">
                                     <div class="o_motor_test mb-3" t-att-data-test-id="test.id">
                                         <strong>
-                                            <t t-esc="test.name"/>
+                                            <t t-esc="test.data.name"/>
                                         </strong>
                                         <div>
-                                            <t t-if="test.result_type === 'yes_no' || test.result_type === 'selection'">
+                                            <t t-if="test.data.result_type === 'yes_no' || test.data.result_type === 'selection'">
                                                 <BadgeSelectionField
-                                                        name="test.name"
-                                                        record="test.custom_record"
+                                                        name="test.data.result_type + '_result'"
+                                                        record="test"
+                                                        domain="getSelectionFieldDomain(test.id)"
                                                 />
                                             </t>
-                                            <t t-if="test.result_type === 'numeric'">
+                                            <t t-if="test.data.result_type === 'numeric'">
                                                 <FloatField
                                                         name="'numeric_result'"
-                                                        record="test.record"
+                                                        record="test"
                                                 />
                                             </t>
-                                            <t t-if="test.result_type === 'text'">
+                                            <t t-if="test.data.result_type === 'text'">
                                                 <CharField
                                                         name="'text_result'"
-                                                        record="test.record"
+                                                        record="test"
                                                 />
                                             </t>
-                                            <t t-if="test.result_type === 'file'">
+                                            <t t-if="test.data.result_type === 'file'">
                                                 <BinaryField
                                                         name="'file_result'"
-                                                        record="test.record"
+                                                        record="test"
                                                 />
                                             </t>
                                         </div>
