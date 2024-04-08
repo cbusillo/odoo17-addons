@@ -17,12 +17,12 @@ ODOO_PASSWORD="odoo"
 ODOO_BIN="../odoo/odoo-bin"
 
 # Set the configuration file path and local filestore path based on the environment
-if [ -z "$1" ] || [ "$1" = "dev" ]; then
+if [ -z "$2" ] || [ "$2" = "dev" ]; then
     ODOO_CONFIG_FILE="../odoo.dev.cfg"
     LOCAL_FILESTORE_PATH="/Users/cbusillo/PycharmProjects/Odoo17/filestore/filestore/odoo/"
-elif [ "$1" = "testing" ]; then
+elif [ "$2" = "testing" ]; then
     ODOO_CONFIG_FILE="/etc/odoo.cfg"
-    LOCAL_FILESTORE_PATH="/opt/odoo17/.local/share/Odoo/filestore/opw"  # Replace with the actual path on your testing server
+    LOCAL_FILESTORE_PATH="/opt/odoo/.local/share/Odoo/filestore/opw"  # Replace with the actual path on your testing server
 else
     echo "Invalid environment. Please specify 'dev' or 'test'."
     exit 1
