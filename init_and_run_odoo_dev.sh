@@ -9,9 +9,6 @@ PROD_FILESTORE_PATH="/opt/odoo/.local/share/Odoo/filestore/$PROD_DB"
 TEMP_DB_BACKUP="/tmp/$PROD_DB-$(date +%F).sql"
 
 # Configuration for Odoo development environment
-
-
-# Set the configuration file path and local filestore path based on the environment
 if [ -z "$2" ] || [ "$2" = "dev" ]; then
     ODOO_CONFIG_FILE="../odoo.dev.cfg"
     LOCAL_FILESTORE_PATH="/Users/cbusillo/PycharmProjects/Odoo17/filestore/filestore/odoo/"
@@ -25,11 +22,19 @@ fi
 INIT_FILE="init_done.flag"
 DB_CREDENTIALS=$(python3 get_odoo_config_values.py /etc/odoo.cfg)
 ODOO_DB_SERVER=$(echo "$DB_CREDENTIALS" | cut -d' ' -f1)
-#DB_PORT=$(echo $DB_CREDENTIALS | cut -d' ' -f2)
+#DB_PORT=$(echo "$DB_CREDENTIALS" | cut -d' ' -f2)
 ODOO_DB=$(echo "$DB_CREDENTIALS" | cut -d' ' -f3)
 ODOO_USER=$(echo "$DB_CREDENTIALS" | cut -d' ' -f4)
 ODOO_PASSWORD=$(echo "$DB_CREDENTIALS" | cut -d' ' -f5)
 ODOO_BIN="../odoo/odoo-bin"
+
+
+if [ "$ODOO_DB_SERVER" = "False" ]; then
+    ODOO_DB_SERVER="localhost"
+fi
+if [ "$ODOO_PASSWORD" = "False" ]; then
+    ODOO_PASSWORD=""
+fi
 
 ODOO_RUN="$ODOO_BIN -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
 ODOO_SHELL="$ODOO_BIN shell -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
@@ -58,13 +63,13 @@ sync_from_prod() {
     echo "Filestore sync completed. Restoring database on development environment..."
       restart_postgres
     wait_for_db
-    dropdb -U $ODOO_USER $ODOO_DB
-    createdb -U $ODOO_USER $ODOO_DB
-    psql -h $ODOO_DB_SERVER -U $ODOO_USER $ODOO_DB < "$TEMP_DB_BACKUP"
+    dropdb -U "$ODOO_USER" "$ODOO_DB"
+    createdb -U "$ODOO_USER" "$ODOO_DB"
+    psql -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB" < "$TEMP_DB_BACKUP"
 
     echo "Database restore completed."
 
-    $ODOO_RUN --stop-after-init --database=$ODOO_DB --db_user=$ODOO_USER --db_password=$ODOO_PASSWORD
+    $ODOO_RUN --stop-after-init --database="$ODOO_DB" --db_user="$ODOO_USER" --db_password="$ODOO_PASSWORD"
     $ODOO_SHELL --no-http <<EOF
 from passlib.context import CryptContext
 from odoo import api, SUPERUSER_ID
