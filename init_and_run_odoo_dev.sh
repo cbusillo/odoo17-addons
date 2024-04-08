@@ -21,11 +21,22 @@ else
 fi
 INIT_FILE="init_done.flag"
 
-ODOO_DB_SERVER=$(grep -oP 'db_host\s*=\s*\K[^ ]+' "$ODOO_CONFIG_FILE")
-#ODOO_PORT=$(grep -oP 'db_port\s*=\s*\K[^ ]+' "$ODOO_CONFIG_FILE")
-ODOO_DB=$(grep -oP 'db_name\s*=\s*\K[^ ]+' "$ODOO_CONFIG_FILE")
-ODOO_USER=$(grep -oP 'db_user\s*=\s*\K[^ ]+' "$ODOO_CONFIG_FILE")
-ODOO_PASSWORD=$(grep -oP 'db_password\s*=\s*\K[^ ]+' "$ODOO_CONFIG_FILE")
+ODOO_DB_SERVER=$(echo "$DB_CREDENTIALS" | jq -r '.db_host')
+ODOO_DB=$(echo "$DB_CREDENTIALS" | jq -r '.db_name')
+ODOO_USER=$(echo "$DB_CREDENTIALS" | jq -r '.db_user')
+ODOO_PASSWORD=$(echo "$DB_CREDENTIALS" | jq -r '.db_password')
+
+# Define the default values
+DEFAULT_DB_SERVER="localhost"
+DEFAULT_DB="odoo"
+DEFAULT_USER="odoo"
+DEFAULT_PASSWORD=""
+
+# Check if the values are "False" (case-insensitive) and, if so, replace them with the default values
+[ "${ODOO_DB_SERVER,,}" = "false" ] && ODOO_DB_SERVER=$DEFAULT_DB_SERVER
+[ "${ODOO_DB,,}" = "false" ] && ODOO_DB=$DEFAULT_DB
+[ "${ODOO_USER,,}" = "false" ] && ODOO_USER=$DEFAULT_USER
+[ "${ODOO_PASSWORD,,}" = "false" ] && ODOO_PASSWORD=$DEFAULT_PASSWORD
 
 ODOO_BIN="../odoo/odoo-bin"
 
