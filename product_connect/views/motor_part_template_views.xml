@@ -8,7 +8,7 @@
             <tree string="Motor Parts">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
-                <field name="affected_tests"/>
+                <field name="hidden_tests"/>
                 <field name="sequence"/>
             </tree>
         </field>
@@ -23,7 +23,7 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        <field name="affected_tests"/>
+                        <field name="hidden_tests"/>
                         <field name="sequence"/>
                     </group>
                 </sheet>

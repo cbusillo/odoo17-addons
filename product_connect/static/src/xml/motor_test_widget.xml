@@ -22,21 +22,25 @@
                                                 <BadgeSelectionField
                                                         name="test.name"
                                                         record="test.custom_record"
-                                                        value="test.custom_record.data[test.name]"
-                                                        readonly="false"
-                                                        t-on-update="onBadgeSelectionUpdate"
                                                 />
                                             </t>
                                             <t t-if="test.result_type === 'numeric'">
-                                                <input type="number" class="o_motor_test_field" data-field-name="numeric_result" t-att-value="test.numeric_result" t-on-change="(ev) => this.onChangeMotorTestField(ev)" t-att-data-test-id="test.id"/>
+                                                <FloatField
+                                                        name="'numeric_result'"
+                                                        record="test.record"
+                                                />
                                             </t>
                                             <t t-if="test.result_type === 'text'">
-                                                <textarea class="o_motor_test_field" data-field-name="text_result" t-on-change="(ev) => this.onChangeMotorTestField(ev)" t-att-data-test-id="test.id">
-                                                    <t t-esc="test.text_result"/>
-                                                </textarea>
+                                                <CharField
+                                                        name="'text_result'"
+                                                        record="test.record"
+                                                />
                                             </t>
                                             <t t-if="test.result_type === 'file'">
-                                                <input type="file" class="o_motor_test_field" data-field-name="file_result" t-on-change="(ev) => this.onChangeMotorTestField(ev)" t-att-data-test-id="test.id"/>
+                                                <BinaryField
+                                                        name="'file_result'"
+                                                        record="test.record"
+                                                />
                                             </t>
                                         </div>
                                     </div>

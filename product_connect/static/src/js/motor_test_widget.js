@@ -4,10 +4,13 @@ import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useService } from "@web/core/utils/hooks";
 import { registry } from "@web/core/registry";
 import { BadgeSelectionField } from "@web/views/fields/badge_selection/badge_selection_field";
+import { FloatField } from "@web/views/fields/float/float_field";
+import { CharField } from "@web/views/fields/char/char_field";
+import { BinaryField } from "@web/views/fields/binary/binary_field";
 
-const createCustomRecord = (test, selectionOptions) => {
+const createCustomRecord = (test, selectionOptions, orm, triggerUpdate) => {
   return {
-    id: test.id,
+    id: parseInt(test.data.id),
     fields: {
       [test.data.name]: {
         type: 'selection',
@@ -17,8 +20,14 @@ const createCustomRecord = (test, selectionOptions) => {
     data: {
       [test.data.name]: test.data.selection_result || test.data.yes_no_result,
     },
-    update: function (values) {
-      Object.assign(this.data, values);
+    update: async function (values) {
+      const value = Object.values(values)[0];
+      let updateData = {};
+      updateData[test.data.result_type + "_result"] = value;
+
+      this.data[test.data.name] = value;
+
+      triggerUpdate(test.data.id, updateData);
     },
   };
 };
@@ -30,6 +39,7 @@ export class MotorTestWidget extends Component {
     super.setup();
     this.motorTestsBySection = useState({});
     this.orm = useService("orm");
+
     let motorTestsRecords = this.props.record.data[this.props.name].records;
     motorTestsRecords.sort((a, b) => {
       // noinspection JSUnresolvedVariable
@@ -47,10 +57,10 @@ export class MotorTestWidget extends Component {
       let customRecord = null;
       if (test.data.result_type === 'selection') {
         const selectionOptions = allSelectionOptions.filter(option => option.templates.includes(test.data.template[0]));
-        customRecord = createCustomRecord(test, selectionOptions);
+        customRecord = createCustomRecord(test, selectionOptions, this.orm, this.triggerUpdate.bind(this));
       } else if (test.data.result_type === 'yes_no') {
         const selectionOptions = [{name: "Yes", value: "yes"}, {name: "No", value: "no"}];
-        customRecord = createCustomRecord(test, selectionOptions);
+        customRecord = createCustomRecord(test, selectionOptions, this.orm, this.triggerUpdate.bind(this));
       }
 
       const section = test.data.section[1];
@@ -59,6 +69,7 @@ export class MotorTestWidget extends Component {
       }
       this.motorTestsBySection[section].push({
         id: test.id,
+        odoo_id: test.data.id,
         name: test.data.name,
         result_type: test.data.result_type,
         yes_no_result: test.data.yes_no_result,
@@ -67,71 +78,22 @@ export class MotorTestWidget extends Component {
         text_result: test.data.text_result,
         file_result: test.data.file_result,
         custom_record: customRecord,
+        record: test,
       });
     }
   }
 
-onBadgeSelectionUpdate(value, test) {
-  const testIdStr = test.id.toString();
-  if (isNaN(parseInt(testIdStr))) {
-    console.error(`Invalid test ID: ${testIdStr}`);
-    return;
+  async triggerUpdate(testId, updateData) {
+    console.log(`triggerUpdate called with testId: ${testId} and updateData:`, updateData);
+    const result = await this.orm.call("motor.test", "write", [[testId], updateData]);
+    console.log('Result of orm.call:', result);
   }
-  this.onChangeMotorTestField({
-    target: {
-      closest: () => ({ getAttribute: () => testIdStr }),
-      dataset: { fieldName: test.result_type === 'yes_no' ? 'yes_no_result' : 'selection_result' },
-      value: value
-    }
-  });
-}
 
-  async onChangeMotorTestField(event) {
-    const testIdStr = event.target.closest('.o_motor_test').getAttribute('data-test-id');
-    const testId = parseInt(testIdStr);
 
-    if (isNaN(testId)) {
-      console.error(`Invalid test ID: ${testIdStr}`);
-      return;
-    }
-
-    const fieldName = event.target.dataset.fieldName;
-    const value = event.target.value;
-
-    let foundTest = null;
-    for (const section of Object.keys(this.motorTestsBySection)) {
-      const test = this.motorTestsBySection[section].find(test => test.id === testId);
-
-      if (test) {
-        foundTest = test;
-        break;
-      }
-    }
-
-    if (foundTest) {
-      // Update the foundTest object
-      foundTest[fieldName] = value;
-
-      // Update the custom record if it exists
-      if (foundTest.custom_record) {
-        foundTest.custom_record.update({[foundTest.name]: value});
-      }
-
-      // Save the changes to the database
-      await this.orm.write('motor.test', [foundTest.id], {
-        [fieldName]: value,
-      });
-
-      // Trigger a re-render of the component
-      await this.render();
-    } else {
-      console.error(`Test with id ${testId} not found`);
-    }
-  }
 }
 
 MotorTestWidget.template = "product_connect.MotorTestWidget";
-MotorTestWidget.components = {BadgeSelectionField};
+MotorTestWidget.components = {BadgeSelectionField, FloatField, CharField, BinaryField};
 
 export const motorTestWidget = {
   component: MotorTestWidget,

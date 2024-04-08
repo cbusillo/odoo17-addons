@@ -82,7 +82,12 @@ class MotorTest(models.Model):
     )
 
     yes_no_result = fields.Selection(YES_NO_SELECTION)
-    selection_result = fields.Many2one("motor.test.selection")
+    selection_options = fields.Many2many(related="template.selection_options")
+
+    selection_result = fields.Many2one(
+        "motor.test.selection",
+        domain="[('id', 'in', selection_options)]",
+    )
 
     numeric_result = fields.Float()
     text_result = fields.Text()
@@ -96,7 +101,7 @@ class MotorPartTemplate(models.Model):
     _order = "sequence, id"
 
     name = fields.Char(required=True)
-    affected_tests = fields.Many2many("motor.test.template", string="Affected Tests")
+    hidden_tests = fields.Many2many("motor.test.template", string="Hidden Tests")
     sequence = fields.Integer(default=10)
 
 
@@ -108,13 +113,12 @@ class MotorPart(models.Model):
     motor = fields.Many2one(comodel_name="motor", required=True, ondelete="cascade")
     template = fields.Many2one(
         comodel_name="motor.part.template",
-        string="Missing Part",
         required=True,
         ondelete="cascade",
     )
     name = fields.Char(related="template.name")
     sequence = fields.Integer(related="template.sequence", index=True, store=True)
-    affected_tests = fields.Many2many(related="template.affected_tests")
+    hidden_tests = fields.Many2many(related="template.hidden_tests", readonly=False)
     missing = fields.Boolean(default=False)
     missing_selection = fields.Selection(YES_NO_SELECTION, default=NO)
 
