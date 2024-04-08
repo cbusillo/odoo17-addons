@@ -20,12 +20,13 @@ else
     exit 1
 fi
 INIT_FILE="init_done.flag"
-DB_CREDENTIALS=$(python3 get_odoo_config_values.py "$ODOO_CONFIG_FILE")
-ODOO_DB_SERVER=$(echo "$DB_CREDENTIALS" | cut -d' ' -f1)
-#DB_PORT=$(echo "$DB_CREDENTIALS" | cut -d' ' -f2)
-ODOO_DB=$(echo "$DB_CREDENTIALS" | cut -d' ' -f3)
-ODOO_USER=$(echo "$DB_CREDENTIALS" | cut -d' ' -f4)
-ODOO_PASSWORD=$(echo "$DB_CREDENTIALS" | cut -d' ' -f5)
+
+ODOO_DB_SERVER=$(grep -oP 'db_host\s*=\s*\K[^ ]+' "$ODOO_CONFIG_FILE")
+#ODOO_PORT=$(grep -oP 'db_port\s*=\s*\K[^ ]+' "$ODOO_CONFIG_FILE")
+ODOO_DB=$(grep -oP 'db_name\s*=\s*\K[^ ]+' "$ODOO_CONFIG_FILE")
+ODOO_USER=$(grep -oP 'db_user\s*=\s*\K[^ ]+' "$ODOO_CONFIG_FILE")
+ODOO_PASSWORD=$(grep -oP 'db_password\s*=\s*\K[^ ]+' "$ODOO_CONFIG_FILE")
+
 ODOO_BIN="../odoo/odoo-bin"
 
 ODOO_RUN="$ODOO_BIN -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
