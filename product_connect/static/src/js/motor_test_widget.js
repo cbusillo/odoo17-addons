@@ -17,16 +17,12 @@ export class MotorTestWidget extends Component {
     this.updateMotorTests();
   }
 
-  onPatched() {
-    this.updateMotorTests();
-  }
-
   updateMotorTests() {
     const {name, record} = this.props;
 
     const motorTestsRecords = record.data[name].records;
     this.sortMotorTests(motorTestsRecords);
-    this.groupMotorTestsBySection(motorTestsRecords);  
+    this.groupMotorTestsBySection(motorTestsRecords);
   }
 
   sortMotorTests(motorTests) {
@@ -41,7 +37,6 @@ export class MotorTestWidget extends Component {
       }
     }
   }
-
 
   setSelectionFieldDomain({data: {result_type: resultType, selection_options: selectionOptions}, id}) {
     if (resultType === 'selection') {
