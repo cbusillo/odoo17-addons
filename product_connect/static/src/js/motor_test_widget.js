@@ -14,23 +14,19 @@ export class MotorTestWidget extends Component {
     this.selectionFieldDomains = useState({});
     this.orm = useService("orm");
 
+    this.updateMotorTests();
+  }
+
+  onPatched() {
+    this.updateMotorTests();
+  }
+
+  updateMotorTests() {
     const {name, record} = this.props;
 
     const motorTestsRecords = record.data[name].records;
     this.sortMotorTests(motorTestsRecords);
-    this.groupMotorTestsBySection(motorTestsRecords);
-  }
-
-  onWillStart() {
-    if (this.props.name) {
-      this.loadMotorTests();
-    }
-  }
-
-  loadMotorTests() {
-    const motorTestsRecords = this.props.record.data[this.props.name].records;
-    this.sortMotorTests(motorTestsRecords);
-    this.groupMotorTestsBySection(motorTestsRecords);
+    this.groupMotorTestsBySection(motorTestsRecords);  
   }
 
   sortMotorTests(motorTests) {
