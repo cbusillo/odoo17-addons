@@ -74,11 +74,13 @@ class MotorTest(models.Model):
     template = fields.Many2one(
         "motor.test.template", string="Test Template", ondelete="restrict"
     )
-    sequence = fields.Integer(related="template.sequence", index=True, store=True)
+    sequence = fields.Integer(
+        string="Test Sequence", related="template.sequence", index=True, store=True
+    )
     result_type = fields.Selection(related="template.result_type")
     section = fields.Many2one(related="template.section")
     section_sequence = fields.Integer(
-        related="section.sequence", index=True, store=True
+        string="Section Sequence", related="section.sequence", index=True, store=True
     )
 
     yes_no_result = fields.Selection(YES_NO_SELECTION)

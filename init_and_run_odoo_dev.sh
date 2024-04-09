@@ -33,8 +33,8 @@ export PGPASSWORD="$ODOO_PASSWORD"
 
 ODOO_BIN="../odoo/odoo-bin"
 
-ODOO_RUN="$ODOO_BIN -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
-ODOO_SHELL="$ODOO_BIN shell -c $ODOO_CONFIG_FILE --addons-path=../odoo/addons,../odoo/odoo/addons,."
+ODOO_RUN="$ODOO_BIN -c $ODOO_CONFIG_FILE"
+ODOO_SHELL="$ODOO_BIN shell -c $ODOO_CONFIG_FILE"
 
 restart_postgres() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -66,8 +66,8 @@ sync_from_prod() {
 
     echo "Database restore completed."
 
-    $ODOO_RUN --stop-after-init -c "$ODOO_CONFIG_FILE" -i product_connect
-    $ODOO_SHELL --no-http -c "$ODOO_CONFIG_FILE" <<EOF
+    $ODOO_RUN --stop-after-init -i product_connect
+    $ODOO_SHELL --no-http <<EOF
 from passlib.context import CryptContext
 from odoo import api, SUPERUSER_ID
 from odoo.tools import config
