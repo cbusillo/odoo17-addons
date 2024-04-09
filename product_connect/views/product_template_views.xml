@@ -134,6 +134,7 @@
                 <field name="height"/>
                 <field name="weight"/>
                 <field name="bin"/>
+
             </tree>
         </field>
     </record>
@@ -150,10 +151,14 @@
                 <field name="length"/>
                 <field name="width"/>
                 <field name="height"/>
-                <filter name="zero_dimensions" string="Zero Dimensions" domain="['|', '|', '|', '|', '|', '|', ('length', '=', 0), ('length', '=', False), ('width', '=', 0), ('width', '=', False), ('height', '=', 0), ('height', '=', False)]"/>
-                <filter name="zero_weight" string="Zero Weight" domain="['|', '|', ('weight', '=', 0), ('weight', '=', False)]"/>
-                <filter name="zero_dimensions_weight" string="Zero Dimensions or Weight" domain="['|', '|', '|', '|', '|', '|', '|', '|', ('length', '=', 0), ('length', '=', False), ('width', '=', 0), ('width', '=', False), ('height', '=', 0), ('height', '=', False), ('weight', '=', 0), ('weight', '=', False)]"/>
 
+                <filter name="filter_zero_dimensions" string="Zero Dimensions" domain="['|', '|', '|', '|', '|', ('length', '=', 0), ('length', '=', False), ('width', '=', 0), ('width', '=', False), ('height', '=', 0), ('height', '=', False)]"/>
+                <filter name="filter_zero_weight" string="Zero Weight" domain="['|', ('weight', '=', 0), ('weight', '=', False)]"/>
+                <filter name="filter_missing_bin" string="Missing Bin" domain="['|',('bin', '=', False), ('bin', '=','')]"/>
+                <filter name="filter_has_bin" string="Has Bin" domain="[('bin', '!=', False), ('bin', '!=', '')]"/>
+                <filter name="filter_has_quantity" string="Has Quantity" domain="[('qty_available', '>', 0)]"/>
+                <filter name="filter_has_bin_and_quantity" string="Has Bin and Quantity" domain="[('bin', '!=', False), ('bin', '!=', ''), ('qty_available', '>', 0)]"/>
+                <filter name="group_by_bin" context="{'group_by':'bin', 'order': 'bin'}"/>
             </search>
         </field>
     </record>
