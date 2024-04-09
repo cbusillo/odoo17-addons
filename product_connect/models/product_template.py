@@ -29,6 +29,18 @@ class ProductType(models.Model):
 class ProductTemplate(models.Model, ProductLabelsMixin):
     _inherit = "product.template"
 
+    length = fields.Integer()
+    width = fields.Integer()
+    height = fields.Integer()
+
+    @api.constrains("length", "width", "height")
+    def check_dimension_values(self) -> None:
+        for record in self:
+            fields_to_check = [record.length, record.width, record.height]
+            for field_value in fields_to_check:
+                if field_value and len(str(abs(field_value))) > 2:
+                    raise ValidationError("Dimensions cannot exceed 2 digits.")
+
     bin = fields.Char(index=True)
     mpn = fields.Char(string="MPN", index=True)
     lot_number = fields.Char(index=True)
