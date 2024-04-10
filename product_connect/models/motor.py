@@ -43,6 +43,16 @@ class MotorTestTemplate(models.Model):
         required=True,
     )
     selection_options = fields.Many2many("motor.test.selection")
+    conditional_tests = fields.Many2many(
+        "motor.test.template",
+        "motor_test_template_conditional_rel",
+        "test_id",
+        "conditional_test_id",
+    )
+    conditions = fields.One2many(
+        "motor.test.template.condition",
+        "template",
+    )
     stage = fields.Selection(
         [
             ("basic", "Basic Testing"),
@@ -53,6 +63,21 @@ class MotorTestTemplate(models.Model):
     section = fields.Many2one("motor.test.section")
 
     sequence = fields.Integer(default=10)
+
+
+class MotorTestTemplateCondition(models.Model):
+    _name = "motor.test.template.condition"
+    _description = "Motor Test Template Condition"
+
+    template = fields.Many2one("motor.test.template", ondelete="cascade")
+    condition_value = fields.Char(required=True)
+    action_type = fields.Selection(
+        [
+            ("show", "Show Test"),
+            ("hide", "Hide Test"),
+        ],
+    )
+    conditional_test = fields.Many2one("motor.test.template", ondelete="cascade")
 
 
 class MotorTestSelection(models.Model):
@@ -95,6 +120,9 @@ class MotorTest(models.Model):
     text_result = fields.Text()
     file_result = fields.Binary()
     is_applicable = fields.Boolean(default=True)
+    conditional_tests = fields.Many2many(
+        "motor.test.template", related="template.conditional_tests"
+    )
 
 
 class MotorPartTemplate(models.Model):
@@ -104,6 +132,7 @@ class MotorPartTemplate(models.Model):
 
     name = fields.Char(required=True)
     hidden_tests = fields.Many2many("motor.test.template", string="Hidden Tests")
+    hide_compression_page = fields.Boolean()
     sequence = fields.Integer(default=10)
 
 
@@ -115,14 +144,14 @@ class MotorPart(models.Model):
     motor = fields.Many2one(comodel_name="motor", required=True, ondelete="cascade")
     template = fields.Many2one(
         comodel_name="motor.part.template",
-        required=True,
         ondelete="cascade",
     )
     name = fields.Char(related="template.name")
     sequence = fields.Integer(related="template.sequence", index=True, store=True)
-    hidden_tests = fields.Many2many(related="template.hidden_tests", readonly=False)
+    hidden_tests = fields.Many2many(
+        "motor.test.template", related="template.hidden_tests", readonly=False
+    )
     missing = fields.Boolean(default=False)
-    missing_selection = fields.Selection(YES_NO_SELECTION, default=NO)
 
 
 class MotorCompression(models.Model):
@@ -182,7 +211,7 @@ class Motor(models.Model):
     year = fields.Selection(_get_years, string="Model Year")
     color = fields.Many2one(
         "product.color",
-        domain="[('applicable_tags_ids.name', '=', 'Motors')]",
+        domain="[('applicable_tags.name', '=', 'Motors')]",
     )
     cost = fields.Float()
 
@@ -200,6 +229,18 @@ class Motor(models.Model):
 
     # Basic Testing
     compression = fields.One2many("motor.compression", "motor")
+    hide_compression_page = fields.Boolean(
+        compute="_compute_hide_compression_page",
+        store=True,
+    )
+
+    @api.depends("parts.missing", "parts.template.hide_compression_page")
+    def _compute_hide_compression_page(self) -> None:
+        for motor in self:
+            hide_parts = motor.parts.filtered(
+                lambda p: p.missing and p.template.hide_compression_page
+            )
+            motor.hide_compression_page = bool(hide_parts)
 
     # Extended Testing
     # Finalization

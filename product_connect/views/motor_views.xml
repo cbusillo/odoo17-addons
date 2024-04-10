@@ -58,12 +58,14 @@
                               invisible="stage not in ['parts', 'basic_testing', 'extended_testing', 'finalization']">
                             <field name="parts">
                                 <tree editable="bottom" create="False" delete="False" open_form_view="1">
-                                    <field name="name"/>
-                                    <field name="missing" widget="boolean_toggle" class="large-toggle"/>
+                                    <field name="missing" widget="boolean_toggle" class="large-toggle o_motor_part_missing_column"/>
+                                    <field name="name" class="sc_full_width"/>
+                                    <field name="template" invisible="0"/>
+                                    <field name="hidden_tests" invisible="0"/>
                                 </tree>
                             </field>
                         </page>
-                        <page string="Compression Testing">
+                        <page string="Compression Testing" invisible="hide_compression_page">
                             <field name="compression">
                                 <tree editable="bottom" delete="False" create="False">
                                     <field name="cylinder_number" readonly="1"/>
@@ -71,6 +73,7 @@
                                     <field name="compression_image" string="Image" widget="binary"/>
                                 </tree>
                             </field>
+                            <field name="hide_compression_page" invisible="1"/>
                         </page>
                         <page id="basic_testing" string="Basic Testing" invisible="stage not in ['basic_testing', 'extended_testing', 'finalization']">
                             <field name="basic_tests" widget="motor_test_widget">
@@ -88,6 +91,7 @@
                                     <field name="numeric_result"/>
                                     <field name="text_result"/>
                                     <field name="file_result"/>
+                                    <field name="conditional_tests"/>
                                 </tree>
                             </field>
                             <field name="basic_tests" invisible="0">
@@ -104,6 +108,7 @@
                                     <field name="numeric_result"/>
                                     <field name="text_result"/>
                                     <field name="file_result"/>
+                                    <field name="conditional_tests"/>
                                 </tree>
                             </field>
                         </page>

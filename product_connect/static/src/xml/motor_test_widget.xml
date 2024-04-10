@@ -13,7 +13,7 @@
                             </div>
                             <div class="card-body">
                                 <t t-foreach="sectionEntry[1]" t-as="test" t-key="test.id">
-                                    <div class="o_motor_test mb-3" t-att-data-test-id="test.id">
+                                    <div t-if="test.data.is_applicable" class="o_motor_test mb-3" t-att-data-test-id="test.id">
                                         <strong>
                                             <t t-esc="test.data.name"/>
                                         </strong>

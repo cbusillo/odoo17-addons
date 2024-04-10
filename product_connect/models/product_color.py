@@ -14,4 +14,4 @@ class ProductColor(models.Model):
 
     name = fields.Char(required=True)
     color_code = fields.Char(help="The HEX color code, e.g., #FFFFFF for white.")
-    applicable_tags_ids = fields.Many2many("product.color.tag", string="Applicable For")
+    applicable_tags = fields.Many2many("product.color.tag", string="Applicable For")

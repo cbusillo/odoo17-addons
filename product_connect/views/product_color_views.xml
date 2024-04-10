@@ -6,7 +6,7 @@
             <tree string="Product Colors" editable="bottom" open_form_view="True">
                 <field name="name"/>
                 <field name="color_code" widget="color"/>
-                <field name="applicable_tags_ids" widget="many2many_tags"/>
+                <field name="applicable_tags" widget="many2many_tags"/>
             </tree>
         </field>
     </record>
@@ -20,7 +20,7 @@
                     <group>
                         <field name="name"/>
                         <field name="color_code" widget="color"/>
-                        <field name="applicable_tags_ids" widget="many2many_tags"/>
+                        <field name="applicable_tags" widget="many2many_tags"/>
                     </group>
                 </sheet>
             </form>

@@ -24,6 +24,7 @@
                     <group>
                         <field name="name"/>
                         <field name="hidden_tests"/>
+                        <field name="hide_compression_page" widget="boolean_toggle"/>
                         <field name="sequence"/>
                     </group>
                 </sheet>
