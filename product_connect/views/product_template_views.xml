@@ -145,12 +145,9 @@
         <field name="arch" type="xml">
             <search string="Product">
                 <field name="default_code" string="Product" filter_domain="['|', '|', '|', '|', '|', '|', ('name', 'ilike', self) , ('default_code', 'ilike', self), ('bin', 'ilike', self), ('weight', 'ilike', self), ('length', 'ilike', self), ('width', 'ilike', self), ('height', 'ilike', self)]"/>
+                <field name="name"/>
                 <field name="default_code" string="SKU"/>
                 <field name="bin"/>
-                <field name="weight"/>
-                <field name="length"/>
-                <field name="width"/>
-                <field name="height"/>
 
                 <filter name="filter_zero_dimensions" string="Zero Dimensions" domain="['|', '|', '|', '|', '|', ('length', '=', 0), ('length', '=', False), ('width', '=', 0), ('width', '=', False), ('height', '=', 0), ('height', '=', False)]"/>
                 <filter name="filter_zero_weight" string="Zero Weight" domain="['|', ('weight', '=', 0), ('weight', '=', False)]"/>
