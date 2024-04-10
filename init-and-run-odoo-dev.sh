@@ -19,7 +19,7 @@ else
     echo "Invalid environment. Please specify 'dev' or 'test'."
     exit 1
 fi
-INIT_FILE="init_done.flag"
+INIT_FILE="init-done.flag"
 
 DB_CREDENTIALS=$(python3 get_odoo_config_values.py "$ODOO_CONFIG_FILE")
 
@@ -160,16 +160,16 @@ start_odoo_debug() {
 
 case "$1" in
     sync_prod)
-        sync_from_prod
+        sync-from-prod
         ;;
     init)
-        init_dev_env
+        init-dev-env
         ;;
     debug)
-        start_odoo_debug "${@:2}"
+        start-odoo-debug "${@:2}"
         ;;
     *)
-        start_odoo "$@"
+        start-odoo "$@"
         ;;
 esac
 
