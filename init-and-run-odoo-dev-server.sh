@@ -5,16 +5,16 @@ IFS=$'\n\t'
 TAILSCALE_PATH="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
 FLAG="${1:-}"
 
-is_tailscale_up() {
-    $TAILSCALE_PATH status > /dev/null 2>&1
-    return $?
-}
+set +e  # Temporarily disable 'exit on error'
+$TAILSCALE_PATH status > /dev/null 2>&1
+INITIAL_STATE=$?
+set -e  # Re-enable 'exit on error'
 
-INITIAL_STATE=$(is_tailscale_up || echo 0)
-
-if (( INITIAL_STATE != 0 )); then
+if ! ($TAILSCALE_PATH status > /dev/null 2>&1); then
     echo "Starting Tailscale..."
-    sudo $TAILSCALE_PATH up
+    $TAILSCALE_PATH up
+else
+    INITIAL_STATE=0  # Tailscale was already running
 fi
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -41,5 +41,5 @@ EOF
 
 if [ "$INITIAL_STATE" -ne 0 ]; then
     echo "Stopping Tailscale..."
-    sudo $TAILSCALE_PATH down
+    $TAILSCALE_PATH down
 fi
