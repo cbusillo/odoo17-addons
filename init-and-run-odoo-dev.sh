@@ -159,17 +159,17 @@ start_odoo_debug() {
 }
 
 case "$1" in
-    sync-prod)
-        sync_from_prod
+    sync_prod)
+        sync-from-prod
         ;;
     init)
-        init_dev_env
+        init-dev-env
         ;;
     debug)
-        start_odoo_debug "${@:2}"
+        start-odoo-debug "${@:2}"
         ;;
     *)
-        start_odoo "$@"
+        start-odoo "$@"
         ;;
 esac
 
