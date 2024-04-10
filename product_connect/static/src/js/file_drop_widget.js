@@ -1,5 +1,5 @@
 /** @odoo-module **/
-const { Component } = owl;
+const {Component} = owl;
 import { registry } from "@web/core/registry";
 import { binaryField } from "@web/views/fields/binary/binary_field";
 
@@ -14,7 +14,7 @@ export class FileDropWidget extends Component {
     ev.preventDefault();
     ev.stopPropagation();
     if (ev.dataTransfer) {
-      const { files } = ev.dataTransfer;
+      const {files} = ev.dataTransfer;
       const sortedFiles = [...files].sort((a, b) =>
         a.name.localeCompare(b.name),
       );
@@ -22,7 +22,7 @@ export class FileDropWidget extends Component {
         if (file instanceof Blob) {
           const reader = new FileReader();
           reader.onload = async (e) => {
-            const { result } = e.target;
+            const {result} = e.target;
             const splitResult = result.split(",");
             if (splitResult.length > 1) {
               const baseData = splitResult[1];
@@ -31,7 +31,7 @@ export class FileDropWidget extends Component {
                 index: index,
               };
               console.log(this.props);
-              this.props.record.update({ [this.props.name]: imageData });
+              this.props.record.update({[this.props.name]: imageData});
             } else {
               console.error("Unable to split result into data and mime type");
             }
