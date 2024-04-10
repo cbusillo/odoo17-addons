@@ -129,6 +129,7 @@
             <tree string="Product" editable="bottom" multi_edit="1" delete="False" create="False" open_form_view="1">
                 <field name="name" readonly="1"/>
                 <field name="default_code" readonly="1"/>
+                <field name="qty_available" readonly="1"/>
                 <field name="length"/>
                 <field name="width"/>
                 <field name="height"/>
