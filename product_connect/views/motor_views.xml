@@ -91,9 +91,8 @@
                                     <field name="numeric_result"/>
                                     <field name="text_result"/>
                                     <field name="file_result"/>
-                                    <field name="conditions" widget="one2many">
-
-                                    </field>
+                                    <field name="conditions" widget="one2many"/>
+                                    <field name="conditional_tests"/>
                                 </tree>
                             </field>
                             <field name="basic_tests">
