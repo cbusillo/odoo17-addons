@@ -91,7 +91,7 @@
                                     <field name="numeric_result"/>
                                     <field name="text_result"/>
                                     <field name="file_result"/>
-                                    <field name="conditional_tests"/>
+                                    <field name="conditions"/>
                                 </tree>
                             </field>
                             <field name="basic_tests" invisible="0">
@@ -108,7 +108,7 @@
                                     <field name="numeric_result"/>
                                     <field name="text_result"/>
                                     <field name="file_result"/>
-                                    <field name="conditional_tests"/>
+                                    <field name="conditions"/>
                                 </tree>
                             </field>
                         </page>

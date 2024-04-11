@@ -69,6 +69,7 @@ class MotorTestTemplateCondition(models.Model):
     _description = "Motor Test Template Condition"
 
     template = fields.Many2one("motor.test.template", ondelete="cascade")
+    conditional_test = fields.Many2one("motor.test.template", ondelete="cascade")
     condition_value = fields.Char(required=True)
     action_type = fields.Selection(
         [
@@ -76,7 +77,6 @@ class MotorTestTemplateCondition(models.Model):
             ("hide", "Hide Test"),
         ],
     )
-    conditional_test = fields.Many2one("motor.test.template", ondelete="cascade")
 
 
 class MotorTestSelection(models.Model):
@@ -119,8 +119,10 @@ class MotorTest(models.Model):
     text_result = fields.Text()
     file_result = fields.Binary()
     is_applicable = fields.Boolean(default=True)
-    conditional_tests = fields.Many2many(
-        "motor.test.template", related="template.conditional_tests"
+
+    conditions = fields.One2many(
+        "motor.test.template.condition",
+        related="template.conditions",
     )
 
 
