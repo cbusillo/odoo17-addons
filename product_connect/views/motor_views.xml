@@ -65,7 +65,7 @@
                                 </tree>
                             </field>
                         </page>
-                        <page string="Compression Testing" invisible="hide_compression_page">
+                        <page string="Compression Testing" invisible="hide_compression_page or stage not in ['basic_testing', 'extended_testing', 'finalization']">
                             <field name="compression">
                                 <tree editable="bottom" delete="False" create="False">
                                     <field name="cylinder_number" readonly="1"/>
