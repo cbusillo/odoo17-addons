@@ -39,6 +39,14 @@
                             <field name="action_type"/>
                         </tree>
                     </field>
+                    <field name="conditional_tests">
+                        <tree editable="bottom">
+                            <field name="conditional_test"/>
+                            <field name="condition_value"/>
+                            <field name="action_type"/>
+                        </tree>
+                    </field>
+
                 </sheet>
             </form>
         </field>

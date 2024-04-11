@@ -43,15 +43,13 @@ class MotorTestTemplate(models.Model):
         required=True,
     )
     selection_options = fields.Many2many("motor.test.selection")
-    conditional_tests = fields.Many2many(
-        "motor.test.template",
-        "motor_test_template_conditional_rel",
-        "test_id",
-        "conditional_test_id",
-    )
     conditions = fields.One2many(
         "motor.test.template.condition",
         "template",
+    )
+    conditional_tests = fields.One2many(
+        "motor.test.template.condition",
+        "conditional_test",
     )
     stage = fields.Selection(
         [
@@ -123,6 +121,10 @@ class MotorTest(models.Model):
     conditions = fields.One2many(
         "motor.test.template.condition",
         related="template.conditions",
+    )
+    conditional_tests = fields.One2many(
+        "motor.test.template.condition",
+        related="template.conditional_tests",
     )
 
 
