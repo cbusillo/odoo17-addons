@@ -24,13 +24,12 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        <field name="result_type"/>
+                        <field name="result_type" widget="selection_badge"/>
                         <field name="selection_options" invisible="result_type !='selection'"/>
-                        <field name="conditional_tests"/>
-                        <field name="conditions"/>
-                        <field name="stage"/>
-                        <field name="section"/>
+                        <field name="stage" widget="selection_badge"/>
+                        <field name="section" widget="selection_badge"/>
                         <field name="sequence"/>
+
                     </group>
 
                     <field name="conditions">
