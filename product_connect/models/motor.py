@@ -61,7 +61,6 @@ class MotorTestTemplate(models.Model):
         required=True,
     )
     section = fields.Many2one("motor.test.section")
-
     sequence = fields.Integer(default=10)
 
 
@@ -94,7 +93,7 @@ class MotorTest(models.Model):
     _description = "Motor Test Instance"
     _order = "section_sequence, sequence, id"
 
-    name = fields.Text(related="template.name")
+    name = fields.Char(related="template.name")
     motor = fields.Many2one("motor", ondelete="cascade", required=True)
     template = fields.Many2one(
         "motor.test.template", string="Test Template", ondelete="restrict"
