@@ -30,7 +30,7 @@ class MotorTestTemplate(models.Model):
     _description = "Motor Test Template"
     _order = "sequence, id"
 
-    name = fields.Text("Test Name", required=True)
+    name = fields.Char("Test Name", required=True)
     result_type = fields.Selection(
         [
             ("yes_no", "Yes/No"),
