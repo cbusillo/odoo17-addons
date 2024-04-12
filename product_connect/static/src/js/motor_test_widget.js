@@ -55,12 +55,9 @@ export class MotorTestWidget extends Component {
       if (changedTestRecord) {
         try {
           const testId = changedTestRecord.resId
-          let updatedData
-          if (changedTestRecord._changes.selection_result) {
-            updatedData = { 'selection_result': changedTestRecord._changes.selection_result[0] }
-          } else {
-            updatedData = changedTestRecord._changes
-          }
+          const updatedData = changedTestRecord._changes.selection_result
+            ? { selection_result: changedTestRecord._changes.selection_result[0] }
+            : changedTestRecord._changes
 
           await this.orm.write(changedTestRecord.resModel, [testId],
             updatedData)
@@ -228,16 +225,15 @@ export class MotorTestWidget extends Component {
 
     const { condition_value: conditionValue } = conditionRecord
 
-    let conditionMet = false
-
-    if (resultType === 'selection') {
-      conditionMet = result.toLowerCase() === conditionValue.toLowerCase()
+    if (!result || !conditionValue) {
+      return false
+    } else if (resultType === 'selection') {
+      return result.toLowerCase() === conditionValue.toLowerCase()
     } else if (resultType === 'numeric') {
-      conditionMet = parseFloat(result) > parseFloat(conditionValue)
+      return parseFloat(result) > parseFloat(conditionValue)
     } else if (resultType === 'yes_no') {
-      conditionMet = result.toLowerCase() === conditionValue.toLowerCase()
+      return result.toLowerCase() === conditionValue.toLowerCase()
     }
-    return conditionMet
   }
 
   setSelectionFieldDomain({
