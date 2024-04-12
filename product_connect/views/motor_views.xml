@@ -158,6 +158,6 @@
     <!-- Menu -->
     <menuitem id="menu_subheader_motor" name="Motors" parent="stock.menu_stock_inventory_control"/>
     <menuitem id="menu_subheader_config_motor" name="Motors" parent="stock.menu_stock_config_settings"/>
-    <menuitem id="menu_product_motor" name="Motor Checkin" parent="menu_subheader_motor" action="action_motor_form" sequence="10"/>
+    <menuitem id="menu_product_motor" name="Motor Check-in" parent="menu_subheader_motor" action="action_motor_form" sequence="10"/>
 
 </odoo>
