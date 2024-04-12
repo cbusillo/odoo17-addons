@@ -31,17 +31,18 @@
                         <field name="sequence"/>
 
                     </group>
-
+                    <label for="conditions" string="Tests based on this test"/>
                     <field name="conditions">
                         <tree editable="bottom">
-                            <field name="conditional_test"/>
+                            <field name="conditional_test" string="Test Name"/>
                             <field name="condition_value"/>
                             <field name="action_type"/>
                         </tree>
                     </field>
-                    <field name="conditional_tests">
+                    <label for="conditional_tests" string="Tests using this result of this test"/>
+                    <field name="conditional_tests" readonly="1">
                         <tree editable="bottom">
-                            <field name="conditional_test"/>
+                            <field name="conditional_test" string="Test Name"/>
                             <field name="condition_value"/>
                             <field name="action_type"/>
                         </tree>
