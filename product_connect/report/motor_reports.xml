@@ -54,7 +54,7 @@
                                 <span t-out="datetime.datetime.now().strftime('%m-%d-%Y')"/>
                             </p>
                             <p style="font-size: 6mm;margin: 0">
-                                <span t-field="o.manufacturer_id"/>
+                                <span t-field="o.manufacturer"/>
                             </p>
                             <p style="font-size: 6mm;margin: 0; white-space: nowrap;">
                                 <span style="font-weight: bold;" t-field="o.model"/>
