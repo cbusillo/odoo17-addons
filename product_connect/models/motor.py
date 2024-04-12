@@ -181,6 +181,23 @@ class Motor(models.Model):
     _description = "Motor Information"
 
     # Basic Info
+    name = fields.Char(compute="_compute_name", store=True)
+
+    @api.depends("manufacturer", "model", "year", "serial_number", "horsepower")
+    def _compute_name(self) -> None:
+        for record in self:
+            name_parts = [record.year, record.manufacturer.name, record.model]
+            name = " ".join(part for part in name_parts if part)
+            if record.horsepower:
+                if record.horsepower.is_integer():
+                    name += f" {int(record.horsepower)}HP"
+                else:
+                    name += f" {record.horsepower}HP"
+            if record.serial_number:
+                name += f" - {record.serial_number}"
+            if name:
+                record.name = name
+
     motor_number = fields.Char()
     manufacturer = fields.Many2one("product.manufacturer")
     horsepower = fields.Float(digits=(3, 1))
