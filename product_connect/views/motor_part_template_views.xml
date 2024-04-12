@@ -41,7 +41,7 @@
     </record>
 
     <!-- Menu -->
-    <menuitem id="menu_product_motor_part" name="Motor Parts" parent="menu_subheader_product_motor" action="action_motor_part_template"
+    <menuitem id="menu_product_motor_part" name="Motor Parts" parent="menu_subheader_config_motor" action="action_motor_part_template"
               sequence="20"/>
 
 </odoo>

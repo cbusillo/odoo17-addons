@@ -62,7 +62,7 @@
     </record>
 
     <!-- Menu -->
-    <menuitem id="menu_motor_test_template" name="Motor Tests" parent="menu_subheader_product_motor"
+    <menuitem id="menu_motor_test_template" name="Motor Tests" parent="menu_subheader_config_motor"
               action="action_motor_test_template" sequence="30"/>
 
 </odoo>

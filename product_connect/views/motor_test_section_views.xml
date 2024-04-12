@@ -49,7 +49,7 @@
         <!-- Menu Item -->
         <menuitem id="menu_motor_test_section"
                   name="Motor Test Sections"
-                  parent="menu_subheader_product_motor"
+                  parent="menu_subheader_config_motor"
                   action="motor_test_section_action"
                   sequence="35"/>
     </data>

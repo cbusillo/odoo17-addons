@@ -35,6 +35,6 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <menuitem id="menu_motor_test_selection" name="Motor Test Selections" parent="menu_subheader_product_motor"
+    <menuitem id="menu_motor_test_selection" name="Motor Test Selections" parent="menu_subheader_config_motor"
               action="action_motor_test_selection" sequence="40"/>
 </odoo>
