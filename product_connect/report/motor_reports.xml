@@ -37,12 +37,12 @@
                         <!-- Left section (QR and Motor Number) with controlled QR code size -->
                         <div style="float: left; width: 33%; height: 100%; text-align: center; ">
                             <div>
-                                <div t-field="o.motor_number" style="height: 25mm; width: 25mm;"
-                                     t-options="{'widget': 'barcode', 'symbology': 'QR', 'img_style': 'width:25mm; height:25mm; overflow: hidden;'}">
+                                <div>
+                                    <img t-att-src="'data:image/png;base64,%s' % o.generate_qr_code()" style="width:38mm; height:38mm; margin-top: -4mm; margin-left: -5mm; margin-bottom: 0"/>
                                 </div>
-                                <div style="margin-top: 2mm;">
-                                    <p style="margin-top: 4mm; font-size: 8mm;">
-                                        <span style="font-weight: bold;" t-field="o.motor_number"/>
+                                <div style="margin-top: -4.5mm;">
+                                    <p style="margin-top: 0; font-size: 8mm; font-weight: bold">
+                                        <span>M-999999</span>
                                     </p>
                                 </div>
                             </div>

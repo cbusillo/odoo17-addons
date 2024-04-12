@@ -1,6 +1,11 @@
 import re
 from typing import Any, Self
 
+import base64
+import qrcode
+
+from io import BytesIO
+
 from odoo import _, models, fields, api
 from odoo.exceptions import ValidationError
 
@@ -276,6 +281,23 @@ class Motor(models.Model):
         default="basic_info",
         required=True,
     )
+
+    def generate_qr_code(self) -> str:
+        qr_code = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=20,
+            border=4,
+        )
+        qr_code.add_data(self.motor_number)
+        qr_code.make()
+
+        qr_image = qr_code.make_image(fill_color="black", back_color="white")
+        qr_image_data = BytesIO()
+        qr_image.save(qr_image_data)
+        qr_image_data = qr_image_data.getvalue()
+        qr_image_data_base64 = base64.b64encode(qr_image_data).decode()
+        return qr_image_data_base64
 
     def get_horsepower_formatted(self) -> str:
         if self.horsepower.is_integer():
