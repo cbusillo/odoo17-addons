@@ -36,6 +36,8 @@ if [ "$FLAG" = "init" ]; then
     ./init-and-run-odoo-dev.sh sync-prod testing
 fi
 
+sleep 5
+
 service odoo start
 EOF
 
