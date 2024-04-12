@@ -1,5 +1,5 @@
 /** @odoo-module **/
-import { Component, onMounted, onPatched, useState } from '@odoo/owl'
+import { Component, onMounted, useState } from '@odoo/owl'
 import { useService } from '@web/core/utils/hooks'
 import { registry } from '@web/core/registry'
 import { groupBy, sortBy } from '@web/core/utils/arrays'
@@ -40,17 +40,36 @@ export class MotorTestWidget extends Component {
     onMounted(() => {
       this.loadMotorTests()
     })
-
-    // onPatched(() => {
-    //   if (this.shouldReloadTests(this.allTests)) {
-    //     this.loadMotorTests()
-    //   }
-    // })
   }
 
   async onFieldChanged(event) {
     console.log('Field changed:', event)
-    await this.loadMotorTests()
+    const changedField = event.target
+    const changedTestId = changedField.closest('.o_motor_test').
+      getAttribute('data-test-id')
+
+    if (changedTestId) {
+      const changedTestRecord = this.allTests.find(
+        (test) => test.id === changedTestId)
+
+      if (changedTestRecord) {
+        try {
+          const testId = changedTestRecord.resId
+          let updatedData
+          if (changedTestRecord._changes.selection_result) {
+            updatedData = { 'selection_result': changedTestRecord._changes.selection_result[0] }
+          } else {
+            updatedData = changedTestRecord._changes
+          }
+
+          await this.orm.write(changedTestRecord.resModel, [testId],
+            updatedData)
+          await this.loadMotorTests()
+        } catch (error) {
+          console.error('Error saving test record:', error)
+        }
+      }
+    }
   }
 
   async loadMotorTests() {
@@ -79,22 +98,12 @@ export class MotorTestWidget extends Component {
       )
 
       const sortedTests = this.sortMotorTests(this.allTests)
-      console.log('Before update:', this.motorTestsBySection)
       this.motorTestsBySection.sections = this.groupMotorTestsBySection(
         sortedTests,
         missingParts,
       )
-      console.log('After update:', this.motorTestsBySection)
     } catch (error) {
       console.error('Error loading motor tests:', error)
-    }
-  }
-
-  shouldReloadTests(currentTests) {
-    for (const test of currentTests) {
-      if (test._changes && Object.keys(test._changes).length > 0) {
-        return true
-      }
     }
   }
 
@@ -151,12 +160,10 @@ export class MotorTestWidget extends Component {
   }
 
   evaluateTestApplicability(test, missingParts) {
-    // Check if the test is hidden by missing parts
     const hiddenByParts = missingParts.some((part) =>
       part.data.hidden_tests.currentIds.includes(test.data.template[0]),
     )
     if (hiddenByParts) {
-      console.log('Test hidden by missing parts:', test.data.name)
       return false
     }
 
@@ -183,13 +190,6 @@ export class MotorTestWidget extends Component {
       return false
     })
 
-    console.log(
-      'Conditions met for test:',
-      test.data.name,
-      'Hide:',
-      hideConditionsMet,
-    )
-
     if (hideConditionsMet) {
       return false
     }
@@ -215,13 +215,6 @@ export class MotorTestWidget extends Component {
       return true
     })
 
-    console.log(
-      'Conditions met for test:',
-      test.data.name,
-      'Show:',
-      showConditionsMet,
-    )
-
     if (showConditions.length > 0) {
       return showConditionsMet
     }
@@ -244,7 +237,6 @@ export class MotorTestWidget extends Component {
     } else if (resultType === 'yes_no') {
       conditionMet = result.toLowerCase() === conditionValue.toLowerCase()
     }
-    console.log('Condition evaluation:', condition, conditionMet)
     return conditionMet
   }
 
