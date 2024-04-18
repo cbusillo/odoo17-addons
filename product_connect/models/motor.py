@@ -167,6 +167,7 @@ class MotorPart(models.Model):
 class MotorCompression(models.Model):
     _name = "motor.compression"
     _description = "Motor Compression Data"
+    _order = "cylinder_number"
 
     motor = fields.Many2one("motor", ondelete="cascade")
     cylinder_number = fields.Integer()
