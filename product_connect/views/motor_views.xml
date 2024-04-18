@@ -30,14 +30,14 @@
                         <page id="basic_info" string="Basic Info">
                             <group>
                                 <field name="motor_number" readonly="1"/>
-                                <field name="manufacturer" options="{'no_create': True, 'no_edit': True}"/>
+                                <field name="manufacturer" required="1" options="{'no_create': True, 'no_edit': True}"/>
                                 <field name="horsepower"/>
-                                <field name="motor_stroke" widget="selection_badge"/>
-                                <field name="motor_configuration" widget="selection_badge"/>
+                                <field name="motor_stroke" required="1" widget="selection_badge"/>
+                                <field name="motor_configuration" required="1" widget="selection_badge"/>
                                 <field name="model"/>
                                 <field name="serial_number"/>
                                 <field name="year" widget="selection_badge"/>
-                                <field name="color" widget="selection_badge"/>
+                                <field name="color" widget="selection_badge" required="1"/>
                                 <field name="cost"/>
                                 <field name="is_tag_readable" widget="selection_badge"/>
                             </group>
