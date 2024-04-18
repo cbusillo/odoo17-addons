@@ -308,6 +308,8 @@ class Motor(models.Model):
         return qr_image_data_base64
 
     def get_horsepower_formatted(self) -> str:
+        if not self.horsepower:
+            return ""
         if self.horsepower.is_integer():
             return f"{int(self.horsepower)}HP"
         return f"{self.horsepower}HP"
