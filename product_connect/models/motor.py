@@ -171,7 +171,7 @@ class MotorCompression(models.Model):
 
     motor = fields.Many2one("motor", ondelete="cascade")
     cylinder_number = fields.Integer()
-    compression_psi = fields.Float("Compression PSI")
+    compression_psi = fields.Integer("Compression PSI")
     compression_image = fields.Binary()
 
 
