@@ -42,7 +42,7 @@
                                 </div>
                                 <div style="margin-top: -4.5mm;">
                                     <p style="margin-top: 0; font-size: 8mm; font-weight: bold">
-                                        <span>M-999999</span>
+                                        <span t-field="o.motor_number"/>
                                     </p>
                                 </div>
                             </div>
