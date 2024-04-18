@@ -187,6 +187,7 @@ class MotorImage(models.Model):
 class Motor(models.Model):
     _name = "motor"
     _description = "Motor Information"
+    _order = "id desc"
 
     # Basic Info
     name = fields.Char(compute="_compute_name", store=True)
