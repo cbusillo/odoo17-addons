@@ -24,9 +24,6 @@
         <field name="model">motor</field>
         <field name="arch" type="xml">
             <form string="Motor Check-In">
-                <header>
-                    <field name="stage" widget="statusbar" options="{'clickable': '1'}"/>
-                </header>
                 <sheet>
                     <notebook>
                         <page id="basic_info" string="Basic Info">
