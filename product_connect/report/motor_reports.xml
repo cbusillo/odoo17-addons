@@ -68,22 +68,24 @@
                         </div>
 
                         <!-- Right section (Horsepower and Year) -->
-                        <div style="float: left; width: 33%; height: 100%; text-align: center;">
-                            <p style="margin-top: 1mm; font-size: 10mm;">
-                                <span style="font-weight: bold;" t-out="o.get_horsepower_formatted()"/>
-                            </p>
-                            <p style="margin-top: 23mm; font-size: 10mm;">
-                                <span style="font-weight: bold;" t-field="o.year" t-options="{'widget': 'char'}"/>
-                            </p>
+                        <div style="font-size: 10mm; font-weight: bold; float: left; width: 33%; height: 100%; display: table;">
+                            <div style="display: table-row; text-align: right;">
+                                <div style="display: table-cell; vertical-align: top;">
+                                    <span t-out="o.get_horsepower_formatted()"/>
+                                </div>
+                            </div>
+                            <div style="display: table-row;">
+                                <div style="display: table-cell;"></div>
+                            </div>
+                            <div style="display: table-row; text-align: right;">
+                                <div style="display: table-cell; vertical-align: bottom;">
+                                    <span t-field="o.year" t-options="{'widget': 'char'}"/>
+                                </div>
+                            </div>
                         </div>
-
-                        <!-- Clear float to ensure no content overflow -->
-                        <div style="clear: both;"></div>
                     </div>
                 </t>
             </t>
         </template>
-
-
     </data>
 </odoo>
