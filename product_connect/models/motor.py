@@ -202,7 +202,9 @@ class Motor(models.Model):
                 if record.horsepower and record.horsepower.is_integer()
                 else f" {record.horsepower}HP" if record.horsepower else None
             )
-            serial_number = f" - {record.serial_number}" if record.serial_number else None
+            serial_number = (
+                f" - {record.serial_number}" if record.serial_number else None
+            )
 
             name_parts = [
                 record.motor_number,
