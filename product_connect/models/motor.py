@@ -434,7 +434,10 @@ class Motor(models.Model):
         stages_with_required_fields = {
             "basic_testing": [
                 "motor_number",
+                "manufacturer",
+                "motor_stroke",
                 "motor_configuration",
+                "color",
             ],
             "extended_testing": [
                 # "engine_ecu_hours",
