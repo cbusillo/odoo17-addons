@@ -3,7 +3,7 @@
     <data noupdate="0"><!-- TODO: Change to 1 when live-->
         <!-- Motor Parts -->
         <record id="motor_part_powerhead" model="motor.part.template">
-            <field name="name">PowerHead</field>
+            <field name="name">Powerhead</field>
             <field name="hidden_tests" eval="[(6, 0, [
         ref('motor_test_template_engine_ecu_hours'),
         ref('motor_test_template_motor_spins'),
