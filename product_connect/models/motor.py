@@ -417,10 +417,10 @@ class Motor(models.Model):
             "Port Mid Section",
             "Starboard Midsection",
             "Data Label",
-            "Under Cowling - Port Side",
-            "Under Cowling - Starboard Side",
-            "Under Cowling - Front",
-            "Under Cowling - Back",
+            "Powerhead - Port Side",
+            "Powerhead - Starboard Side",
+            "Powerhead - Front",
+            "Powerhead - Back",
         ]
         for name in image_names:
             self.env["motor.image"].create(
