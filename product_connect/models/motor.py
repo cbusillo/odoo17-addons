@@ -190,20 +190,30 @@ class Motor(models.Model):
     _order = "id desc"
 
     # Basic Info
-    name = fields.Char(compute="_compute_name", store=True)
+    name = fields.Char(compute="_compute_name", readonly=True, store=True)
 
-    @api.depends("manufacturer", "model", "year", "serial_number", "horsepower")
+    @api.depends(
+        "motor_number", "manufacturer", "model", "year", "serial_number", "horsepower"
+    )
     def _compute_name(self) -> None:
         for record in self:
-            name_parts = [record.year, record.manufacturer.name, record.model]
+            horsepower = (
+                f" {int(record.horsepower)}HP"
+                if record.horsepower and record.horsepower.is_integer()
+                else f" {record.horsepower}HP" if record.horsepower else None
+            )
+            serial_number = f" - {record.serial_number}" if record.serial_number else None
+
+            name_parts = [
+                record.motor_number,
+                record.year,
+                record.manufacturer.name,
+                horsepower,
+                record.model,
+                serial_number,
+            ]
             name = " ".join(part for part in name_parts if part)
-            if record.horsepower:
-                if record.horsepower.is_integer():
-                    name += f" {int(record.horsepower)}HP"
-                else:
-                    name += f" {record.horsepower}HP"
-            if record.serial_number:
-                name += f" - {record.serial_number}"
+
             if name:
                 record.name = name
 
