@@ -248,7 +248,7 @@ class Motor(models.Model):
     )
     cost = fields.Float()
 
-    tag_readable = fields.Selection(YES_NO_SELECTION, default=YES)
+    is_tag_readable = fields.Selection(YES_NO_SELECTION, default=YES)
     images = fields.One2many("motor.image", "motor")
     parts = fields.One2many("motor.part", "motor")
     tests = fields.One2many("motor.test", "motor")
