@@ -54,11 +54,11 @@
                         <page string="Missing Parts"
                               invisible="stage not in ['parts', 'basic_testing', 'extended_testing', 'finalization']">
                             <field name="parts">
-                                <tree editable="bottom" create="False" delete="False" open_form_view="1">
+                                <tree editable="bottom" create="False" delete="False" open_form_view="0">
                                     <field name="missing" widget="boolean_toggle" class="large-toggle o_motor_part_missing_column"/>
                                     <field name="name" class="sc_full_width"/>
-                                    <field name="template" invisible="0"/>
-                                    <field name="hidden_tests" invisible="0"/>
+                                    <field name="template" invisible="1"/>
+                                    <field name="hidden_tests" invisible="1"/>
                                 </tree>
                             </field>
                         </page>
@@ -88,26 +88,7 @@
                                     <field name="numeric_result"/>
                                     <field name="text_result"/>
                                     <field name="file_result"/>
-                                    <field name="conditions" widget="one2many">
-
-                                    </field>
-                                </tree>
-                            </field>
-                            <field name="basic_tests">
-                                <tree>
-                                    <field name="id"/>
-                                    <field name="name"/>
-                                    <field name="result_type"/>
-                                    <field name="section"/>
-                                    <field name="sequence"/>
-                                    <field name="section_sequence"/>
-                                    <field name="template"/>
-                                    <field name="yes_no_result"/>
-                                    <field name="selection_options" widget="many2many_tags"/>
-                                    <field name="selection_result"/>
-                                    <field name="numeric_result"/>
-                                    <field name="text_result"/>
-                                    <field name="file_result"/>
+                                    <field name="default_value"/>
                                     <field name="conditions"/>
                                     <field name="conditional_tests"/>
                                 </tree>
@@ -129,6 +110,7 @@
                                     <field name="numeric_result"/>
                                     <field name="text_result"/>
                                     <field name="file_result"/>
+                                    <field name="default_value"/>
                                     <field name="conditions"/>
                                     <field name="conditional_tests"/>
                                 </tree>
