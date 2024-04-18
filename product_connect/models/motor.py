@@ -295,7 +295,6 @@ class Motor(models.Model):
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_H,
             box_size=20,
-            border=4,
         )
         qr_code.add_data(self.motor_number)
         qr_code.make()
