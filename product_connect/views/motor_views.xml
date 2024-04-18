@@ -38,7 +38,7 @@
                                 <field name="year" widget="selection_badge"/>
                                 <field name="color" widget="selection_badge"/>
                                 <field name="cost"/>
-                                <field name="tag_readable" widget="selection_badge"/>
+                                <field name="is_tag_readable" widget="selection_badge"/>
                             </group>
                         </page>
                         <page string="Images"
