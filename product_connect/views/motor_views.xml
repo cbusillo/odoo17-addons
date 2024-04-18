@@ -24,6 +24,7 @@
         <field name="model">motor</field>
         <field name="arch" type="xml">
             <form string="Motor Check-In">
+                <field name="stage" invisible="1"/>
                 <sheet>
                     <notebook>
                         <page id="basic_info" string="Basic Info">
