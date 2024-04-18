@@ -48,13 +48,17 @@
         </record>
 
         <!-- Trim/Tilt Unit Status Options -->
+        <record id="option_no_issues" model="motor.test.selection">
+            <field name="name">No Issues</field>
+            <field name="value">no_issues</field>
+        </record>
         <record id="option_bad_motor" model="motor.test.selection">
             <field name="name">Bad Motor</field>
             <field name="value">bad_motor</field>
         </record>
-        <record id="option_no_movement" model="motor.test.selection">
-            <field name="name">No Movement</field>
-            <field name="value">no_movement</field>
+        <record id="option_needs_attention" model="motor.test.selection">
+            <field name="name">Needs Attention</field>
+            <field name="value">needs_attention</field>
         </record>
         <record id="option_manual" model="motor.test.selection">
             <field name="name">Manual</field>
