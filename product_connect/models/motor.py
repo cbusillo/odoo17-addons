@@ -402,6 +402,9 @@ class Motor(models.Model):
                         "compression_psi": 0.0,
                     }
                 )
+        for i in existing_compressions.values():
+            if i.cylinder_number > cylinder_count:
+                i.unlink()
         if compression_vals:
             self.env["motor.compression"].create(compression_vals)
 
