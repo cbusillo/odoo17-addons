@@ -352,8 +352,6 @@ class Motor(models.Model):
         for record in records:
             record.motor_number = f"M-{record.id}"
             record._create_default_images(record)
-            if record.motor_configuration:
-                record._create_compression_records()
 
             record._create_motor_parts()
             record._create_motor_tests()
@@ -366,8 +364,6 @@ class Motor(models.Model):
         vals = self._sanitize_vals(vals)
 
         result = super().write(vals)
-        if "motor_configuration" in vals:
-            self._create_compression_records()
         for record in self.with_context(_stage_updating=True):
             record._update_stage()
         return result
@@ -404,24 +400,28 @@ class Motor(models.Model):
             return int(match.group())
         return 0
 
-    def _create_compression_records(self) -> None:
-        existing_compressions = {c.cylinder_number: c for c in self.compression}
-        cylinder_count = self._get_cylinder_count()
-        compression_vals = []
-        for i in range(1, cylinder_count + 1):
-            if i not in existing_compressions:
-                compression_vals.append(
+    @api.onchange("motor_configuration")
+    def _onchange_motor_configuration(self) -> None:
+        if not self.motor_configuration:
+            return
+
+        desired_cylinders = self._get_cylinder_count()
+        current_cylinders = [cylinder.cylinder_number for cylinder in self.compression]
+
+        for cylinder in self.compression.filtered(
+            lambda x: x.cylinder_number > desired_cylinders
+        ):
+            self.compression -= cylinder
+
+        for i in range(1, desired_cylinders + 1):
+            if i not in current_cylinders:
+                new_cylinder = self.compression.new(
                     {
-                        "motor": self.id,
                         "cylinder_number": i,
-                        "compression_psi": 0.0,
+                        "compression_psi": 0,
                     }
                 )
-        for i in existing_compressions.values():
-            if i.cylinder_number > cylinder_count:
-                i.unlink()
-        if compression_vals:
-            self.env["motor.compression"].create(compression_vals)
+                self.compression += new_cylinder
 
     def _create_default_images(self, motor_record: Self) -> None:
         image_names = [
