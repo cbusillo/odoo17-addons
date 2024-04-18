@@ -65,9 +65,9 @@
             <field name="name">Trim/Tilt Unit Status</field>
             <field name="result_type">selection</field>
             <field name="selection_options" eval="[(6, 0, [
-                ref('option_functional'),
+                ref('option_no_issues'),
                 ref('option_bad_motor'),
-                ref('option_no_movement'),
+                ref('option_needs_attention'),
                 ref('option_manual'),
                 ref('option_not_tested'),
             ])]"/>
