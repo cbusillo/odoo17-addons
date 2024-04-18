@@ -26,6 +26,7 @@
                         <field name="name"/>
                         <field name="result_type" widget="selection_badge"/>
                         <field name="selection_options" invisible="result_type !='selection'"/>
+                        <field name="default_value"/>
                         <field name="stage" widget="selection_badge"/>
                         <field name="section" widget="selection_badge"/>
                         <field name="sequence"/>

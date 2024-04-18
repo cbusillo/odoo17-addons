@@ -48,6 +48,7 @@ class MotorTestTemplate(models.Model):
         required=True,
     )
     selection_options = fields.Many2many("motor.test.selection")
+    default_value = fields.Char()
     conditions = fields.One2many(
         "motor.test.template.condition",
         "template",
@@ -121,6 +122,7 @@ class MotorTest(models.Model):
     numeric_result = fields.Float()
     text_result = fields.Text()
     file_result = fields.Binary()
+    default_value = fields.Char(related="template.default_value")
     is_applicable = fields.Boolean(default=True)
 
     conditions = fields.One2many(
