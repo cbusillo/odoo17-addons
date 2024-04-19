@@ -136,6 +136,7 @@
     <record id="view_product_template_dimensions_tree" model="ir.ui.view">
         <field name="name">product.template.dimensions.tree</field>
         <field name="model">product.template</field>
+        <field name="priority" eval="20"/>
         <field name="arch" type="xml">
             <tree string="Product" editable="bottom" multi_edit="1" delete="False" create="False" open_form_view="1">
                 <field name="name" readonly="1"/>
