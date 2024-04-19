@@ -36,15 +36,14 @@
         </field>
     </record>
 
-    <!-- Product Import: Server Action: Start Shopify Sync -->
-    <record id="server_action_product_import_start_shopify_sync" model="ir.actions.server">
-        <field name="name">Start Shopify Sync</field>
+    <record id="server_action_product_import_print_product_labels_picture" model="ir.actions.server">
+        <field name="name">Print Product Labels (Picture)</field>
         <field name="model_id" ref="model_product_import"/>
         <field name="binding_model_id" ref="model_product_import"/>
         <field name="binding_type">action</field>
         <field name="state">code</field>
         <field name="code">
-            action = env["shopify.sync"].sync_with_shopify()
+            action = records.print_product_labels(print_quantity=True, printer_job_type="product_label_picture")
         </field>
     </record>
 
@@ -123,8 +122,6 @@
 
     <menuitem id="menu_subheader_product_import" name="Product Import" parent="stock.menu_stock_inventory_control"/>
     <menuitem id="menu_product_import" name="Product Import" action="action_product_import" parent="menu_subheader_product_import"/>
-    <menuitem id="menu_product_import_start_shopify_sync" name="Start Shopify Sync"
-              action="server_action_product_import_start_shopify_sync" parent="menu_subheader_product_import"/>
 
 </odoo>
 

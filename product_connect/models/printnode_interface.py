@@ -29,6 +29,7 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
     print_job_type = fields.Selection(
         selection=[
             ("product_label", "Product Label"),
+            ("product_label_picture", "Product Label Picture"),
             ("motor_label", "Motor Label"),
         ],
         default="product_label",
@@ -63,23 +64,26 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
         return [(printer.id, printer.name) for printer in printers]
 
     @api.model
-    def print_label(
-        self, label_base64: str, quantity: int = 1, label_type: str = "product_label"
+    def print_label_base64(
+        self, label_base64: str, printer_job_type: str, quantity: int = 1
     ):
         gateway = self.get_gateway()
         interface_record = self.env["printnode.interface"].search(
-            [("user_id", "=", self.env.user.id), ("print_job_type", "=", label_type)],
+            [
+                ("user_id", "=", self.env.user.id),
+                ("print_job_type", "=", printer_job_type),
+            ],
             limit=1,
         )
         if not interface_record:
             logger.error(
-                f"No printer configured for job type {label_type} and user {self.env.user.name}"
+                f"No printer configured for job type {printer_job_type} and user {self.env.user.name}"
             )
             return False
         printer_id = interface_record.printer_selection
         if not printer_id:
             logger.error(
-                f"Printer not selected for job type {label_type} and user {self.env.user.name}"
+                f"Printer not selected for job type {printer_job_type} and user {self.env.user.name}"
             )
             return False
         print_job = None
@@ -183,7 +187,7 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
         return base64.b64encode(zpl_text_with_quantity.encode("utf-8")).decode()
 
     @staticmethod
-    def combine_labels(labels: list[str]) -> str:
+    def combine_labels_base64(labels: list[str]) -> str:
         decoded_labels = [base64.b64decode(label).decode() for label in labels]
         combined_labels = "".join(decoded_labels)
         combined_labels_base64 = base64.b64encode(combined_labels.encode()).decode()
