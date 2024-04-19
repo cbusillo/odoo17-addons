@@ -48,6 +48,7 @@
             "product_connect/static/src/js/file_drop_widget.js",
             "product_connect/static/src/xml/file_drop_widget.xml",
             "product_connect/static/src/scss/motor.scss",
+            "product_connect/static/src/js/motor_form.js",
             "product_connect/static/src/js/motor_test_widget.js",
             "product_connect/static/src/xml/motor_test_widget.xml",
             "product_connect/static/src/scss/search_mpn_online_widget.scss",

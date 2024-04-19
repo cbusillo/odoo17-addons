@@ -1,5 +1,5 @@
 /** @odoo-module **/
-import { Component, onMounted, useState, onWillUnmount } from '@odoo/owl'
+import { Component, onMounted, useState } from '@odoo/owl'
 import { useService } from '@web/core/utils/hooks'
 import { registry } from '@web/core/registry'
 import { groupBy, sortBy } from '@web/core/utils/arrays'
@@ -40,38 +40,12 @@ export class MotorTestWidget extends Component {
     onMounted(() => {
       this.loadMotorTests()
     })
-
-    onWillUnmount(() => {
-      if (this.props.record.dirty) {
-        this.props.record.save()
-      }
-    })
   }
 
-  async onFieldChanged(event) {
-    console.log('Field changed:', event)
-    const changedField = event.target
-    const changedTestId = changedField.closest('.o_motor_test').
-      getAttribute('data-test-id')
-
-    if (changedTestId) {
-      const changedTestRecord = this.allTests.find(
-        (test) => test.id === changedTestId)
-
-      if (changedTestRecord) {
-        try {
-          const testId = changedTestRecord.resId
-          const updatedData = changedTestRecord._changes.selection_result
-            ? { selection_result: changedTestRecord._changes.selection_result[0] }
-            : changedTestRecord._changes
-
-          await this.orm.write(changedTestRecord.resModel, [testId],
-            updatedData)
-          await this.loadMotorTests()
-        } catch (error) {
-          console.error('Error saving test record:', error)
-        }
-      }
+  async onFieldChanged() {
+    if (this.props.record.dirty) {
+      await this.props.record.save()
+      await this.loadMotorTests()
     }
   }
 

@@ -23,7 +23,7 @@
         <field name="name">motor.form</field>
         <field name="model">motor</field>
         <field name="arch" type="xml">
-            <form string="Motor Check-In">
+            <form string="Motor Check-In" js_class="motor_form">
                 <field name="stage" invisible="1"/>
                 <sheet>
                     <notebook>
