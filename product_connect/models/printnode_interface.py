@@ -29,6 +29,7 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
     print_job_type = fields.Selection(
         selection=[
             ("product_label", "Product Label"),
+            ("product_label_pictures", "Product Label (Pictures)"),
             ("motor_label", "Motor Label"),
         ],
         default="product_label",
