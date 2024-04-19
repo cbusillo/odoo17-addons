@@ -1,5 +1,5 @@
 /** @odoo-module **/
-import { Component, onMounted, useState } from '@odoo/owl'
+import { Component, onMounted, useState, onWillUnmount } from '@odoo/owl'
 import { useService } from '@web/core/utils/hooks'
 import { registry } from '@web/core/registry'
 import { groupBy, sortBy } from '@web/core/utils/arrays'
@@ -39,6 +39,12 @@ export class MotorTestWidget extends Component {
 
     onMounted(() => {
       this.loadMotorTests()
+    })
+
+    onWillUnmount(() => {
+      if (this.props.record.dirty) {
+        this.props.record.save()
+      }
     })
   }
 
