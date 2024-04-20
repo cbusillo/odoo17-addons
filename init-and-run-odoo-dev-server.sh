@@ -22,6 +22,7 @@ if [ -z "$CURRENT_BRANCH" ]; then
     echo "Error: Cannot find the current Git branch. Are you in a Git repository?"
     exit 1
 fi
+echo "Current branch: $CURRENT_BRANCH"
 
 ssh opw-dev "bash -s" -- "$FLAG" "$CURRENT_BRANCH" << 'EOF'
 FLAG=$1
