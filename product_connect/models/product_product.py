@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields
 
 from ..mixins.notification_manager import NotificationManagerMixin
 

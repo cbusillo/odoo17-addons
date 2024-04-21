@@ -2,7 +2,7 @@ import re
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
-from ..mixins.product_labels import ProductLabelsMixin
+from ..mixins.label import LabelMixin
 
 
 class ProductType(models.Model):
@@ -26,7 +26,7 @@ class ProductType(models.Model):
     product_ids = fields.One2many("product.template", "part_type", string="Products")
 
 
-class ProductTemplate(models.Model, ProductLabelsMixin):
+class ProductTemplate(models.Model, LabelMixin):
     _inherit = "product.template"
 
     length = fields.Integer()

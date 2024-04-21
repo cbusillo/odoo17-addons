@@ -7,7 +7,7 @@ import requests
 from PIL import Image
 import odoo
 from odoo.exceptions import UserError
-from ..mixins.product_labels import ProductLabelsMixin
+from ..mixins.label import LabelMixin
 
 _logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class ProductImportImage(odoo.models.Model):
     product_id = odoo.fields.Many2one("product.import", ondelete="cascade")
 
 
-class ProductImport(ProductLabelsMixin, odoo.models.Model):
+class ProductImport(LabelMixin, odoo.models.Model):
     _name = "product.import"
     _description = "Product Import"
     _sql_constraints = [
@@ -101,7 +101,6 @@ class ProductImport(ProductLabelsMixin, odoo.models.Model):
                 vals[field] = vals[field].upper()
 
         fields_of_interest = ["mpn", "condition", "quantity"]
-        to_print = []
         for record in self:
             if any(key in vals and not vals[key] for key in fields_of_interest):
                 continue
