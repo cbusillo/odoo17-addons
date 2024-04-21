@@ -9,6 +9,8 @@ from io import BytesIO
 from odoo import _, models, fields, api
 from odoo.exceptions import ValidationError
 
+from ..mixins.label import LabelMixin
+
 YES = "yes"
 NO = "no"
 
@@ -184,7 +186,7 @@ class MotorImage(models.Model):
     image_data = fields.Image("Image", max_width=1920, max_height=1920)
 
 
-class Motor(models.Model):
+class Motor(models.Model, LabelMixin):
     _name = "motor"
     _description = "Motor Information"
     _order = "id desc"
