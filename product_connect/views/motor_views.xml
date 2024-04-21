@@ -205,6 +205,17 @@
         <field name="view_mode">tree,form</field>
     </record>
 
+    <record id="server_action_motor_print_labels" model="ir.actions.server">
+        <field name="name">Print Motor Labels</field>
+        <field name="model_id" ref="model_motor"/>
+        <field name="binding_model_id" ref="model_motor"/>
+        <field name="binding_type">action</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.print_motor_labels()
+        </field>
+    </record>
+
     <!-- Menu -->
     <menuitem id="menu_subheader_motor" name="Motors" parent="stock.menu_stock_inventory_control"/>
     <menuitem id="menu_subheader_config_motor" name="Motors" parent="stock.menu_stock_config_settings"/>
