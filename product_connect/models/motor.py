@@ -222,8 +222,10 @@ class Motor(models.Model, LabelMixin):
                 record.name = name
 
     motor_number = fields.Char()
-    manufacturer = fields.Many2one("product.manufacturer")
-    horsepower = fields.Float(digits=(3, 1))
+    manufacturer = fields.Many2one(
+        "product.manufacturer", domain="[('is_engine_manufacturer', '=', True)]"
+    )
+    horsepower = fields.Float(digits=(3, 1), string="HP")
     motor_stroke = fields.Selection(
         [
             ("2", "2 Stroke"),
