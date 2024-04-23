@@ -6,11 +6,12 @@
         <field name="model">motor</field>
         <field name="arch" type="xml">
             <tree string="Motors List">
-                <field name="motor_number"/>
-                <field name="manufacturer"/>
+                <field name="motor_number" string="Motor"/>
+
+                <field name="manufacturer" string="Manu"/>
                 <field name="horsepower"/>
                 <field name="model"/>
-                <field name="serial_number"/>
+                <field name="serial_number" string="Serial"/>
                 <field name="year"/>
                 <field name="color"/>
                 <field name="cost"/>
