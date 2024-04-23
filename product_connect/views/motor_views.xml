@@ -14,7 +14,7 @@
                 <field name="serial_number" string="Serial"/>
                 <field name="year"/>
                 <field name="color"/>
-                <field name="cost"/>
+                <field name="cost" widget="float_factor"/>
             </tree>
         </field>
     </record>
