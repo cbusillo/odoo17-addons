@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="0"><!-- TODO: Change to 1 when live-->
+    <data noupdate="1">
         <!-- Shaft Length Options -->
         <record id="option_shaft_length_15" model="motor.test.selection">
             <field name="name">15" Short Shaft</field>

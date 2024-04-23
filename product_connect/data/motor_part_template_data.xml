@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="0"><!-- TODO: Change to 1 when live-->
+    <data noupdate="1">
         <!-- Motor Parts -->
         <record id="motor_part_powerhead" model="motor.part.template">
             <field name="name">Powerhead</field>

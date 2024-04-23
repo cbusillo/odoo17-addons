@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="0"><!-- TODO: Change to 1 when live-->
+    <data noupdate="1">
         <record id="motor_test_section_engine_details" model="motor.test.section">
             <field name="name">Engine Details</field>
             <field name="sequence">1</field>

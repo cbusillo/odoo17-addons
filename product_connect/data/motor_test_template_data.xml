@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="0"><!-- TODO: Change to 1 when live-->
+    <data noupdate="1">
         <!-- Motor Test Templates -->
         <record id="motor_test_template_engine_ecu_hours" model="motor.test.template">
             <field name="name">Engine / ECU Hours</field>
