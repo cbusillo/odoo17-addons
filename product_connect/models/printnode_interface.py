@@ -81,9 +81,9 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
             return
         print_job = None
         if isinstance(label_data, str):
-            print_job_params = {"base64": label_data, "job_type": "raw"}
+            print_job_params = {"base64": label_data}
         elif isinstance(label_data, bytes):
-            print_job_params = {"binary": label_data, "job_type": "pdf"}
+            print_job_params = {"binary": label_data}
         else:
             logger.error("Invalid label data type")
             return
@@ -92,6 +92,7 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
                 printer=int(printer_id),
                 title=job_name,
                 options={"copies": quantity},
+                job_type="raw",
                 **print_job_params,
             )
 
