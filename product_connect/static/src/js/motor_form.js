@@ -28,8 +28,6 @@ class MotorFormController extends FormController {
       const allPrintFieldsHaveValues = this.allFieldsHaveValues(editedData,
         combinedRequiredFields)
 
-      const changedFieldInFieldsToPrint = requiredFieldsToPrint.includes(
-        editedFieldName)
       const changedFieldInFieldsToPrint = requiredFieldsToPrint.some(
         field => editedFieldNames.includes(field))
 
