@@ -234,6 +234,7 @@ class Motor(models.Model, LabelMixin):
     )
     motor_configuration = fields.Selection(
         [
+            ("s1", "Single 1"),
             ("i2", "Inline 2"),
             ("i3", "Inline 3"),
             ("i4", "Inline 4"),
