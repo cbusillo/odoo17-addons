@@ -14,7 +14,7 @@ if ! ($TAILSCALE_PATH status > /dev/null 2>&1); then
     echo "Starting Tailscale..."
     $TAILSCALE_PATH up
 else
-    INITIAL_STATE=0  # Tailscale was already running
+    INITIAL_STATE=0
 fi
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -22,16 +22,17 @@ if [ -z "$CURRENT_BRANCH" ]; then
     echo "Error: Cannot find the current Git branch. Are you in a Git repository?"
     exit 1
 fi
-echo "Current branch: $CURRENT_BRANCH"
 
-ssh opw-dev "bash -s" -- "$FLAG" "$CURRENT_BRANCH" << 'EOF'
-FLAG=$1
-CURRENT_BRANCH=$2
+ssh opw-dev "bash -s" -- "$CURRENT_BRANCH" "$FLAG" << 'EOF'
+FLAG=$2
+CURRENT_BRANCH=$1
 
 cd /opt/odoo/odoo17-addons
 service odoo stop
+echo "Current branch: $CURRENT_BRANCH"
 
 git pull origin $CURRENT_BRANCH
+
 if [ "$FLAG" = "init" ]; then
     rm -f init-done.flag
     ./init-and-run-odoo-dev.sh sync-prod testing
