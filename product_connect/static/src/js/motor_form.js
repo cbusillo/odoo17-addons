@@ -5,9 +5,10 @@ import { registry } from '@web/core/registry'
 class MotorFormController extends FormController {
   setup() {
     super.setup()
-    this.model.hooks.onRecordChanged = (editedRecord, editedField) => {
+
+    this.model.hooks.onRecordChanged = (editedRecord, editedFields) => {
       const editedData = editedRecord.data
-      const editedFieldName = Object.keys(editedField)[0]
+      const editedFieldNames = Object.keys(editedFields)
       const requiredFieldsToSave = [
         'manufacturer',
         'motor_stroke',
@@ -19,22 +20,27 @@ class MotorFormController extends FormController {
         'model',
         'serial_number',
         'year',
-        ...requiredFieldsToSave,
       ]
+      const combinedRequiredFields = [
+        ...requiredFieldsToSave,
+        ...requiredFieldsToPrint]
 
       const allPrintFieldsHaveValues = this.allFieldsHaveValues(editedData,
-        requiredFieldsToPrint)
+        combinedRequiredFields)
 
       const changedFieldInFieldsToPrint = requiredFieldsToPrint.includes(
         editedFieldName)
-
-      if (allPrintFieldsHaveValues && changedFieldInFieldsToPrint) {
-        this.printMotorLabels()
-        return
-      }
+      const changedFieldInFieldsToPrint = requiredFieldsToPrint.some(
+        field => editedFieldNames.includes(field))
 
       const allSaveFieldsHaveValues = this.allFieldsHaveValues(editedData,
         requiredFieldsToSave)
+
+      if (allPrintFieldsHaveValues && allSaveFieldsHaveValues &&
+        changedFieldInFieldsToPrint) {
+        this.printMotorLabels()
+        return
+      }
 
       if (allSaveFieldsHaveValues) {
         this.model.root.save()
