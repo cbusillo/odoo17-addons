@@ -13,7 +13,7 @@
             <field name="margin_left">0</field>
             <field name="margin_right">0</field>
             <field name="disable_shrinking" eval="True"/>
-            <field name="dpi">203</field>
+            <field name="dpi">96</field>
         </record>
         <!-- Report Action -->
         <record id="report_motor_template_label_4x2_noprice" model="ir.actions.report">
