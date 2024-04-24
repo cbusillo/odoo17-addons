@@ -41,7 +41,7 @@ class MotorFormController extends FormController {
       }
 
       if (allSaveFieldsHaveValues) {
-        this.model.root.save({ silent: true })
+        this.model.root.save()
       }
     }
   }
