@@ -1,7 +1,6 @@
 /** @odoo-module **/
 import { FormController } from '@web/views/form/form_controller'
 import { registry } from '@web/core/registry'
-import { patch } from '@web/core/utils/patch'
 
 class MotorFormController extends FormController {
   setup() {
@@ -51,13 +50,16 @@ class MotorFormController extends FormController {
 
   printMotorLabels() {
     this.model.root.save().then(() => {
-      // this.env.services.action.doAction({
-      //   type: 'ir.actions.server',
-      //   name: 'Print Motor Labels',
-      //   model: 'motor',
-      //   method: 'print_motor_labels',
-      //   args: [this.model.root.resId],
-      // })
+      this.model.action.doActionButton({
+        name: 'print_motor_labels',
+        type: 'object',
+        resModel: 'motor',
+        resId: this.model.root.resId,
+        resIds: [this.model.root.resId],
+      }).then(() => {
+        console.log('Motor labels printed')
+      })
+
     })
   }
 }
