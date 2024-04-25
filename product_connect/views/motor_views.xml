@@ -30,6 +30,7 @@
                         <page id="basic_info" string="Basic Info">
                             <group>
                                 <field name="motor_number" readonly="1"/>
+                                <field name="technician" widget="selection_badge" options="{'no_create': True}"/>
                                 <field name="manufacturer" required="1" options="{'no_create': True, 'no_edit': True}"/>
                                 <field name="horsepower"/>
                                 <field name="motor_stroke" required="1" widget="selection_badge"/>
