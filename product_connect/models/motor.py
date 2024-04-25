@@ -222,7 +222,9 @@ class Motor(models.Model, LabelMixin):
                 record.name = name
 
     motor_number = fields.Char()
-    technician = fields.Many2one("res.users", string="Tech Name")
+    technician = fields.Many2one(
+        "res.users", string="Tech Name", domain="[('is_technician', '=', True)]"
+    )
     manufacturer = fields.Many2one(
         "product.manufacturer", domain="[('is_engine_manufacturer', '=', True)]"
     )

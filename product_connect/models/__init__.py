@@ -1,7 +1,4 @@
 # noinspection PyUnresolvedReferences
-from . import printnode_interface
-
-# noinspection PyUnresolvedReferences
 from . import (
     motor,
     product_color,
@@ -9,7 +6,7 @@ from . import (
     product_manufacturer,
     product_product,
     product_template,
+    printnode_interface,
+    res_users,
+    shopify_sync,
 )
-
-# noinspection PyUnresolvedReferences
-from . import shopify_sync

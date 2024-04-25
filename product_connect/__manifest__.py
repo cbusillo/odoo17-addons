@@ -38,6 +38,7 @@
         "views/product_template_views.xml",
         "views/product_manufacturer_views.xml",
         "views/project_task_views.xml",
+         "views/res_users_views.xml",
         "security/ir.model.access.csv",
     ],
     "assets": {
@@ -47,8 +48,8 @@
             "product_connect/static/src/scss/file_drop_widget.scss",
             "product_connect/static/src/js/file_drop_widget.js",
             "product_connect/static/src/xml/file_drop_widget.xml",
-            "product_connect/static/src/js/image_upload_widget.js",
-            "product_connect/static/src/xml/image_upload_widget.xml",
+            "product_connect/static/src/js/file_upload_widget.js",
+            "product_connect/static/src/xml/file_upload_widget.xml",
             "product_connect/static/src/scss/motor.scss",
             "product_connect/static/src/js/motor_form.js",
             "product_connect/static/src/js/motor_test_widget.js",
