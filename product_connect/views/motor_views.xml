@@ -40,6 +40,7 @@
                                 <field name="color" widget="selection_badge" required="1"/>
                                 <field name="cost"/>
                                 <field name="is_tag_readable" widget="selection_badge"/>
+                                <field name="notes"/>
                             </group>
                         </page>
                         <page string="Images"
@@ -62,16 +63,9 @@
                                     <field name="hidden_tests" invisible="1"/>
                                 </tree>
                             </field>
-                        </page>
-                        <page string="Compression Testing" invisible="hide_compression_page or stage not in ['basic_testing', 'extended_testing', 'finalization']">
-                            <field name="compression">
-                                <tree editable="bottom" delete="False" create="False">
-                                    <field name="cylinder_number" readonly="1"/>
-                                    <field name="compression_psi" string="PSI"/>
-                                    <field name="compression_image" string="Image" widget="binary"/>
-                                </tree>
-                            </field>
-                            <field name="hide_compression_page" invisible="1"/>
+                            <group>
+                                <field name="notes"/>
+                            </group>
                         </page>
                         <page id="basic_testing" string="Basic Testing" invisible="stage not in ['basic_testing', 'extended_testing', 'finalization']">
                             <field name="basic_tests" widget="motor_test_widget">
@@ -94,6 +88,19 @@
                                     <field name="conditional_tests"/>
                                 </tree>
                             </field>
+                            <group>
+                                <field name="notes"/>
+                            </group>
+                        </page>
+                        <page string="Compression Testing" invisible="hide_compression_page or stage not in ['basic_testing', 'extended_testing', 'finalization']">
+                            <field name="compression">
+                                <tree editable="bottom" delete="False" create="False">
+                                    <field name="cylinder_number" readonly="1"/>
+                                    <field name="compression_psi" string="PSI"/>
+                                    <field name="compression_image" string="Image" widget="binary"/>
+                                </tree>
+                            </field>
+                            <field name="hide_compression_page" invisible="1"/>
                         </page>
                         <page id="extended_testing" string="Extended Testing" invisible="stage not in ['extended_testing', 'finalization']">
                             <field name="extended_tests" widget="motor_test_widget">
@@ -116,6 +123,9 @@
                                     <field name="conditional_tests"/>
                                 </tree>
                             </field>
+                            <group>
+                                <field name="notes"/>
+                            </group>
                         </page>
 
                         <!-- Summary page-->

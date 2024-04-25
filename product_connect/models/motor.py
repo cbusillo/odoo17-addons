@@ -267,6 +267,7 @@ class Motor(models.Model, LabelMixin):
     cost = fields.Float()
 
     is_tag_readable = fields.Selection(YES_NO_SELECTION, default=YES)
+    notes = fields.Text()
     images = fields.One2many("motor.image", "motor")
     parts = fields.One2many("motor.part", "motor")
     tests = fields.One2many("motor.test", "motor")
