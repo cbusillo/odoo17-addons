@@ -47,7 +47,7 @@
                             <field name="images">
                                 <tree editable="bottom" delete="False">
                                     <field name="name"/>
-                                    <field name="image_data" widget="image" options="{'size': [512, 0]}"/>
+                                    <field name="image_data" widget="image_upload" options="{'size': [512, 0]}"/>
                                 </tree>
                             </field>
                         </page>

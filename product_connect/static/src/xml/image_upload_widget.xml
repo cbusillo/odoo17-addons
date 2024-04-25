@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="product_connect.ImageUploadWidget">
+        <ImageField t-props="props" t-on-click="onClick"/>
+    </t>
+
+</templates>
