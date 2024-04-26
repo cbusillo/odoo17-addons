@@ -72,8 +72,6 @@
                                 <tree editable="bottom" create="False" delete="False" open_form_view="0">
                                     <field name="missing" widget="boolean_toggle" class="large-toggle o_motor_part_missing_column"/>
                                     <field name="name" class="sc_full_width"/>
-                                    <field name="template" invisible="1"/>
-                                    <field name="hidden_tests" invisible="1"/>
                                 </tree>
                             </field>
                             <group>
