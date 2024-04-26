@@ -50,7 +50,7 @@ def apply_rate_limit_patch_to_shopify_execute() -> None:
         error_code = error_data.get("extensions", {}).get("code")
         error_message = error_data.get("message", "Unknown error")
         if error_code == "THROTTLED":
-            logger.error("Throttled by Shopify: %s", error_message)
+            logger.info("Throttled by Shopify: %s", error_message)
             raise ThrottledError("Throttled by Shopify")
         else:
             logger.error("Error from Shopify: %s", error_message)
@@ -224,7 +224,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
             raise ValueError(
                 f"Invalid date format in query: '{base_query}'. Expected format: 'YYYY-MM-DDTHH:MM:SSZ'"
             )
-        logger.info("Executing GraphQL query: %s", base_query)
+        logger.debug("Executing GraphQL query: %s", base_query)
         return graphql_client.execute(
             query=graphql_document,
             variables={
@@ -362,7 +362,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 )
                 if status in ["created", "updated"]:
                     updated_count += 1
-                logger.info(
+                logger.debug(
                     "Imported %s products from Shopify so far. Last product ID: %s has status: %s and was updated at %s start time: %s",
                     total_count,
                     self.extract_id_from_global_id(shopify_product["id"]),
@@ -709,7 +709,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         )
         total_count = 0
         for odoo_product in odoo_products:
-            logger.info(
+            logger.debug(
                 f"Starting export of Odoo product ID: {odoo_product.default_code} - {odoo_product.name}"
             )
             variant_data = {
@@ -802,7 +802,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                         variables={"input": shopify_product_data},
                         operation_name="CreateProduct",
                     )
-                # logger.info("Shopify export result: %s", shopify_product_data)
+                logger.debug("Shopify export result: %s", shopify_product_data)
                 result_dict = self.parse_and_validate_shopify_response(result)
 
             except ValueError as error:
@@ -858,7 +858,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 }
             )
             total_count += 1
-            logger.info(
+            logger.debug(
                 "Exported %s of %s products from Shopify so far. Last product ID: %s has status: %s and was updated at %s",
                 total_count,
                 len(odoo_products),
@@ -912,7 +912,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
         graph_ql_client, graph_ql_document, _, _ = self.setup_sync_environment()
 
-        logger.info("Fetching all orders since %s", date_filter)
+        logger.debug("Fetching all orders since %s", date_filter)
         products_sold = []
 
         for order in self.get_orders_since_date(date_filter_iso):
@@ -924,7 +924,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
         products_sold = set(products_sold)
 
-        logger.info("Fetching all products created before %s", date_filter)
+        logger.debug("Fetching all products created before %s", date_filter)
         products_with_no_sales, cursor, has_more_data, total_count = [], None, True, 0
         while has_more_data:
             shopify_product_edges = self.fetch_shopify_product_edges(
@@ -949,7 +949,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
             else:
                 has_more_data = False
 
-        logger.info(
+        logger.debug(
             "Found %s of %s products with no sales since %s",
             len(products_with_no_sales),
             total_count,
