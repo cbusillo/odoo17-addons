@@ -46,7 +46,7 @@
                         </page>
                         <page string="Images"
                               invisible="stage not in ['images', 'parts', 'basic_testing', 'extended_testing', 'finalization']">
-                            <field name="images">
+                            <field name="images" class="motor_image_adder">
                                 <tree editable="bottom" delete="False">
                                     <field name="name"/>
                                     <field name="image_data" widget="image_upload" options="{'size': [512, 0]}"/>
