@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Tree View -->
     <record id="view_motor_tree" model="ir.ui.view">
@@ -23,11 +22,10 @@
         <field name="name">motor.form</field>
         <field name="model">motor</field>
         <field name="arch" type="xml">
-
             <form string="Motor Check-In" js_class="motor_form">
                 <header>
                     <button name="print_motor_labels" type="object" class="btn btn-primary btn-lg">
-                        <i class="fa fa-print"/>Print Motor Labels
+                        <i class="fa fa-print"/>&#160;Print Motor Labels
                     </button>
                 </header>
                 <field name="stage" invisible="1"/>
@@ -36,16 +34,22 @@
                         <page id="basic_info" string="Basic Info">
                             <group>
                                 <field name="motor_number" readonly="1"/>
+                                <!--suppress XmlUnresolvedReference -->
                                 <field name="technician" widget="resetable_selection_badge"/>
                                 <field name="manufacturer" required="1" options="{'no_create': True, 'no_edit': True}"/>
                                 <field name="horsepower"/>
+                                <!--suppress XmlUnresolvedReference -->
                                 <field name="motor_stroke" required="1" widget="resetable_selection_badge"/>
+                                <!--suppress XmlUnresolvedReference -->
                                 <field name="motor_configuration" required="1" widget="resetable_selection_badge"/>
                                 <field name="model"/>
                                 <field name="serial_number"/>
+                                <!--suppress XmlUnresolvedReference -->
                                 <field name="year" widget="resetable_selection_badge"/>
+                                <!--suppress XmlUnresolvedReference -->
                                 <field name="color" widget="resetable_selection_badge" required="1"/>
                                 <field name="cost"/>
+                                <!--suppress XmlUnresolvedReference -->
                                 <field name="is_tag_readable" widget="resetable_selection_badge"/>
                                 <field name="notes"/>
                             </group>
@@ -56,6 +60,7 @@
                                 <tree editable="bottom" delete="False">
                                     <field name="name"/>
                                     <field name="image_256" widget="image" column_invisible="1"/>
+                                    <!--suppress XmlUnresolvedReference -->
                                     <field name="image_1920" widget="image_upload"/>
                                 </tree>
                             </field>
