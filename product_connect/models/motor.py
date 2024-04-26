@@ -435,14 +435,14 @@ class Motor(models.Model, LabelMixin):
     def _create_default_images(self, motor_record: Self) -> None:
         image_names = [
             "Port Side",
-            "Port Mid Section",
             "Starboard Side",
+            "Port Mid Section",
             "Starboard Midsection",
+            "Data Label",
             "Powerhead - Port Side",
-            "Powerhead - Back",
             "Powerhead - Starboard Side",
             "Powerhead - Front",
-            "Data Label",
+            "Powerhead - Back",
         ]
         for name in image_names:
             self.env["motor.image"].create(
