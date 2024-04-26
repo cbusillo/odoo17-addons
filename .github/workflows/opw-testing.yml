@@ -14,14 +14,10 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
-      - name: Create SSH key
+      - name: Wait for Tailscale
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519
-          
           # Ping loop
-          host="${{ vars.TESTING_SERVER }}"
+          host="${{ vars.PRODUCTION_SERVER }}"
           count=0
           max_attempts=30
           while ! ping -c 1 -W 1 $host > /dev/null 2>&1; do
@@ -34,7 +30,12 @@ jobs:
             sleep 1
           done
           echo "Ping to $host successful."
-          
+        shell: bash
+      - name: Create SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ vars.TESTING_SERVER }} >> ~/.ssh/known_hosts
         shell: bash
       - name: Clone & Install

@@ -14,16 +14,6 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
-      - name: Create SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519  
-          ls -la ~/.ssh
-          cat ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ vars.PRODUCTION_SERVER }} >> ~/.ssh/known_hosts
-        shell: bash
-
       - name: Wait for Tailscale
         run: |
           # Ping loop
@@ -41,7 +31,13 @@ jobs:
           done
           echo "Ping to $host successful."
         shell: bash
-
+      - name: Create SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_ed25519  
+          ssh-keyscan -H ${{ vars.PRODUCTION_SERVER }} >> ~/.ssh/known_hosts
+        shell: bash
       - name: Trigger Backup on Proxmox
         run: |
           ssh ${{ vars.PRODUCTION_USER }}@${{ vars.PROXMOX_SERVER }} 'vzdump 109 --mailnotification failure --prune-backups "keep-daily=5,keep-hourly=5,keep-last=10,keep-monthly=5,keep-weekly=5,keep-yearly=5" --compress zstd --mode snapshot --mailto info@shinycomputers.com --quiet 1 --notes-template "{{guestname}}" --storage backup'
