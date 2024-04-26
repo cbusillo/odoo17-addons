@@ -5,6 +5,7 @@ from ..mixins.notification_manager import NotificationManagerMixin
 
 class ProductProduct(NotificationManagerMixin, models.Model):
     _inherit = "product.product"
+    _description = "Product"
 
     shopify_product_id = fields.Char(copy=False)
     shopify_variant_id = fields.Char(copy=False)

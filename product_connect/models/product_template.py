@@ -1,5 +1,7 @@
 import re
 
+from typing import Self
+
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from ..mixins.label import LabelMixin
@@ -28,6 +30,10 @@ class ProductType(models.Model):
 
 class ProductTemplate(models.Model, LabelMixin):
     _inherit = "product.template"
+    _description = "Product"
+    _sql_constraints = [
+        ("default_code_uniq", "unique(default_code)", "SKU must be unique."),
+    ]
 
     length = fields.Integer()
     width = fields.Integer()
@@ -57,7 +63,7 @@ class ProductTemplate(models.Model, LabelMixin):
         ],
         default="used",
     )
-    default_code = fields.Char("SKU", index=True, required=False)
+    default_code = fields.Char("SKU", index=True, required=True)
     image_1920 = fields.Image(
         compute="_compute_image_1920", inverse="_inverse_image_1920", store=True
     )
@@ -72,17 +78,29 @@ class ProductTemplate(models.Model, LabelMixin):
     def is_condition_valid(self, shopify_condition) -> bool:
         return shopify_condition in dict(self._fields["condition"].selection)
 
-    @api.constrains("default_code")
-    def _check_default_code(self) -> None:
+    @api.model_create_multi
+    def create(self, vals_list) -> Self:
         for record in self:
-            if not re.match(r"^\d{4,8}$", str(record.default_code)):
-                raise ValidationError(_("SKU must be 4-8 digits."))
+            record.sku_check(record.default_code)
 
-            duplicate_count = self.search_count(
-                [("default_code", "=", record.default_code), ("id", "!=", record.id)]
-            )
-            if duplicate_count > 0:
-                raise ValidationError(_("SKU must be unique."))
+        return super().create(vals_list)
+
+    def write(self, vals) -> Self:
+        if (
+            len(vals) == 1
+            and "product_properties" in vals
+            and not vals["product_properties"]
+        ):
+            return
+        self.sku_check(vals.get("default_code"))
+        return super().write(vals)
+
+    @staticmethod
+    def sku_check(sku: str) -> None:
+        if not sku:
+            raise ValidationError(_("SKU is required."))
+        if not re.match(r"^\d{4,8}$", str(sku)):
+            raise ValidationError(_("SKU must be 4-8 digits."))
 
     @api.depends("product_template_image_ids")
     def _compute_image_1920(self) -> None:
