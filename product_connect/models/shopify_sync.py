@@ -82,7 +82,7 @@ def apply_rate_limit_patch_to_shopify_execute() -> None:
         else:
             raise error
 
-        logger.info("Exceeded Shopify API limit. Retrying in %s seconds", retry_after)
+        logger.debug("Exceeded Shopify API limit. Retrying in %s seconds", retry_after)
         time.sleep(retry_after)
 
     def rate_limited_execute(self, *args, **kwargs) -> str:
@@ -341,7 +341,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
     @api.model
     def import_from_shopify(self) -> None:
-        logger.info("Starting import from Shopify.")
+        logger.debug("Starting import from Shopify.")
 
         last_import_time_str, current_import_start_time, last_import_time = (
             self.fetch_import_timestamps()
@@ -686,7 +686,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
     @api.model
     def export_to_shopify(self) -> None:
-        logger.info("Starting export to Shopify...")
+        logger.debug("Starting export to Shopify...")
 
         odoo_products = self.env["product.product"].search(
             [
