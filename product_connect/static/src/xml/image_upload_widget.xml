@@ -3,7 +3,7 @@
 <t t-name="product_connect.ImageUploadWidget">
   <div class="d-inline-block position-relative opacity-trigger-hover">
     <button class="btn btn-primary" t-on-click="onClick">Upload</button>
-      <input type="file" class="d-none" t-ref="fileInput" accept="image/*" t-on-change="onFileChange"/>
+      <input type="file" class="d-none" t-ref="fileInput" accept="image/*" t-on-change="onFileChange" capture="environment"/>
       <div class="mt-2 image-preview" t-att-data-large-image-url="getLargeImageUrl()" t-ref="smallImage">
 
       <t t-if="props.record.data.image_1920">
