@@ -23,7 +23,13 @@
         <field name="name">motor.form</field>
         <field name="model">motor</field>
         <field name="arch" type="xml">
+
             <form string="Motor Check-In" js_class="motor_form">
+                <header>
+                    <button class="btn btn-primary btn-lg" t-on-click="printMotorLabels">
+                        <i class="fa fa-print"/> Print Motor Labels
+                    </button>
+                </header>
                 <field name="stage" invisible="1"/>
                 <sheet>
                     <notebook>
