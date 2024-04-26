@@ -184,6 +184,7 @@ class MotorImage(models.Model):
 
     motor = fields.Many2one("motor", ondelete="cascade")
     name = fields.Char()
+    image_data = fields.Binary()
 
 
 class Motor(models.Model, LabelMixin):
