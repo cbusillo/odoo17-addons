@@ -1,12 +1,14 @@
 import logging
-from odoo import api, fields, SUPERUSER_ID
+
+from odoo import fields
+from odoo.upgrade import util
 
 _logger = logging.getLogger(__name__)
 
 
 def migrate(cr, _version) -> None:
     _logger.info(f"Running migration script: {__name__}")
-    env = api.Environment(cr, SUPERUSER_ID, {})
+    env = util.env(cr)
 
     if "image_data" not in env["motor.image"]._fields:
         _logger.info("Adding image_data field to motor.image model")
