@@ -50,7 +50,7 @@ def apply_rate_limit_patch_to_shopify_execute() -> None:
         error_code = error_data.get("extensions", {}).get("code")
         error_message = error_data.get("message", "Unknown error")
         if error_code == "THROTTLED":
-            logger.info("Throttled by Shopify: %s", error_message)
+            logger.debug("Throttled by Shopify: %s", error_message)
             raise ThrottledError("Throttled by Shopify")
         else:
             logger.error("Error from Shopify: %s", error_message)
