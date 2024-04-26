@@ -1,10 +1,11 @@
 import base64
-import logging
 import io
+import logging
 from typing import Any, Self
 
 import requests
 from PIL import Image
+
 import odoo
 from odoo.exceptions import UserError
 from ..mixins.label import LabelMixin

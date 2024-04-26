@@ -5,18 +5,16 @@ import re
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Literal, Generator, Self
+from typing import Any, Generator, Literal, Self
 from urllib.error import HTTPError
 from zoneinfo import ZoneInfo
 
 import requests
-
 import shopify
 from dateutil.parser import parse
 from requests.exceptions import RequestException
 
 from odoo import api, fields, models
-
 from ..mixins.notification_manager import NotificationManagerMixin
 
 shopify_original_execute_function = shopify.GraphQL.execute

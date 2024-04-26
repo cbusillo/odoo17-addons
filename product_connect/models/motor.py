@@ -1,14 +1,12 @@
+import base64
 import re
+from io import BytesIO
 from typing import Any, Self
 
-import base64
 import qrcode
 
-from io import BytesIO
-
-from odoo import _, models, fields, api
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
-
 from ..mixins.label import LabelMixin
 
 YES = "yes"

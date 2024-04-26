@@ -1,8 +1,7 @@
 import re
-
 from typing import Self
 
-from odoo import models, fields, api, _
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 from ..mixins.label import LabelMixin
 

@@ -1,9 +1,9 @@
 /** @odoo-module **/
-import { useRef, onMounted } from '@odoo/owl'
+import { onMounted, useRef } from '@odoo/owl'
 import { registry } from '@web/core/registry'
 import { url } from '@web/core/utils/urls'
 import { BinaryField } from '@web/views/fields/binary/binary_field'
-import { ImageField, imageCacheKey } from '@web/views/fields/image/image_field'
+import { imageCacheKey, ImageField } from '@web/views/fields/image/image_field'
 
 export class ImageUploadWidget extends BinaryField {
   setup() {

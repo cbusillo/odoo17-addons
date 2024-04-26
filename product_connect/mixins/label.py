@@ -1,10 +1,10 @@
 import base64
 import datetime
 import logging
-
 from typing import TYPE_CHECKING
 
 from simple_zpl2 import ZPLDocument
+
 from odoo import models
 
 if TYPE_CHECKING:

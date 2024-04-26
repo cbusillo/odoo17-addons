@@ -1,7 +1,7 @@
 import logging
 
 from printnodeapi import Gateway
-from printnodeapi.model import Printer, PrintJob
+from printnodeapi.model import PrintJob, Printer
 
 from odoo import _, api, fields, models
 from ..mixins.notification_manager import NotificationManagerMixin

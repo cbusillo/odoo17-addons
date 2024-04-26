@@ -1,7 +1,8 @@
 import logging
 
-from odoo import fields
 from odoo.upgrade import util
+
+from odoo import fields
 
 _logger = logging.getLogger(__name__)
 
