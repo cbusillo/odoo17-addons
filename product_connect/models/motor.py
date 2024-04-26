@@ -179,11 +179,11 @@ class MotorCompression(models.Model):
 
 class MotorImage(models.Model):
     _name = "motor.image"
+    _inherit = ["image.mixin"]
     _description = "Motor Images"
 
     motor = fields.Many2one("motor", ondelete="cascade")
     name = fields.Char()
-    image_data = fields.Image("Image", max_width=1920, max_height=1920)
 
 
 class Motor(models.Model, LabelMixin):
