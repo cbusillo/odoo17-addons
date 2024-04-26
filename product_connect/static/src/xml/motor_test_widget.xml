@@ -20,7 +20,7 @@
                                             </strong>
                                             <div>
                                                 <t t-if="test.data.result_type === 'yes_no' || test.data.result_type === 'selection'">
-                                                    <BadgeSelectionField
+                                                    <ResetableBadgeSelectionField
                                                             id="test.id"
                                                             name="test.data.result_type + '_result'"
                                                             record="test"

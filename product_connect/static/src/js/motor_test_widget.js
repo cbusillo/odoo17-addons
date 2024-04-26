@@ -4,8 +4,8 @@ import { useService } from '@web/core/utils/hooks'
 import { registry } from '@web/core/registry'
 import { groupBy, sortBy } from '@web/core/utils/arrays'
 import {
-  BadgeSelectionField,
-} from '@web/views/fields/badge_selection/badge_selection_field'
+  ResetableBadgeSelectionField,
+} from '@product_connect/js/resetable_badge_selection_widget'
 import { FloatField } from '@web/views/fields/float/float_field'
 import { CharField } from '@web/views/fields/char/char_field'
 import { BinaryField } from '@web/views/fields/binary/binary_field'
@@ -235,7 +235,7 @@ export class MotorTestWidget extends Component {
 
 MotorTestWidget.template = 'product_connect.MotorTestWidget'
 MotorTestWidget.components = {
-  BadgeSelectionField,
+  ResetableBadgeSelectionField,
   FloatField,
   CharField,
   BinaryField,

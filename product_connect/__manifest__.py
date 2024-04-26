@@ -54,6 +54,8 @@
             "product_connect/static/src/js/motor_form.js",
             "product_connect/static/src/js/motor_test_widget.js",
             "product_connect/static/src/xml/motor_test_widget.xml",
+            "product_connect/static/src/js/resetable_badge_selection_widget.js",
+            "product_connect/static/src/xml/resetable_badge_selection_widget.xml",
             "product_connect/static/src/scss/search_mpn_online_widget.scss",
             "product_connect/static/src/js/search_mpn_online_widget.js",
             "product_connect/static/src/xml/search_mpn_online_widget.xml",
