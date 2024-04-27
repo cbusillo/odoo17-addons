@@ -17,7 +17,7 @@ jobs:
       - name: Wait for Tailscale
         run: |
           # Ping loop
-          host="${{ vars.PRODUCTION_SERVER }}"
+          host="${{ vars.TESTING_SERVER }}"
           count=0
           max_attempts=30
           while ! ping -c 1 -W 1 $host > /dev/null 2>&1; do
@@ -47,7 +47,7 @@ jobs:
           count=0
           max_attempts=30
           while true; do
-            status_code=$(curl --write-out "%{http_code}\n" --silent --output /dev/null ${{ vars.PRODUCTION_SERVER }}:8069)
+            status_code=$(curl --write-out "%{http_code}\n" --silent --output /dev/null ${{ vars.TESTING_SERVER }}:8069)
             if [ $status_code -eq 200 ]; then
               echo "Website is up."
               break
