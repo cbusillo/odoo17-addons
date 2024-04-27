@@ -58,7 +58,7 @@ jobs:
                 echo "Website is not up after $max_attempts attempts, stopping."
                 exit 1
               fi
-              sleep 1
+              sleep 5
             fi
           done
         shell: bash
