@@ -47,8 +47,9 @@ jobs:
           count=0
           max_attempts=30
           while true; do
+            echo "Attempt $count: "
             status_code=$(curl --write-out "%{http_code}\n" --silent --output /dev/null ${{ vars.TESTING_SERVER }}:8069)
-            echo "Attempt $count: Received status code $status_code"
+            echo "Received status code $status_code"
             if [ $status_code -eq 200 ]; then
               echo "Website is up."
               break
