@@ -42,6 +42,16 @@ jobs:
         run: |
           ssh ${{ vars.TESTING_USER }}@${{ vars.TESTING_SERVER }} 'cd /opt/odoo/odoo17-addons; git pull; sudo systemctl restart odoo'
         shell: bash
+
+      - name: Debug network
+        run: |
+          echo "Curl version:"
+          curl --version
+          echo "Network status:"
+          ip addr
+          echo "Ping to server:"
+          ping -c 4 ${{ vars.TESTING_SERVER }}
+        shell: bash
       - name: Check if website is up
         run: |
           count=0
