@@ -47,17 +47,12 @@ jobs:
           count=0
           max_attempts=30
           while true; do
-            echo "Attempt $count: "
             status_code=$(curl --write-out "%{http_code}\n" --silent --output /dev/null ${{ vars.TESTING_SERVER }}:8069 || echo "Curl failed")
-            echo "Received status code $status_code"
             if [ "$status_code" = "200" ]; then
-              echo "Website is up."
               break
             else
               count=$((count+1))
-              echo "Website is not up, retrying..."
               if [ $count -ge $max_attempts ]; then
-                echo "Website is not up after $max_attempts attempts, stopping."
                 exit 1
               fi
               sleep 5
