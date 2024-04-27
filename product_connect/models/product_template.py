@@ -1,5 +1,4 @@
 import re
-from typing import Self
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
@@ -77,37 +76,21 @@ class ProductTemplate(models.Model, LabelMixin):
     def is_condition_valid(self, shopify_condition) -> bool:
         return shopify_condition in dict(self._fields["condition"].selection)
 
-    @api.model_create_multi
-    def create(self, vals_list) -> Self:
+    @api.constrains("default_code")
+    def _check_sku(self) -> None:
         for record in self:
-            record.sku_check(record.default_code)
-
-        return super().create(vals_list)
-
-    def write(self, vals) -> Self:
-        if (
-            len(vals) == 1
-            and "product_properties" in vals
-            and not vals["product_properties"]
-        ):
-            return
-        self.sku_check(vals.get("default_code"))
-        return super().write(vals)
-
-    @staticmethod
-    def sku_check(sku: str) -> None:
-        if not sku:
-            raise ValidationError(_("SKU is required."))
-        if not re.match(r"^\d{4,8}$", str(sku)):
-            raise ValidationError(_("SKU must be 4-8 digits."))
+            if not re.match(r"^\d{4,8}$", str(record.default_code)):
+                raise ValidationError(_("SKU must be 4-8 digits."))
 
     @api.depends("product_template_image_ids")
     def _compute_image_1920(self) -> None:
         for record in self:
+            default_code = record.default_code  # Save the current default_code
             if record.product_template_image_ids:
                 record.image_1920 = record.product_template_image_ids[0].image_1920
             else:
                 record.image_1920 = False
+            record.default_code = default_code
 
     def _inverse_image_1920(self) -> None:
         for record in self:
