@@ -43,8 +43,27 @@ jobs:
         run: |
           ssh ${{ vars.PRODUCTION_USER }}@${{ vars.PROXMOX_SERVER }} 'vzdump 109 --mailnotification failure --prune-backups "keep-daily=5,keep-hourly=5,keep-last=10,keep-monthly=5,keep-weekly=5,keep-yearly=5" --compress zstd --mode snapshot --mailto info@shinycomputers.com --quiet 1 --notes-template "{{guestname}}" --storage backup'
         shell: bash
-
       - name: Clone & Install
         run: |
           ssh ${{ vars.PRODUCTION_USER }}@${{ vars.PRODUCTION_SERVER }} 'cd /opt/odoo/odoo17-addons; git pull; ../odoo17/odoo-bin -u product_connect --stop-after-init -c /etc/odoo.conf; sudo systemctl restart odoo'
+        shell: bash
+      - name: Check if website is up
+        run: |
+          count=0
+          max_attempts=30
+          while true; do
+            status_code=$(curl --write-out "%{http_code}\n" --silent --output /dev/null ${{ vars.PRODUCTION_SERVER }}:8069)
+            if [ $status_code -eq 200 ]; then
+              echo "Website is up."
+              break
+            else
+              count=$((count+1))
+              echo "Attempt $count: Website is not up, retrying..."
+              if [ $count -ge $max_attempts ]; then
+                echo "Website is not up after $max_attempts attempts, stopping."
+                exit 1
+              fi
+              sleep 1
+            fi
+          done
         shell: bash

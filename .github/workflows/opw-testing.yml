@@ -42,3 +42,23 @@ jobs:
         run: |
           ssh ${{ vars.TESTING_USER }}@${{ vars.TESTING_SERVER }} 'cd /opt/odoo/odoo17-addons; git pull; sudo systemctl restart odoo'
         shell: bash
+      - name: Check if website is up
+        run: |
+          count=0
+          max_attempts=30
+          while true; do
+            status_code=$(curl --write-out "%{http_code}\n" --silent --output /dev/null ${{ vars.PRODUCTION_SERVER }}:8069)
+            if [ $status_code -eq 200 ]; then
+              echo "Website is up."
+              break
+            else
+              count=$((count+1))
+              echo "Attempt $count: Website is not up, retrying..."
+              if [ $count -ge $max_attempts ]; then
+                echo "Website is not up after $max_attempts attempts, stopping."
+                exit 1
+              fi
+              sleep 1
+            fi
+          done
+        shell: bash
