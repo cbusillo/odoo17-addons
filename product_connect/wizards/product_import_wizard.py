@@ -102,3 +102,28 @@ class ProductImportImageWizard(odoo.models.TransientModel):
             'res_id': self.id,
             'target': 'new',
         }
+
+    def action_edit_next(self) -> dict[str, str]:
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'product.import.image.wizard',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
+
+    def action_done(self) -> dict[str, str]:
+        self.ensure_one()
+        # Assuming image data is handled by the client and needs to be saved:
+        self.product.images.unlink()  # Clear existing placeholders or unused images
+        for wizard_image in self.images:
+            if wizard_image.image_1920:  # Ensure there's actual image data
+                wizard_image.create({
+                    'product': self.product.id,
+                    'image_1920': wizard_image.image_1920,
+                    'index': wizard_image.index
+                })
+        return {
+            'type': 'ir.actions.act_window_close',
+        }
