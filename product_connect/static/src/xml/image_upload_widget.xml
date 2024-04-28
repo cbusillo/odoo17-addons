@@ -9,7 +9,7 @@
              accept="image/*"
              t-on-change="onFileChange"
              capture="environment"/>
-      <div class="mt-2 image-preview" t-att-data-large-image-url="getLargeImageUrl()" t-ref="smallImage">
+      <div class="mt-2 image-preview">
 
       <t t-if="props.record.data.image_1920">
          <ImageField

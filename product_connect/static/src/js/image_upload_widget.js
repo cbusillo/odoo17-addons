@@ -1,5 +1,5 @@
 /** @odoo-module **/
-import { onMounted, useRef } from '@odoo/owl'
+import { useRef } from '@odoo/owl'
 import { registry } from '@web/core/registry'
 import { url } from '@web/core/utils/urls'
 import { BinaryField } from '@web/views/fields/binary/binary_field'
@@ -13,10 +13,7 @@ export class ImageUploadWidget extends BinaryField {
     setup() {
         super.setup()
         this.fileInputRef = useRef('fileInput')
-        this.smallImageRef = useRef('smallImage')
-        onMounted(() => {
-            this.setupPopover()
-        })
+
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -30,24 +27,6 @@ export class ImageUploadWidget extends BinaryField {
             return 'image_512'
         } else {
             return 'image_1024'
-        }
-    }
-
-    setupPopover() {
-        console.log('ImageUploadWidget.setupPopover')
-        if (this.smallImageRef.el) {
-            const largeImageUrl = $(this.smallImageRef.el).data('largeImageUrl')
-            if (largeImageUrl) {
-                $(this.smallImageRef.el).popover({
-                    animation: true,
-                    delay: { show: 1000, hide: 1000 },
-                    boundary: 'window',
-                    html: true,
-                    trigger: 'hover',
-                    placement: 'auto',
-                    content: `<img src="${largeImageUrl}" alt="Large Image" style="max-width: 50vw; max-height: 50vh;"/>`,
-                })
-            }
         }
     }
 
