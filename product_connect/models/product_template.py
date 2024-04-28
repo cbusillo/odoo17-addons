@@ -61,7 +61,9 @@ class ProductTemplate(models.Model, LabelMixin):
         ],
         default="used",
     )
-    default_code = fields.Char("SKU", index=True, required=True)
+    default_code = fields.Char(
+        "SKU", index=True, default=lambda self: self._generate_next_sku()
+    )
     image_1920 = fields.Image(
         compute="_compute_image_1920", inverse="_inverse_image_1920", store=True
     )
@@ -73,14 +75,27 @@ class ProductTemplate(models.Model, LabelMixin):
         store=True,
     )
 
-    def is_condition_valid(self, shopify_condition) -> bool:
+    def is_condition_valid(self, shopify_condition: str) -> bool:
         return shopify_condition in dict(self._fields["condition"].selection)
 
     @api.constrains("default_code")
     def _check_sku(self) -> None:
         for record in self:
+            if not record.default_code:
+                continue
             if not re.match(r"^\d{4,8}$", str(record.default_code)):
                 raise ValidationError(_("SKU must be 4-8 digits."))
+
+    def _generate_next_sku(self) -> str:
+        sequence = self.env["ir.sequence"].search([("code", "=", "product.import")])
+        padding = sequence.padding
+        max_sku = "9" * padding
+        while (
+            new_sku := self.env["ir.sequence"].next_by_code("product.import")
+        ) <= max_sku:
+            if not self.search([("default_code", "=", new_sku)]):
+                return new_sku
+        raise ValidationError("SKU limit reached.")
 
     @api.depends("product_template_image_ids")
     def _compute_image_1920(self) -> None:
