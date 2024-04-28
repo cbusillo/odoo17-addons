@@ -1,14 +1,11 @@
 /** @odoo-module **/
 import { useRef } from '@odoo/owl'
 import { registry } from '@web/core/registry'
-import { url } from '@web/core/utils/urls'
 import { BinaryField } from '@web/views/fields/binary/binary_field'
-import { imageCacheKey, ImageField } from '@web/views/fields/image/image_field'
+import { ImageField } from '@web/views/fields/image/image_field'
 
 export class ImageUploadWidget extends BinaryField {
-    get rawCacheKey() {
-        return this.props.record.data.write_date
-    }
+
 
     setup() {
         super.setup()
@@ -61,19 +58,6 @@ export class ImageUploadWidget extends BinaryField {
     onClick() {
         console.log('ImageUploadWidget.onClick')
         this.onImageUpload().then()
-    }
-
-    getLargeImageUrl() {
-        return url(
-            '/web/image',
-            {
-                model: this.props.record.resModel,
-                id: this.props.record.resId,
-                field: 'image_1920',
-                unique: imageCacheKey(this.rawCacheKey),
-
-            },
-        )
     }
 }
 
