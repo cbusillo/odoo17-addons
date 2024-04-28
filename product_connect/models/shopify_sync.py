@@ -68,13 +68,13 @@ def apply_rate_limit_patch_to_shopify_execute() -> None:
 
         if currently_available < MIN_SHOPIFY_REMAINING_API_POINTS:
             sleep_time = (
-                MIN_SHOPIFY_REMAINING_API_POINTS - currently_available
-            ) / restore_rate
+                                 MIN_SHOPIFY_REMAINING_API_POINTS - currently_available
+                         ) / restore_rate
             time.sleep(sleep_time)
 
     def handle_and_retry_on_error(error: HTTPError, attempt: int) -> None:
         if isinstance(error, ThrottledError):
-            retry_after = min(2**attempt, MAX_RETRY_DELAY)
+            retry_after = min(2 ** attempt, MAX_RETRY_DELAY)
         elif isinstance(error, HTTPError):
             retry_after = max(
                 float(error.headers.get("Retry-After", 4)),
@@ -178,13 +178,13 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         return int(gid.split("/")[-1])
 
     def fetch_shopify_product_edges(
-        self,
-        cursor: str | None,
-        last_import_time_str: str,
-        graphql_client: shopify.GraphQL,
-        graphql_document: str,
-        custom_query: str = "",
-        operation_name: str = "GetProducts",
+            self,
+            cursor: str | None,
+            last_import_time_str: str,
+            graphql_client: shopify.GraphQL,
+            graphql_document: str,
+            custom_query: str = "",
+            operation_name: str = "GetProducts",
     ) -> list[dict[str, Any]]:
         result = self.execute_graphql_query(
             cursor,
@@ -200,13 +200,13 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         )
 
     def execute_graphql_query(
-        self,
-        cursor: str | None,
-        time_filter: str,
-        graphql_client: shopify.GraphQL,
-        graphql_document: str,
-        operation_name,
-        custom_query=None,
+            self,
+            cursor: str | None,
+            time_filter: str,
+            graphql_client: shopify.GraphQL,
+            graphql_document: str,
+            operation_name,
+            custom_query=None,
     ) -> str:
         if not time_filter:
             time_filter = self.DEFAULT_DATETIME.isoformat(timespec="seconds")
@@ -226,6 +226,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 f"Invalid date format in query: '{base_query}'. Expected format: 'YYYY-MM-DDTHH:MM:SSZ'"
             )
         logger.debug("Executing GraphQL query: %s", base_query)
+        # noinspection Annotator
         return graphql_client.execute(
             query=graphql_document,
             variables={
@@ -255,7 +256,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         return sku, bin_location
 
     def import_or_update_shopify_product(
-        self, shopify_product: dict, last_import_time: datetime
+            self, shopify_product: dict, last_import_time: datetime
     ) -> str:
         shopify_updated_at = parse_to_utc(shopify_product.get("updatedAt", ""))
         shopify_sku, _ = self.extract_sku_bin_from_shopify_product(shopify_product)
@@ -296,10 +297,10 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         return status
 
     def determine_latest_product_modification_time(
-        self, odoo_product_product, last_import_time
+            self, odoo_product_product, last_import_time
     ) -> datetime:
         if (
-            last_import_time.year < 2001
+                last_import_time.year < 2001
         ):  # set the import time to 2001 in Odoo to import all products
             return self.DEFAULT_DATETIME
         odoo_product_template = odoo_product_product.product_tmpl_id
@@ -328,7 +329,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         return max(filter(None, dates))
 
     def finalize_import_and_commit_changes(
-        self, current_import_start_time: datetime
+            self, current_import_start_time: datetime
     ) -> None:
         # This function finalizes the import process Added commits to ensure that the import is not rolled back if export fails
         self.env.cr.commit()
@@ -422,7 +423,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         }
 
     def map_shopify_to_odoo_product_data(
-        self, shopify_product_data, odoo_product: "ProductProduct"
+            self, shopify_product_data, odoo_product: "ProductProduct"
     ) -> dict[str, Any]:
         metafields_data = shopify_product_data["metafields"]
 
@@ -495,7 +496,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
     @api.model
     def create_or_update_odoo_product(
-        self, shopify_product, existing_product=None
+            self, shopify_product, existing_product=None
     ) -> Literal["unchanged", "updated", "created"]:
         status: Literal["unchanged", "updated", "created"]
 
@@ -542,7 +543,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
     @api.model
     def find_or_add_product_type(
-        self, product_type_name: str, ebay_category_id: str
+            self, product_type_name: str, ebay_category_id: str
     ) -> Self | None:
         try:
             if int(ebay_category_id) < 1 or not product_type_name:
@@ -571,7 +572,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
     @api.model
     def fetch_and_store_product_image(
-        self, index, shopify_image_url, odoo_product_template
+            self, index, shopify_image_url, odoo_product_template
     ) -> None:
         retries = 0
         while retries < MAX_RETRIES:
@@ -596,7 +597,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                     error,
                 )
                 retries += 1
-                time.sleep(MIN_RETRY_DELAY * (2**retries))
+                time.sleep(MIN_RETRY_DELAY * (2 ** retries))
 
         logger.error(
             "Failed to fetch image from Shopify after %s attempts.", MAX_RETRIES
@@ -617,20 +618,20 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
     @staticmethod
     def prepare_odoo_product_image_data_for_export(
-        base_url, odoo_product
+            base_url, odoo_product
     ) -> list[dict[str, str]]:
         """Construct image data for each Odoo product."""
         media_list = []
         for odoo_image in sorted(
-            odoo_product.product_tmpl_id.product_template_image_ids,
-            key=lambda image: image.name,
+                odoo_product.product_tmpl_id.product_template_image_ids,
+                key=lambda image: image.name,
         ):
             image_data = {
                 "altText": odoo_product.name,
                 "src": base_url
-                + "/web/image/product.image/"
-                + str(odoo_image.id)
-                + "/image_1920",
+                       + "/web/image/product.image/"
+                       + str(odoo_image.id)
+                       + "/image_1920",
             }
             media_list.append(image_data)
         return media_list
@@ -671,7 +672,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         """Set up and return context objects necessary for Shopify synchronization."""
         graphql_client = shopify.GraphQL()
         graphql_query_path = (
-            Path(__file__).parent.parent / "graphql" / "shopify_product.graphql"
+                Path(__file__).parent.parent / "graphql" / "shopify_product.graphql"
         )
         graphql_document = graphql_query_path.read_text()
         shopify_location_gid = self.fetch_first_store_location_id(
@@ -698,11 +699,11 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
 
         odoo_products = odoo_products.filtered(
             lambda p: p.shopify_next_export is True
-            or (
-                p.write_date > (p.shopify_last_exported or datetime.min)
-                or p.product_tmpl_id.write_date
-                > (p.shopify_last_exported or datetime.min)
-            )
+                      or (
+                              p.write_date > (p.shopify_last_exported or datetime.min)
+                              or p.product_tmpl_id.write_date
+                              > (p.shopify_last_exported or datetime.min)
+                      )
         )
 
         graphql_client, graphql_document, shopify_location_gid, base_url = (
@@ -892,7 +893,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 has_more_data = False
 
     def fetch_shopify_order_edges(
-        self, cursor, date_filter, graph_ql_client, graph_ql_document, custom_query=None
+            self, cursor, date_filter, graph_ql_client, graph_ql_document, custom_query=None
     ) -> list[dict[str, Any]]:
         result = self.execute_graphql_query(
             cursor,

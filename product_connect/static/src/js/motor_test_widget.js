@@ -1,13 +1,13 @@
 /** @odoo-module **/
-import {Component, onMounted, useState} from '@odoo/owl'
-import {useService} from '@web/core/utils/hooks'
-import {registry} from '@web/core/registry'
-import {groupBy, sortBy} from '@web/core/utils/arrays'
-import {ResettableBadgeSelectionField,} from 'resettable_badge_selection_widget.js'
-import {FloatField} from '@web/views/fields/float/float_field'
-import {CharField} from '@web/views/fields/char/char_field'
-import {BinaryField} from '@web/views/fields/binary/binary_field'
-import {PdfViewerField} from '@web/views/fields/pdf_viewer/pdf_viewer_field'
+import { Component, onMounted, useState } from '@odoo/owl'
+import { useService } from '@web/core/utils/hooks'
+import { registry } from '@web/core/registry'
+import { groupBy, sortBy } from '@web/core/utils/arrays'
+import { ResettableBadgeSelectionField, } from './resettable_badge_selection_widget.js'
+import { FloatField } from '@web/views/fields/float/float_field'
+import { CharField } from '@web/views/fields/char/char_field'
+import { BinaryField } from '@web/views/fields/binary/binary_field'
+import { PdfViewerField } from '@web/views/fields/pdf_viewer/pdf_viewer_field'
 
 /**
  * @typedef {Object} ConditionalTest
@@ -29,7 +29,7 @@ export class MotorTestWidget extends Component {
     }
 
     async setup() {
-        this.motorTestsBySection = useState({sections: []})
+        this.motorTestsBySection = useState({ sections: [] })
         this.selectionFieldDomains = useState({})
         this.conditionsById = {}
         this.allTests = []
@@ -48,7 +48,7 @@ export class MotorTestWidget extends Component {
     }
 
     async loadMotorTests() {
-        const {name, record} = this.props
+        const { name, record } = this.props
         this.allTests = record.data[name].records
         const missingParts = record.data.parts.records.filter(
             (part) => part.data.missing,
@@ -201,7 +201,7 @@ export class MotorTestWidget extends Component {
             (c) => c.id === condition.id,
         )
 
-        const {condition_value: conditionValue} = conditionRecord
+        const { condition_value: conditionValue } = conditionRecord
 
         if (!result || !conditionValue) {
             return false
@@ -215,7 +215,7 @@ export class MotorTestWidget extends Component {
     }
 
     setSelectionFieldDomain({
-                                data: {result_type: resultType, selection_options: selectionOptions},
+                                data: { result_type: resultType, selection_options: selectionOptions },
                                 id,
                             }) {
         if (resultType === 'selection') {
@@ -233,7 +233,7 @@ export class MotorTestWidget extends Component {
 
 MotorTestWidget.template = 'product_connect.MotorTestWidget'
 MotorTestWidget.components = {
-    ResettableBadgeSelectionField: ResettableBadgeSelectionField,
+    ResettableBadgeSelectionField,
     FloatField,
     CharField,
     BinaryField,

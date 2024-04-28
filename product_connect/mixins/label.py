@@ -27,10 +27,10 @@ class LabelMixin(models.AbstractModel):
     BARCODE_SIZE = 8
 
     def _print_labels(
-        self,
-        labels: list[str] | bytes,
-        odoo_job_type: str,
-        job_name: str,
+            self,
+            labels: list[str] | bytes,
+            odoo_job_type: str,
+            job_name: str,
     ) -> None:
         label_data: str | bytes
         if isinstance(labels, list):
@@ -81,7 +81,7 @@ class LabelMixin(models.AbstractModel):
         )
 
     def print_product_labels(
-        self, print_quantity: bool = False, printer_job_type: str = "product_label"
+            self, print_quantity: bool = False, printer_job_type: str = "product_label"
     ) -> None:
         labels = []
         for record in self:
@@ -127,12 +127,12 @@ class LabelMixin(models.AbstractModel):
         return lines
 
     def generate_label_base64(
-        self,
-        text: list[str] | str,
-        bottom_text: str | list[str] | None = None,
-        barcode: str | None = None,
-        quantity: int = 1,
-        print_date: bool = True,
+            self,
+            text: list[str] | str,
+            bottom_text: str | list[str] | None = None,
+            barcode: str | None = None,
+            quantity: int = 1,
+            print_date: bool = True,
     ) -> str:
         if not isinstance(text, list):
             text = [text]

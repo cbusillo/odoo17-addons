@@ -4,7 +4,8 @@
         <div class="container">
             <div class="row">
                 <t t-if="this.motorTestsBySection.sections and Object.keys(this.motorTestsBySection.sections).length > 0">
-                    <t t-foreach="Object.entries(this.motorTestsBySection.sections)" t-as="sectionEntry" t-key="sectionEntry[0]">
+                    <t t-foreach="Object.entries(this.motorTestsBySection.sections)" t-as="sectionEntry"
+                       t-key="sectionEntry[0]">
                         <div class="col-md-6">
                             <div class="card mb-4">
                                 <div class="card-header bg-white text-white p-2">
@@ -20,7 +21,7 @@
                                             </strong>
                                             <div>
                                                 <t t-if="test.data.result_type === 'yes_no' || test.data.result_type === 'selection'">
-                                                    <ResetableBadgeSelectionField
+                                                    <ResettableBadgeSelectionField
                                                             id="test.id"
                                                             name="test.data.result_type + '_result'"
                                                             record="test"
