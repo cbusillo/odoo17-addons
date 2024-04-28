@@ -3,7 +3,7 @@ import datetime
 import logging
 from typing import TYPE_CHECKING
 
-from simple_zpl2 import ZPLDocument
+from simple_zpl2 import ZPLDocument  # type: ignore
 
 from odoo import models
 
@@ -32,6 +32,7 @@ class LabelMixin(models.AbstractModel):
         odoo_job_type: str,
         job_name: str,
     ) -> None:
+        label_data: str | bytes
         if isinstance(labels, list):
             if not isinstance(labels[0], str):
                 logger.error("Invalid label data type")
@@ -111,7 +112,7 @@ class LabelMixin(models.AbstractModel):
     def wrap_text(text: str, max_line_length: int) -> list[str]:
         words = text.split(" ")
         lines = []
-        current_line = []
+        current_line: list[str] = []
 
         for word in words:
             if len(" ".join(current_line + [word])) > max_line_length:

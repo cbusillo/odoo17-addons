@@ -3,7 +3,7 @@ import re
 from io import BytesIO
 from typing import Any, Self
 
-import qrcode
+import qrcode  # type: ignore
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
@@ -201,7 +201,9 @@ class Motor(models.Model, LabelMixin):
             horsepower = (
                 f" {int(record.horsepower)}HP"
                 if record.horsepower and record.horsepower.is_integer()
-                else f" {record.horsepower}HP" if record.horsepower else None
+                else f" {record.horsepower}HP"
+                if record.horsepower
+                else None
             )
             serial_number = (
                 f" - {record.serial_number}" if record.serial_number else None
@@ -321,11 +323,12 @@ class Motor(models.Model, LabelMixin):
         qr_code.make()
 
         qr_image = qr_code.make_image(fill_color="black", back_color="white")
-        qr_image_data = BytesIO()
-        qr_image.save(qr_image_data)
-        qr_image_data = qr_image_data.getvalue()
-        qr_image_data_base64 = base64.b64encode(qr_image_data).decode()
-        return qr_image_data_base64
+
+        with BytesIO() as qr_image_buffer:
+            qr_image.save(qr_image_buffer)
+            qr_image_base64 = base64.b64encode(qr_image_buffer.getvalue()).decode()
+
+        return qr_image_base64
 
     def get_horsepower_formatted(self) -> str:
         if not self.horsepower:
@@ -343,7 +346,7 @@ class Motor(models.Model, LabelMixin):
                 raise ValidationError(_("Horsepower must be between 1 and 600."))
 
     @staticmethod
-    def _sanitize_vals(vals: dict[str:Any]) -> dict[str, Any]:
+    def _sanitize_vals(vals: dict[str, Any]) -> dict[str, Any]:
         if "year" in vals and vals["year"]:
             vals["year"] = "".join(char for char in vals["year"] if char.isdigit())
         if "model" in vals and vals["model"]:

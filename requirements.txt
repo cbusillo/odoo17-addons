@@ -1,5 +1,4 @@
-printnodeapi==0.2.0
-simple_zpl2==0.3.0
-shopifyapi==12.3.0
-pdfminer.six==20231228
+printnodeapi
+shopifyapi
+pdfminer.six
 odoo_upgrade @ git+https://github.com/odoo/upgrade-util@master
