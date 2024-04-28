@@ -1,4 +1,5 @@
 import base64
+from typing import Any
 
 from odoo import _, fields, models
 from odoo.exceptions import UserError
@@ -19,7 +20,7 @@ class ProductLabelLayout(models.TransientModel):
         default="2x1",
     )
 
-    def _prepare_report_data(self) -> tuple[str, dict[str, any]]:
+    def _prepare_report_data(self) -> tuple[str, dict[str, Any]]:
         xml_id, data = super()._prepare_report_data()
 
         products_data = []
@@ -69,7 +70,7 @@ class ProductLabelLayout(models.TransientModel):
         data.update({"products_data": products_data})
         return xml_id, data
 
-    def process(self) -> dict[str, any]:
+    def process(self) -> dict[str, Any]:
         custom_formats = ["2x1", "2x1bin", "4x2motor"]
         if self.print_format not in custom_formats or True:
             return super().process()
@@ -87,15 +88,3 @@ class ProductLabelLayout(models.TransientModel):
         report_action["context"] = {"report_pdf": report_pdf}
 
         return report_action
-
-    # def process(self):
-    #     action = super(ProductLabelLayout, self).process()
-    #     self.ensure_one()
-    #     xml_id, data = self._prepare_report_data()
-    #     if not xml_id:
-    #         raise UserError(
-    #             _("Unable to find report template for %s format", self.print_format)
-    #         )
-    #     report_action = self.env.ref(xml_id).report_action(None, data=data)
-    #     report_action.update({"close_on_report_download": True})
-    #     return action

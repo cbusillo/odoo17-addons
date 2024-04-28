@@ -36,16 +36,3 @@ class ProductManufacturer(models.Model):
     @staticmethod
     def normalize_name(name: str) -> str:
         return re.sub(r"\W+", "", name).lower() if name else ""
-
-    def create(self, vals_list: dict | list[dict]):
-        if not isinstance(vals_list, list):
-            vals_list = [vals_list]
-        for vals in vals_list:
-            name_normalized = self.normalize_name(vals.get("name"))
-            existing_manufacturer = self.search(
-                [("name_normalized", "=", name_normalized)]
-            )
-            if existing_manufacturer:
-                return existing_manufacturer
-            else:
-                return super().create(vals)

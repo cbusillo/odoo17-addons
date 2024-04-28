@@ -1,7 +1,7 @@
 import logging
 
-from printnodeapi import Gateway
-from printnodeapi.model import PrintJob, Printer
+from printnodeapi import Gateway  # type: ignore
+from printnodeapi.model import PrintJob, Printer  # type: ignore
 
 from odoo import _, api, fields, models
 from ..mixins.notification_manager import NotificationManagerMixin
@@ -72,21 +72,22 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
             logger.error(
                 f"No printer configured for job type {odoo_job_type} and user {self.env.user.name}"
             )
-            return
+            return None
         printer_id = interface_record.printer_selection
         if not printer_id:
             logger.error(
                 f"Printer not selected for job type {odoo_job_type} and user {self.env.user.name}"
             )
-            return
+            return None
         print_job = None
+        print_job_params: dict[str, str | bytes]
         if isinstance(label_data, str):
             print_job_params = {"base64": label_data}
         elif isinstance(label_data, bytes):
             print_job_params = {"binary": label_data}
         else:
             logger.error("Invalid label data type")
-            return
+            return None
         try:
             print_job = gateway.PrintJob(
                 printer=int(printer_id),
