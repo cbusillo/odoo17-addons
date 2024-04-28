@@ -11,14 +11,14 @@ import { PdfViewerField } from '@web/views/fields/pdf_viewer/pdf_viewer_field'
 
 /**
  * @typedef {Object} ConditionalTest
- * @property {string} data.conditional_test - The name of the conditional test.
- * @property {string} data.hidden_tests - The type of action for the conditional test.
- */
-/**
+ * @property {string} data.conditional_test
+ * @property {string} data.action_type
+ * @property {string} data.hidden_tests
+ /**
  * @typedef {Object} MotorTestRecord
- * @property {string} data.result_type - The type of the result.
- * @property {Array<ConditionalTest>} data.conditional_tests - The conditional tests for the result.
- * @property {number} data.section_sequence - The sequence of the section.
+ * @property {string} data.result_type
+ * @property {Array<ConditionalTest>} data.conditional_tests
+ * @property {number} data.section_sequence
  */
 export class MotorTestWidget extends Component {
     static props = {

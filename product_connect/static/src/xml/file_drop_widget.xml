@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
     <t t-name="FileDropWidget">
-        <div class="o_field_file_drop drag-over" t-on-drop="onDrop" t-on-dragover="onDragOver" t-on-dragenter="onDragEnter"
-             t-on-dragleave="onDragLeave" t-att-allowDrop="true">
+        <div class="o_field_file_drop drag-over"
+             t-on-drop="onDrop"
+             t-on-dragover="onDragOver"
+             t-on-dragenter="onDragEnter"
+             t-on-dragleave="onDragLeave"
+             t-att-allowDrop="true">
             Drop...
         </div>
     </t>

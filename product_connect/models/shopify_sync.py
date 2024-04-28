@@ -628,10 +628,11 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         ):
             image_data = {
                 "altText": odoo_product.name,
-                "src": base_url
-                       + "/web/image/product.image/"
-                       + str(odoo_image.id)
-                       + "/image_1920",
+                "src":
+                    base_url
+                    + "/web/image/product.image/"
+                    + str(odoo_image.id)
+                    + "/image_1920",
             }
             media_list.append(image_data)
         return media_list
@@ -698,12 +699,11 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         )
 
         odoo_products = odoo_products.filtered(
-            lambda p: p.shopify_next_export is True
-                      or (
-                              p.write_date > (p.shopify_last_exported or datetime.min)
-                              or p.product_tmpl_id.write_date
-                              > (p.shopify_last_exported or datetime.min)
-                      )
+            lambda p: p.shopify_next_export is True or (
+                    p.write_date > (p.shopify_last_exported or datetime.min)
+                    or p.product_tmpl_id.write_date
+                    > (p.shopify_last_exported or datetime.min)
+            )
         )
 
         graphql_client, graphql_document, shopify_location_gid, base_url = (

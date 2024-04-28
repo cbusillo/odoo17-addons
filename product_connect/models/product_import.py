@@ -3,11 +3,11 @@ import io
 import logging
 from typing import Any, Self
 
+import odoo
 import requests
 from PIL import Image
-
-import odoo
 from odoo.exceptions import UserError
+
 from ..mixins.label import LabelMixin
 
 _logger = logging.getLogger(__name__)
@@ -75,7 +75,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
                 while True:
                     new_sku = self.env["ir.sequence"].next_by_code("product.import")
                     if not product_template.search(
-                        [("default_code", "=", new_sku)]
+                            [("default_code", "=", new_sku)]
                     ) and not self.search([("default_code", "=", new_sku)]):
                         vals["default_code"] = new_sku
                         break
@@ -87,11 +87,11 @@ class ProductImport(LabelMixin, odoo.models.Model):
 
             temp_record = self.new(vals)
             if (
-                temp_record.default_code != "New"
-                and temp_record.default_code
-                and temp_record.mpn
-                and temp_record.condition
-                and temp_record.quantity > 0
+                    temp_record.default_code != "New"
+                    and temp_record.default_code
+                    and temp_record.mpn
+                    and temp_record.condition
+                    and temp_record.quantity > 0
             ):
                 temp_record.print_product_labels(print_quantity=True)
         return super().create(vals_list)
@@ -110,16 +110,16 @@ class ProductImport(LabelMixin, odoo.models.Model):
             temp_record = self.new(temp_data)
 
             if any(
-                getattr(temp_record, key) != getattr(record, key)
-                for key in fields_of_interest
+                    getattr(temp_record, key) != getattr(record, key)
+                    for key in fields_of_interest
             ):
                 if all(
-                    getattr(temp_record, key) or getattr(record, key)
-                    for key in fields_of_interest
+                        getattr(temp_record, key) or getattr(record, key)
+                        for key in fields_of_interest
                 ):
                     if (
-                        getattr(temp_record, "quantity", 0) > 0
-                        or getattr(record, "quantity", 0) > 0
+                            getattr(temp_record, "quantity", 0) > 0
+                            or getattr(record, "quantity", 0) > 0
                     ):
                         temp_record.print_product_labels(print_quantity=True)
 
@@ -166,7 +166,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
                 self.print_bin_labels()
 
     def _products_from_existing_records(
-        self, field_name: str, field_value: str
+            self, field_name: str, field_value: str
     ) -> list[dict[str, str]]:
         is_new_record = isinstance(self.id, odoo.models.NewId)
         if is_new_record:
@@ -258,8 +258,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
 
     def import_to_products(self) -> dict[str, str]:
         missing_data_records = self.filtered(
-            lambda current_record: not current_record.default_code
-            or not current_record.name
+            lambda current_record: not current_record.default_code or not current_record.name
         )
         if missing_data_records:
             _logger.warning("Missing data for records: %s", missing_data_records)
@@ -304,11 +303,9 @@ class ProductImport(LabelMixin, odoo.models.Model):
                 "detailed_type": "product",
                 "is_published": True,
                 "shopify_next_export": True,
-                "manufacturer_barcode": record.manufacturer_barcode
-                or product.manufacturer_barcode,
+                "manufacturer_barcode": record.manufacturer_barcode or product.manufacturer_barcode,
                 "lot_number": record.lot_number or product.lot_number,
             }
-
             if product:
                 product.write(product_data)
             else:

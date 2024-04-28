@@ -80,6 +80,8 @@
             </xpath>
         </field>
     </record>
+
+
     <record id="product_template_search_inherit" model="ir.ui.view">
         <field name="name">product.template.search.inherit</field>
         <field name="model">product.template</field>
@@ -90,10 +92,15 @@
             </xpath>
             <xpath expr="//field[@name='name']" position="attributes">
                 <attribute name="filter_domain">
-                    ['|', '|', '|', '|', '|', ('name', 'ilike', self), ('mpn', 'ilike', self),
-                     ('bin', 'ilike', self), ('description_sale', 'ilike', self),
-                     ('default_code', 'ilike', self),
-                     ('manufacturer_barcode', 'ilike', self)]
+                    [
+                        '|', '|', '|', '|', '|',
+                        ('name', 'ilike', self),
+                        ('mpn', 'ilike', self),
+                        ('bin', 'ilike', self),
+                        ('description_sale', 'ilike', self),
+                        ('default_code', 'ilike', self),
+                        ('manufacturer_barcode', 'ilike', self)
+                    ]
                 </attribute>
             </xpath>
         </field>

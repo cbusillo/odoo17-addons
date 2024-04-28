@@ -38,7 +38,8 @@
                         <div style="float: left; width: 33%; height: 100%; text-align: center; ">
                             <div>
                                 <div>
-                                    <img t-att-src="'data:image/png;base64,%s' % o.generate_qr_code()" style="width:38mm; height:38mm; margin-top: -4mm; margin-left: -5mm; margin-bottom: 0"/>
+                                    <img t-att-src="'data:image/png;base64,%s' % o.generate_qr_code()"
+                                         style="width:38mm; height:38mm; margin-top: -4mm; margin-left: -5mm; margin-bottom: 0"/>
                                 </div>
                                 <div style="margin-top: -4.5mm;">
                                     <p style="margin-top: 0; font-size: 8mm; font-weight: bold">

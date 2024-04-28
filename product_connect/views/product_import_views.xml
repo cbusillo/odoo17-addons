@@ -52,7 +52,8 @@
         <field name="name">product.import.tree</field>
         <field name="model">product.import</field>
         <field name="arch" type="xml">
-            <tree class="product_import_tree_view" string="Product Import" editable="bottom" multi_edit="1" open_form_view="True"
+            <tree class="product_import_tree_view" string="Product Import" editable="bottom" multi_edit="1"
+                  open_form_view="True"
                   decoration-danger="not name or not price or price == 0 or not cost or cost == 0">
                 <header>
                     <button string="Import" type="object" name="import_to_products"/>
@@ -121,7 +122,8 @@
     <!-- Product Import: Sequence -->
 
     <menuitem id="menu_subheader_product_import" name="Product Import" parent="stock.menu_stock_inventory_control"/>
-    <menuitem id="menu_product_import" name="Product Import" action="action_product_import" parent="menu_subheader_product_import"/>
+    <menuitem id="menu_product_import" name="Product Import" action="action_product_import"
+              parent="menu_subheader_product_import"/>
 
 </odoo>
 

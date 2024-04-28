@@ -11,8 +11,10 @@ def migrate(cr, _version) -> None:
     _logger.info(f"Running migration script: {__name__}")
     env = util.env(cr)
 
-    if "image_data" not in env["motor.image"]._fields:
+    model_motor_image = env["motor.image"]
+    if "image_data" not in model_motor_image._fields:
         _logger.info("Adding image_data field to motor.image model")
+        # noinspection PyProtectedMember
         env["motor.image"]._add_field("image_data", fields.Binary("Image Data"))
 
     records = env["motor.image"].search([])

@@ -1,7 +1,8 @@
 import re
 
-from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
+
+from odoo import _, api, fields, models
 from ..mixins.label import LabelMixin
 
 
@@ -91,7 +92,7 @@ class ProductTemplate(models.Model, LabelMixin):
         padding = sequence.padding
         max_sku = "9" * padding
         while (
-            new_sku := self.env["ir.sequence"].next_by_code("product.import")
+                new_sku := self.env["ir.sequence"].next_by_code("product.import")
         ) <= max_sku:
             if not self.search([("default_code", "=", new_sku)]):
                 return new_sku

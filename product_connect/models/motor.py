@@ -4,9 +4,9 @@ from io import BytesIO
 from typing import Any, Self
 
 import qrcode  # type: ignore
+from odoo.exceptions import ValidationError
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
 from ..mixins.label import LabelMixin
 
 YES = "yes"
@@ -341,7 +341,7 @@ class Motor(models.Model, LabelMixin):
     def _check_horsepower(self) -> None:
         for record in self:
             if not isinstance(record.horsepower, float) or (
-                record.horsepower and not (0.0 <= record.horsepower <= 600.0)
+                    record.horsepower and not (0.0 <= record.horsepower <= 600.0)
             ):
                 raise ValidationError(_("Horsepower must be between 1 and 600."))
 
@@ -420,7 +420,7 @@ class Motor(models.Model, LabelMixin):
         current_cylinders = [cylinder.cylinder_number for cylinder in self.compression]
 
         for cylinder in self.compression.filtered(
-            lambda x: x.cylinder_number > desired_cylinders
+                lambda x: x.cylinder_number > desired_cylinders
         ):
             self.compression -= cylinder
 

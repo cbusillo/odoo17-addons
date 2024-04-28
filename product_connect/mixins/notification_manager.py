@@ -12,13 +12,13 @@ class NotificationManagerMixin(models.AbstractModel):
     ADMIN_EMAIL = "info@shinycomputers.com"
 
     def notify_channel(
-        self,
-        subject: str,
-        body: str,
-        channel_name: str,
-        record: models.Model | None = None,
-        env: api.Environment | None = None,
-        logs: list[str] | None = None,
+            self,
+            subject: str,
+            body: str,
+            channel_name: str,
+            record: models.Model | None = None,
+            env: api.Environment | None = None,
+            logs: list[str] | None = None,
     ):
         env = env or self.env
         channel = env["discuss.channel"].search([("name", "=", channel_name)], limit=1)
@@ -43,11 +43,11 @@ class NotificationManagerMixin(models.AbstractModel):
             )
 
     def notify_channel_on_error(
-        self,
-        subject: str,
-        body: str,
-        record: models.Model | None = None,
-        logs: list[str] | None = None,
+            self,
+            subject: str,
+            body: str,
+            record: models.Model | None = None,
+            logs: list[str] | None = None,
     ):
         new_cr = self.env.registry.cursor()
         try:
