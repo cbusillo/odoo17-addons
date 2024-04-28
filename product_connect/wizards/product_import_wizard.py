@@ -1,13 +1,12 @@
+import odoo
 from odoo.exceptions import UserError
 
-from odoo import _, api, fields, models
 
-
-class ProductImportWizard(models.TransientModel):
+class ProductImportWizard(odoo.models.TransientModel):
     _name = "product.import.wizard"
     _description = "Product Import Wizard"
 
-    total_cost = fields.Float(required=True)
+    total_cost = odoo.fields.Float(required=True)
 
     def apply_cost(self) -> dict[str, str]:
         products = self.env["product.import"].search([])
@@ -30,24 +29,43 @@ class ProductImportWizard(models.TransientModel):
         }
 
 
-class ProductImportImageWizard(models.TransientModel):
+class ProductImportImageWizard(odoo.models.TransientModel):
     _name = 'product.import.image.wizard'
     _description = 'Product Import Photo Wizard'
 
-    product = fields.Many2one('product.import', string='Product')
-    barcode = fields.Char(string='Product Barcode')
-    default_code = fields.Char(string='Product SKU', related='product.default_code', readonly=True)
-    name = fields.Char(string='Product Name', related='product.name', readonly=True)
-    images = fields.One2many(related='product.images')
+    product = odoo.fields.Many2one('product.import', string='Product')
+    barcode = odoo.fields.Char(string='Product Barcode')
+    default_code = odoo.fields.Char(string='Product SKU', related='product.default_code', readonly=True)
+    name = odoo.fields.Char(string='Product Name', related='product.name', readonly=True)
+    images = odoo.fields.One2many(related='product.images')
 
-    @api.onchange('barcode')
+    @odoo.api.onchange('barcode')
     def _onchange_product_barcode(self) -> None:
         if self.barcode:
             product = self.env['product.import'].search([('default_code', '=', self.barcode)], limit=1)
             if product:
                 self.product = product
+                self._ensure_image_placeholders(product.id)
             else:
-                raise UserError(_('No product found with the given barcode.'))
+                # noinspection PyProtectedMember
+                raise UserError(odoo._('No product found with the given barcode.'))
+
+    @odoo.api.model
+    def default_get(self, fields) -> dict[str, str]:
+        res = super(ProductImportImageWizard, self).default_get(fields)
+        product_id = res.get('product')
+        if product_id:
+            self._ensure_image_placeholders(product_id)
+        return res
+
+    def _ensure_image_placeholders(self, product_id) -> None:
+        product = self.env['product.import'].browse(product_id)
+        existing_images_count = len(product.images)
+        placeholders_needed = 20 - existing_images_count
+        if placeholders_needed > 0:
+            new_images = [{'product': product.id, 'index': i + existing_images_count} for i in
+                          range(placeholders_needed)]
+            self.env['product.import.image'].create(new_images)
 
     def action_next_product(self) -> dict[str, str]:
         self.ensure_one()
@@ -58,6 +76,7 @@ class ProductImportImageWizard(models.TransientModel):
             if not product:
                 product = self.env['product.import'].search([], order='id', limit=1)
         self.product = product
+        self._ensure_image_placeholders(product.id)
         return {
             'type': 'ir.actions.act_window',
             'view_mode': 'form',
@@ -75,6 +94,7 @@ class ProductImportImageWizard(models.TransientModel):
             if not product:
                 product = self.env['product.import'].search([], order='id desc', limit=1)
         self.product = product
+        self._ensure_image_placeholders(product.id)
         return {
             'type': 'ir.actions.act_window',
             'view_mode': 'form',

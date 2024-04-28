@@ -36,8 +36,8 @@
                     </group>
                     <field name="images">
                         <tree editable="bottom">
-                            <field name="image_1920" widget="image_upload"
-                                   options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="index"/>
+                            <field name="image_1920" widget="image_upload"/>
                         </tree>
                     </field>
                 </sheet>
