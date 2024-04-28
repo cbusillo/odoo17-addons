@@ -9,14 +9,16 @@ PROD_FILESTORE_PATH="/opt/odoo/.local/share/Odoo/filestore/$PROD_DB"
 TEMP_DB_BACKUP="/tmp/$PROD_DB-$(date +%F).sql"
 
 # Configuration for Odoo development environment
-if [ -z "$2" ] || [ "$2" = "dev" ]; then
-    ODOO_CONFIG_FILE="../odoo.dev.cfg"
-    LOCAL_FILESTORE_PATH="/Users/cbusillo/PycharmProjects/Odoo17/filestore/filestore/odoo/"
+if [ -z "$2" ] || [ "$2" = "local" ]; then
+    ODOO_BIN="../../Odoo/odoo17-base/odoo-bin"
+    ODOO_CONFIG_FILE="../odoo17.local.cfg"
+    LOCAL_FILESTORE_PATH="/Users/cbusillo/PycharmProjects/Odoo/filestore/filestore/odoo/"
 elif [ "$2" = "testing" ]; then
+    ODOO_BIN="../odoo/odoo-bin"
     ODOO_CONFIG_FILE="/etc/odoo.conf"
     LOCAL_FILESTORE_PATH="/opt/odoo/.local/share/Odoo/filestore/opw"  # Replace with the actual path on your testing server
 else
-    echo "Invalid environment. Please specify 'dev' or 'test'."
+    echo "Invalid environment. Please specify 'local' or 'test'."
     exit 1
 fi
 INIT_FILE="init-done.flag"
@@ -29,9 +31,6 @@ ODOO_DB=$(echo "$DB_CREDENTIALS" | jq -r '.db_name')
 ODOO_USER=$(echo "$DB_CREDENTIALS" | jq -r '.db_user')
 ODOO_PASSWORD=$(echo "$DB_CREDENTIALS" | jq -r '.db_password')
 export PGPASSWORD="$ODOO_PASSWORD"
-
-
-ODOO_BIN="../odoo/odoo-bin"
 
 ODOO_RUN="$ODOO_BIN -c $ODOO_CONFIG_FILE"
 ODOO_SHELL="$ODOO_BIN shell -c $ODOO_CONFIG_FILE"
