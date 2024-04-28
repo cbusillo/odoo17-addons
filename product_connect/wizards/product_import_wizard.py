@@ -1,4 +1,6 @@
-from odoo import fields, models
+from odoo.exceptions import UserError
+
+from odoo import _, api, fields, models
 
 
 class ProductImportWizard(models.TransientModel):
@@ -25,4 +27,58 @@ class ProductImportWizard(models.TransientModel):
             "res_model": "product.import",
             "view_mode": "tree",
             "target": "current",
+        }
+
+
+class ProductImportImageWizard(models.TransientModel):
+    _name = 'product.import.image.wizard'
+    _description = 'Product Import Photo Wizard'
+
+    product = fields.Many2one('product.import', string='Product')
+    barcode = fields.Char(string='Product Barcode')
+    default_code = fields.Char(string='Product SKU', related='product.default_code', readonly=True)
+    name = fields.Char(string='Product Name', related='product.name', readonly=True)
+    images = fields.One2many(related='product.images')
+
+    @api.onchange('barcode')
+    def _onchange_product_barcode(self) -> None:
+        if self.barcode:
+            product = self.env['product.import'].search([('default_code', '=', self.barcode)], limit=1)
+            if product:
+                self.product = product
+            else:
+                raise UserError(_('No product found with the given barcode.'))
+
+    def action_next_product(self) -> dict[str, str]:
+        self.ensure_one()
+        if not self.product:
+            product = self.env['product.import'].search([], order='id', limit=1)
+        else:
+            product = self.env['product.import'].search([('id', '>', self.product.id)], order='id', limit=1)
+            if not product:
+                product = self.env['product.import'].search([], order='id', limit=1)
+        self.product = product
+        return {
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'product.import.image.wizard',
+            'res_id': self.id,
+            'target': 'new',
+        }
+
+    def action_previous_product(self) -> dict[str, str]:
+        self.ensure_one()
+        if not self.product:
+            product = self.env['product.import'].search([], order='id desc', limit=1)
+        else:
+            product = self.env['product.import'].search([('id', '<', self.product.id)], order='id desc', limit=1)
+            if not product:
+                product = self.env['product.import'].search([], order='id desc', limit=1)
+        self.product = product
+        return {
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'product.import.image.wizard',
+            'res_id': self.id,
+            'target': 'new',
         }

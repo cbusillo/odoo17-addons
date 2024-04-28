@@ -19,3 +19,4 @@ access_motor_test,access_motor_test,model_motor_test,base.group_user,1,1,1,1
 access_motor_test_selection,access_motor_test_selection,model_motor_test_selection,base.group_user,1,1,1,1
 access_motor_test_section,access_motor_test_section,model_motor_test_section,base.group_user,1,1,1,1
 access_motor_test_template_condition,access_motor_test_template_condition,model_motor_test_template_condition,base.group_user,1,1,1,1
+access_product_import_image_wizard,access_product_import_image_wizard,model_product_import_image_wizard,base.group_user,1,1,1,1
