@@ -4,3 +4,4 @@ watchdog==4.0.0
 types-Pillow
 types-python-dateutil
 types-requests
+types-geoip2

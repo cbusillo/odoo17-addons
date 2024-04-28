@@ -5,17 +5,20 @@ import re
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Generator, Literal, Self
+from typing import Any, Generator, Literal, Self, TYPE_CHECKING
 from urllib.error import HTTPError
 from zoneinfo import ZoneInfo
 
 import requests
-import shopify
+import shopify  # type: ignore
 from dateutil.parser import parse
 from requests.exceptions import RequestException
 
 from odoo import api, fields, models
 from ..mixins.notification_manager import NotificationManagerMixin
+
+if TYPE_CHECKING:
+    from ..models.product_product import ProductProduct
 
 shopify_original_execute_function = shopify.GraphQL.execute
 MAX_RETRIES = 5
@@ -28,9 +31,9 @@ logger = logging.getLogger(__name__)
 class MemoryHandler(logging.Handler):
     def __init__(self) -> None:
         super().__init__()
-        self.logs = []
+        self.logs: list[str] = []
 
-    def emit(self, record) -> None:
+    def emit(self, record: logging.LogRecord) -> None:
         self.logs.append(self.format(record))
 
 
@@ -54,7 +57,7 @@ def apply_rate_limit_patch_to_shopify_execute() -> None:
             logger.error("Error from Shopify: %s", error_message)
             raise Exception("Error from Shopify")
 
-    def delay_if_near_rate_limit(response_json) -> None:
+    def delay_if_near_rate_limit(response_json: dict[str, Any]) -> None:
         throttle_status = (
             response_json.get("extensions", {})
             .get("cost", {})
@@ -69,7 +72,7 @@ def apply_rate_limit_patch_to_shopify_execute() -> None:
             ) / restore_rate
             time.sleep(sleep_time)
 
-    def handle_and_retry_on_error(error, attempt: int) -> None:
+    def handle_and_retry_on_error(error: HTTPError, attempt: int) -> None:
         if isinstance(error, ThrottledError):
             retry_after = min(2**attempt, MAX_RETRY_DELAY)
         elif isinstance(error, HTTPError):
@@ -78,7 +81,7 @@ def apply_rate_limit_patch_to_shopify_execute() -> None:
                 min(attempt * 2, MAX_RETRY_DELAY),
             )
         else:
-            raise error
+            raise RuntimeError(f"Unexpected error: {error}")
 
         logger.debug("Exceeded Shopify API limit. Retrying in %s seconds", retry_after)
         time.sleep(retry_after)
@@ -419,7 +422,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
         }
 
     def map_shopify_to_odoo_product_data(
-        self, shopify_product_data, odoo_product: "odoo.model.product_product"
+        self, shopify_product_data, odoo_product: "ProductProduct"
     ) -> dict[str, Any]:
         metafields_data = shopify_product_data["metafields"]
 
@@ -543,9 +546,9 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
     ) -> Self | None:
         try:
             if int(ebay_category_id) < 1 or not product_type_name:
-                return
+                return None
         except ValueError:
-            return
+            return None
         product_type = self.env["product.type"].search(
             [
                 ("name", "=", product_type_name),
@@ -920,7 +923,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                     product_id = self.extract_id_from_global_id(product.get("id"))
                     products_sold.append(product_id)
 
-        products_sold = set(products_sold)
+        products_sold = list(set(products_sold))
 
         logger.debug("Fetching all products created before %s", date_filter)
         products_with_no_sales, cursor, has_more_data, total_count = [], None, True, 0
