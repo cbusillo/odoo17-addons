@@ -15,12 +15,12 @@ _logger = logging.getLogger(__name__)
 
 class ProductImportImage(odoo.models.Model):
     _name = "product.import.image"
+    _inherit = ["image.mixin"]
     _description = "Product Import Image"
     _order = "index"
 
-    image_data = odoo.fields.Image(max_width=1920, max_height=1920)
     index = odoo.fields.Integer()
-    product_id = odoo.fields.Many2one("product.import", ondelete="cascade")
+    product = odoo.fields.Many2one("product.import", ondelete="cascade")
 
 
 class ProductImport(LabelMixin, odoo.models.Model):
@@ -47,7 +47,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
     cost = odoo.fields.Float()
     image_1_url = odoo.fields.Char(string="Image 1 URL")
     image_upload = odoo.fields.Json()
-    image_ids = odoo.fields.One2many("product.import.image", "product_id")
+    images = odoo.fields.One2many("product.import.image", "product")
     condition = odoo.fields.Selection(
         [
             ("used", "Used"),
@@ -141,12 +141,12 @@ class ProductImport(LabelMixin, odoo.models.Model):
         if self.image_upload:
             image = self.env["product.import.image"].create(
                 {
-                    "image_data": self.image_upload["image"],
+                    "image_1920": self.image_upload["image"],
                     "index": self.image_upload["index"],
-                    "product_id": self.id,
+                    "product": self.id,
                 }
             )
-            self.image_ids |= image
+            self.images |= image
             self.image_upload = False
 
     @odoo.api.onchange("default_code", "mpn", "condition", "bin", "quantity")
@@ -331,12 +331,12 @@ class ProductImport(LabelMixin, odoo.models.Model):
                     }
                 )
                 current_index += 1
-            sorted_images = record.image_ids.sorted(key=lambda r: r.index)
+            sorted_images = record.images.sorted(key=lambda r: r.index)
 
             for image in sorted_images:
                 self.env["product.image"].create(
                     {
-                        "image_1920": image.image_data,
+                        "image_1920": image.image_1920,
                         "product_tmpl_id": product.product_tmpl_id.id,
                         "name": current_index,
                     }
