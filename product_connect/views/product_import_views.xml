@@ -73,7 +73,7 @@
                 <field name="price"/>
                 <field name="cost"/>
                 <field name="image_1_url"/>
-                <field name="image_ids"/>
+                <field name="images"/>
                 <field name="image_upload" widget="file_drop" string="Upload"/>
                 <field name="default_code" readonly=""/>
             </tree>
@@ -105,10 +105,10 @@
                     </group>
                     <group>
                         <field name="image_1_url"/>
-                        <field name="image_ids" widget="one2many">
+                        <field name="images" widget="one2many">
                             <tree string="Images">
-                                <field name="product_id"/>
-                                <field name="image_data" widget="image"/>
+                                <field name="product"/>
+                                <field name="image_1920" widget="image"/>
                                 <field name="index"/>
                             </tree>
                         </field>
@@ -117,7 +117,6 @@
             </form>
         </field>
     </record>
-
 
     <!-- Product Import: Sequence -->
 
