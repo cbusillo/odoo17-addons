@@ -5,11 +5,6 @@
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">product.import</field>
         <field name="view_mode">tree,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No records yet.
-            </p>
-        </field>
     </record>
 
     <!-- Product Import: Server Action: Print Bin Labels -->
@@ -107,7 +102,7 @@
                         <field name="image_1_url"/>
                         <field name="images" widget="one2many">
                             <tree string="Images">
-                                <field name="product"/>
+                                <field name="product_id"/>
                                 <field name="image_1920" widget="image"/>
                                 <field name="index"/>
                             </tree>
@@ -118,11 +113,30 @@
         </field>
     </record>
 
-    <!-- Product Import: Sequence -->
+    <record id="action_product_import_image_view" model="ir.actions.act_window">
+        <field name="name">Product Image</field>
+        <field name="res_model">product.import.image</field>
+        <field name="view_mode">tree,form</field>
+        <field name="type">ir.actions.act_window</field>
+    </record>
 
+    <record id="view_product_import_image_tree" model="ir.ui.view">
+        <field name="name">product.import.image.tree</field>
+        <field name="model">product.import.image</field>
+        <field name="arch" type="xml">
+            <tree string="Product Import Image" editable="bottom">
+                <field name="product_id"/>
+                <field name="image_1920" widget="image"/>
+                <field name="index"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Product Import: Sequence -->
     <menuitem id="menu_subheader_product_import" name="Product Import" parent="stock.menu_stock_inventory_control"/>
     <menuitem id="menu_product_import" name="Product Import" action="action_product_import"
               parent="menu_subheader_product_import"/>
-
+    <menuitem id="menu_product_import_images" name="Product Import Images" parent="menu_subheader_product_import"
+              action="action_product_import_image_view"/>
 </odoo>
 

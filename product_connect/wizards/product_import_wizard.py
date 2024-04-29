@@ -46,6 +46,7 @@ class ProductImportImageWizard(odoo.models.TransientModel):
             if product:
                 self.product = product
                 self._ensure_image_placeholders(product.id)
+                return None
             else:
                 # noinspection PyProtectedMember
                 raise UserError(odoo._('No product found with the given barcode.'))
@@ -53,30 +54,61 @@ class ProductImportImageWizard(odoo.models.TransientModel):
     @odoo.api.model
     def default_get(self, fields) -> dict[str, str]:
         res = super(ProductImportImageWizard, self).default_get(fields)
-        product_id = res.get('product')
+        product_id = res.get('product_id')
         if product_id:
             self._ensure_image_placeholders(product_id)
         return res
 
-    def _ensure_image_placeholders(self, product_id) -> None:
+    def _ensure_image_placeholders(self, product_id: int) -> None:
         product = self.env['product.import'].browse(product_id)
-        existing_images_count = len(product.images)
-        placeholders_needed = 20 - existing_images_count
-        if placeholders_needed > 0:
-            new_images = [{'product': product.id, 'index': i + existing_images_count} for i in
-                          range(placeholders_needed)]
-            self.env['product.import.image'].create(new_images)
+        if not product:
+            return
+
+        # Getting the highest current index, or -1 if no images exist
+        if product.images:
+            max_current_index = max(img.index for img in product.images if img.index is not None)
+        else:
+            max_current_index = -1
+
+        # Define the range of indexes needed
+        max_index = 19  # Assuming indexes from 0 to 19
+        required_indexes = set(range(max_current_index + 1, max_index + 1))
+
+        # Create placeholders only for required indexes beyond the max current index
+        new_images_data = [{'product_id': product.id, 'index': idx} for idx in required_indexes]
+        self.env['product.import.image'].create(new_images_data)
+
+    @odoo.api.onchange('images')
+    def _save_images_onchange(self) -> None:
+        if self.product:
+            for img in self.images:
+                if img.id and img.image_1920:  # Ensures that there's existing data and it's an update
+                    self.env['product.import.image'].browse(img.id).write({
+                        'image_1920': img.image_1920,
+                        'index': img.index
+                    })
+                elif not img.id and img.image_1920:  # Handle cases where it's a new image that needs to be saved
+                    self.env['product.import.image'].create({
+                        'product_id': self.product.id,
+                        'image_1920': img.image_1920,
+                        'index': img.index
+                    })
 
     def action_next_product(self) -> dict[str, str]:
         self.ensure_one()
-        if not self.product:
-            product = self.env['product.import'].search([], order='id', limit=1)
-        else:
-            product = self.env['product.import'].search([('id', '>', self.product.id)], order='id', limit=1)
-            if not product:
-                product = self.env['product.import'].search([], order='id', limit=1)
-        self.product = product
-        self._ensure_image_placeholders(product.id)
+        current_product_id = self.product.id if self.product else None
+        product = self.env['product.import'].search(
+            [('id', '>', current_product_id)], order='id', limit=1) if current_product_id else self.env[
+            'product.import'].search([], limit=1, order='id')
+
+        if not product:
+            product = self.env['product.import'].search(
+                [], limit=1, order='id')  # Loop back to the first product if at the end
+
+        if product and product.id != current_product_id:
+            self.product = product
+            self._ensure_image_placeholders(product.id)
+
         return {
             'type': 'ir.actions.act_window',
             'view_mode': 'form',
@@ -87,14 +119,19 @@ class ProductImportImageWizard(odoo.models.TransientModel):
 
     def action_previous_product(self) -> dict[str, str]:
         self.ensure_one()
-        if not self.product:
-            product = self.env['product.import'].search([], order='id desc', limit=1)
-        else:
-            product = self.env['product.import'].search([('id', '<', self.product.id)], order='id desc', limit=1)
-            if not product:
-                product = self.env['product.import'].search([], order='id desc', limit=1)
-        self.product = product
-        self._ensure_image_placeholders(product.id)
+        current_product_id = self.product.id if self.product else None
+        product = self.env['product.import'].search(
+            [('id', '<', current_product_id)], order='id desc', limit=1) if current_product_id else self.env[
+            'product.import'].search([], limit=1, order='id desc')
+
+        if not product:
+            product = self.env['product.import'].search(
+                [], limit=1, order='id desc')  # Loop back to the last product if at the beginning
+
+        if product and product.id != current_product_id:
+            self.product = product
+            self._ensure_image_placeholders(product.id)
+
         return {
             'type': 'ir.actions.act_window',
             'view_mode': 'form',
@@ -105,6 +142,12 @@ class ProductImportImageWizard(odoo.models.TransientModel):
 
     def action_edit_next(self) -> dict[str, str]:
         self.ensure_one()
+        self._exit_product()
+        self.product = False
+        self.default_code = False
+        self.name = False
+        self.images = [(5,)]
+
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'product.import.image.wizard',
@@ -115,15 +158,12 @@ class ProductImportImageWizard(odoo.models.TransientModel):
 
     def action_done(self) -> dict[str, str]:
         self.ensure_one()
-        # Assuming image data is handled by the client and needs to be saved:
-        self.product.images.unlink()  # Clear existing placeholders or unused images
-        for wizard_image in self.images:
-            if wizard_image.image_1920:  # Ensure there's actual image data
-                wizard_image.create({
-                    'product': self.product.id,
-                    'image_1920': wizard_image.image_1920,
-                    'index': wizard_image.index
-                })
+        self._exit_product()
         return {
             'type': 'ir.actions.act_window_close',
         }
+
+    def _exit_product(self) -> None:
+        unused_images = self.images.filtered(lambda r: not r.image_1920)
+        if unused_images:
+            unused_images.unlink()

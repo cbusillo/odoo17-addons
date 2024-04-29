@@ -18,9 +18,12 @@ class ProductImportImage(odoo.models.Model):
     _inherit = ["image.mixin"]
     _description = "Product Import Image"
     _order = "index"
+    _sql_constraints = [
+        ("index_uniq", "unique (index, product_id)", "Index must be unique per product!"),
+    ]
 
     index = odoo.fields.Integer()
-    product = odoo.fields.Many2one("product.import", ondelete="cascade")
+    product_id = odoo.fields.Many2one("product.import", ondelete="cascade", required=True)
 
 
 class ProductImport(LabelMixin, odoo.models.Model):
@@ -47,7 +50,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
     cost = odoo.fields.Float()
     image_1_url = odoo.fields.Char(string="Image 1 URL")
     image_upload = odoo.fields.Json()
-    images = odoo.fields.One2many("product.import.image", "product")
+    images = odoo.fields.One2many("product.import.image", "product_id")
     condition = odoo.fields.Selection(
         [
             ("used", "Used"),
@@ -143,7 +146,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
                 {
                     "image_1920": self.image_upload["image"],
                     "index": self.image_upload["index"],
-                    "product": self.id,
+                    "product_id": self,
                 }
             )
             self.images |= image
@@ -300,7 +303,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
                     record.cost if record.cost > 0 else product.standard_price
                 ),
                 "condition": record.condition or product.condition,
-                "detailed_type": "product",
+                "detailed_type": "product_id",
                 "is_published": True,
                 "shopify_next_export": True,
                 "manufacturer_barcode": record.manufacturer_barcode or product.manufacturer_barcode,
