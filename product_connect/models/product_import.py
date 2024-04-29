@@ -23,7 +23,7 @@ class ProductImportImage(odoo.models.Model):
     ]
 
     index = odoo.fields.Integer()
-    product_id = odoo.fields.Many2one("product.import", ondelete="cascade", required=True)
+    product = odoo.fields.Many2one("product.import", ondelete="cascade", required=True)
 
 
 class ProductImport(LabelMixin, odoo.models.Model):
@@ -50,7 +50,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
     cost = odoo.fields.Float()
     image_1_url = odoo.fields.Char(string="Image 1 URL")
     image_upload = odoo.fields.Json()
-    images = odoo.fields.One2many("product.import.image", "product_id")
+    images = odoo.fields.One2many("product.import.image", "product")
     condition = odoo.fields.Selection(
         [
             ("used", "Used"),
@@ -141,12 +141,18 @@ class ProductImport(LabelMixin, odoo.models.Model):
 
     @odoo.api.onchange("image_upload")
     def _onchange_image_upload(self) -> None:
-        if self.image_upload:
+        if not self.image_upload:
+            return
+        product = self._origin.id if isinstance(self.id, odoo.models.NewId) else self.id
+        image_data = self.image_upload.get("image")
+        index = self.image_upload.get("index")
+
+        if image_data and index:
             image = self.env["product.import.image"].create(
                 {
-                    "image_1920": self.image_upload["image"],
-                    "index": self.image_upload["index"],
-                    "product_id": self,
+                    "image_1920": image_data,
+                    "index": index,
+                    "product": product,
                 }
             )
             self.images |= image
@@ -303,7 +309,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
                     record.cost if record.cost > 0 else product.standard_price
                 ),
                 "condition": record.condition or product.condition,
-                "detailed_type": "product_id",
+                "detailed_type": "product",
                 "is_published": True,
                 "shopify_next_export": True,
                 "manufacturer_barcode": record.manufacturer_barcode or product.manufacturer_barcode,
@@ -337,6 +343,9 @@ class ProductImport(LabelMixin, odoo.models.Model):
             sorted_images = record.images.sorted(key=lambda r: r.index)
 
             for image in sorted_images:
+                if not image.image_1920:
+                    continue
+
                 self.env["product.image"].create(
                     {
                         "image_1920": image.image_1920,

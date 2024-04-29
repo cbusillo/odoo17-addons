@@ -102,7 +102,7 @@
                         <field name="image_1_url"/>
                         <field name="images" widget="one2many">
                             <tree string="Images">
-                                <field name="product_id"/>
+                                <field name="product"/>
                                 <field name="image_1920" widget="image"/>
                                 <field name="index"/>
                             </tree>
@@ -125,7 +125,7 @@
         <field name="model">product.import.image</field>
         <field name="arch" type="xml">
             <tree string="Product Import Image" editable="bottom">
-                <field name="product_id"/>
+                <field name="product"/>
                 <field name="image_1920" widget="image"/>
                 <field name="index"/>
             </tree>
