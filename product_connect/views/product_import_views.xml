@@ -120,18 +120,6 @@
         <field name="type">ir.actions.act_window</field>
     </record>
 
-    <record id="view_product_import_image_tree" model="ir.ui.view">
-        <field name="name">product.import.image.tree</field>
-        <field name="model">product.import.image</field>
-        <field name="arch" type="xml">
-            <tree string="Product Import Image" editable="bottom">
-                <field name="product"/>
-                <field name="image_1920" widget="image"/>
-                <field name="index"/>
-            </tree>
-        </field>
-    </record>
-
     <!-- Product Import: Sequence -->
     <menuitem id="menu_subheader_product_import" name="Product Import" parent="stock.menu_stock_inventory_control"/>
     <menuitem id="menu_product_import" name="Product Import" action="action_product_import"
