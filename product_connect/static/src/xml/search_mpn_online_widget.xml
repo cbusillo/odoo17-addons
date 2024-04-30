@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
-    <t t-name="SearchMpnOnlineWidget">
+    <t t-name="product_connect.SearchMpnOnlineWidget">
         <t t-if="props.readonly">
             <span t-out="formattedValue"/>
         </t>

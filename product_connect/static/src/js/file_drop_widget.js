@@ -34,7 +34,6 @@ export class FileDropWidget extends BinaryField {
                                 image: baseData,
                                 index: index,
                             }
-                            console.log(this.props)
                             this.props.record.update({ [this.props.name]: imageData })
                         } else {
                             console.error('Unable to split result into data and mime type')
@@ -70,7 +69,7 @@ export class FileDropWidget extends BinaryField {
 
 export const fileDropWidget = {
     ...binaryField,
-    component: FileDropWidget,
+    component: FileDropWidget
 }
 
 registry.category('fields').add('file_drop', fileDropWidget)
