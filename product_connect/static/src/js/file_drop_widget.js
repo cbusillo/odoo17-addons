@@ -5,13 +5,7 @@ import { binaryField } from '@web/views/fields/binary/binary_field'
 
 export class FileDropWidget extends Component {
     static template = 'FileDropWidget'
-    static props = {
-        record: Object,
-        name: String,
-        readonly: Boolean,
-        acceptedFileExtensions: [String],
-        fileNameField: String,
-    };
+    static props = {};
 
     setup() {
         super.setup()
