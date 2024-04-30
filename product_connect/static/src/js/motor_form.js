@@ -10,6 +10,7 @@ class MotorFormController extends FormController {
             const editedData = editedRecord.data
             const editedFieldNames = Object.keys(editedFields)
             const requiredFieldsToSave = [
+                'technician',
                 'manufacturer',
                 'motor_stroke',
                 'motor_configuration',
