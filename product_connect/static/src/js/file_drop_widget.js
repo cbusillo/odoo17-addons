@@ -4,6 +4,15 @@ import { registry } from '@web/core/registry'
 import { binaryField } from '@web/views/fields/binary/binary_field'
 
 export class FileDropWidget extends Component {
+    static template = 'FileDropWidget'
+    static props = {
+        record: Object,
+        name: String,
+        readonly: Boolean,
+        acceptedFileExtensions: [String],
+        fileNameField: String,
+    };
+
     setup() {
         super.setup()
     }
@@ -63,7 +72,6 @@ export class FileDropWidget extends Component {
     }
 }
 
-FileDropWidget.template = 'FileDropWidget'
 
 export const fileDropWidget = {
     ...binaryField,
