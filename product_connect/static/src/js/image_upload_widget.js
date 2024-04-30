@@ -1,16 +1,19 @@
 /** @odoo-module **/
 import { useRef } from '@odoo/owl'
 import { registry } from '@web/core/registry'
-import { BinaryField } from '@web/views/fields/binary/binary_field'
+import { BinaryField, binaryField } from '@web/views/fields/binary/binary_field'
 import { ImageField } from '@web/views/fields/image/image_field'
 
-export class ImageUploadWidget extends BinaryField {
 
+export class ImageUploadWidget extends BinaryField {
+    static template = 'product_connect.ImageUploadWidget'
+    static props = {
+        ...BinaryField.props,
+    }
 
     setup() {
         super.setup()
         this.fileInputRef = useRef('fileInput')
-
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -56,14 +59,18 @@ export class ImageUploadWidget extends BinaryField {
     }
 
     onClick() {
-        console.log('ImageUploadWidget.onClick')
         this.onImageUpload().then()
     }
 }
 
-ImageUploadWidget.template = 'product_connect.ImageUploadWidget'
-ImageUploadWidget.components = { ImageField }
 
-export const imageUploadWidget = { component: ImageUploadWidget }
+ImageUploadWidget.components = {
+    ImageField
+}
+
+export const imageUploadWidget = {
+    ...binaryField,
+    component: ImageUploadWidget
+}
 
 registry.category('fields').add('image_upload', imageUploadWidget)

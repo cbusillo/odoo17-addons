@@ -3,6 +3,8 @@ import { registry } from '@web/core/registry'
 import { CharField, charField } from '@web/views/fields/char/char_field'
 
 export class SearchMpnOnlineWidget extends CharField {
+    static template = 'product_connect.SearchMpnOnlineWidget'
+
     searchOnline() {
         const mpns = this.props.record.data[this.props.name]
         if (!mpns) {
@@ -17,7 +19,6 @@ export class SearchMpnOnlineWidget extends CharField {
     }
 }
 
-SearchMpnOnlineWidget.template = 'SearchMpnOnlineWidget'
 
 export const searchMpnOnline = {
     ...charField,

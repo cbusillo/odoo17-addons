@@ -228,7 +228,7 @@ export class MotorTestWidget extends Component {
                             }) {
         if (resultType === 'selection') {
             this.selectionFieldDomains[id] = [
-                ['id', '=', selectionOptions.currentIds],
+                ['id', 'in', selectionOptions.currentIds],
             ]
         }
     }
