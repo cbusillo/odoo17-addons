@@ -19,5 +19,8 @@
   },
   "include": [
     "./product_connect/static/src/ts"
+  ],
+  "exclude": [
+    "./product_connect/static/src/js"
   ]
 }

@@ -34,8 +34,8 @@
                         <page id="basic_info" string="Basic Info">
                             <group>
                                 <field name="motor_number" readonly="1"/>
-                                <field name="technician" widget="resettable_selection_badge"/>
-                                <field name="manufacturer" required="1" options="{'no_create': True, 'no_edit': True}"/>
+                                <field name="technician" widget="resettable_selection_badge" required="1"/>
+                                <field name="manufacturer" widget="resettable_selection_badge" required="1"/>
                                 <field name="horsepower"/>
                                 <field name="motor_stroke" required="1" widget="resettable_selection_badge"/>
                                 <field name="motor_configuration" required="1" widget="resettable_selection_badge"/>

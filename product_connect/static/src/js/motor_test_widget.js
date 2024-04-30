@@ -21,6 +21,14 @@ import { PdfViewerField } from '@web/views/fields/pdf_viewer/pdf_viewer_field'
  * @property {number} data.section_sequence
  */
 export class MotorTestWidget extends Component {
+    static template = 'product_connect.MotorTestWidget'
+    static components = {
+        ResettableBadgeSelectionField,
+        FloatField,
+        CharField,
+        BinaryField,
+        PdfViewerField,
+    }
     static props = {
         id: String,
         name: String,
@@ -231,14 +239,6 @@ export class MotorTestWidget extends Component {
     }
 }
 
-MotorTestWidget.template = 'product_connect.MotorTestWidget'
-MotorTestWidget.components = {
-    ResettableBadgeSelectionField,
-    FloatField,
-    CharField,
-    BinaryField,
-    PdfViewerField,
-}
 
 export const motorTestWidget = {
     component: MotorTestWidget,
