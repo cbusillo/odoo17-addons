@@ -147,7 +147,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
         image_data = self.image_upload.get("image")
         index = self.image_upload.get("index")
 
-        if image_data and index:
+        if image_data and index is not None:
             image = self.env["product.import.image"].create(
                 {
                     "image_1920": image_data,
