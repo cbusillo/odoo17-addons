@@ -1,11 +1,12 @@
 /** @odoo-module **/
-const { Component } = owl
 import { registry } from '@web/core/registry'
-import { binaryField } from '@web/views/fields/binary/binary_field'
+import { BinaryField, binaryField } from '@web/views/fields/binary/binary_field'
 
-export class FileDropWidget extends Component {
-    static template = 'FileDropWidget'
-    static props = {};
+export class FileDropWidget extends BinaryField {
+    static template = 'product_connect.FileDropWidget'
+    static props = {
+        ...BinaryField.props,
+    }
 
     setup() {
         super.setup()

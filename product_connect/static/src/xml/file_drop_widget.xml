@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
-    <t t-name="FileDropWidget">
+    <t t-name="product_connect.FileDropWidget">
         <div class="o_field_file_drop drag-over"
              t-on-drop="onDrop"
              t-on-dragover="onDragOver"
