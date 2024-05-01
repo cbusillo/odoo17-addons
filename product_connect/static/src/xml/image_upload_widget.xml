@@ -9,15 +9,17 @@
              accept="image/*"
              t-on-change="onFileChange"
              capture="environment"/>
-      <div class="mt-2 image-preview">
+      <div class="mt-2 image-preview" t-att-style="'width: ' + state.size + 'px'">
 
-      <t t-if="props.record.data.image_1920">
-         <ImageField
-                 name="'image_1920'"
-                 record="props.record"
-                 enableZoom="false"
-                 previewImage="getPreviewImageSize()"
-                 reload="false"/>
+      <t t-if="state.image">
+        <ImageField
+                name="'image_1920'"
+                record="props.record"
+                enableZoom="false"
+                previewImage="'image_' + state.size"
+                reload="true"
+        />
+
       </t>
           <t t-else="">
         <div class="no-image-placeholder">
