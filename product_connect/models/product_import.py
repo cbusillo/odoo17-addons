@@ -18,8 +18,9 @@ class ProductImportImage(odoo.models.Model):
     _inherit = ["image.mixin"]
     _description = "Product Import Image"
     _order = "index"
+    # noinspection SqlResolve
     _sql_constraints = [
-        ("index_uniq", "unique (index, product_id)", "Index must be unique per product!"),
+        ("index_uniq", "unique (index, product)", "Index must be unique per product!"),
     ]
 
     index = odoo.fields.Integer()
