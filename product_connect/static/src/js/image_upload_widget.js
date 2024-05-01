@@ -51,30 +51,51 @@ export class ImageUploadWidget extends BinaryField {
             return
         }
         const file = ev.target.files[0]
-        const data = await this.getBaseData(file)
+        const data = await this.resizeImage(file, 1920, 1920)
+        const dataBase = await this.blobToBase(data)
 
-        if (!data) {
-            await this.props.record.update({ image_1920: null })
-        }
 
-        await this.props.record.update({ image_1920: data })
-        this.state.image = data
+        await this.props.record.update({ image_1920: dataBase })
+
+        this.state.image = dataBase
         this.state.size = this.getPreviewImageSize()
 
         ev.target.value = null
     }
 
-    async getBaseData(file) {
+    async resizeImage(file, maxWidth, maxHeight) {
+        const bitmap = await createImageBitmap(file);
+        const width = bitmap.width;
+        const height = bitmap.height;
+
+        if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            const resizedWidth = Math.round(width * ratio);
+            const resizedHeight = Math.round(height * ratio);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = resizedWidth;
+            canvas.height = resizedHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(bitmap, 0, 0, resizedWidth, resizedHeight);
+
+            return new Promise((resolve) => {
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, file.type);
+            });
+        }
+
+        return file;
+    }
+
+    async blobToBase(blob) {
         return new Promise((resolve, reject) => {
-            const reader = new FileReader()
-            reader.onload = () => {
-                resolve(reader.result.split(',')[1])
-            }
-            reader.onerror = () => {
-                reject(new Error('Failed to read the file'))
-            }
-            reader.readAsDataURL(file)
-        })
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
     }
 
     onClick() {
