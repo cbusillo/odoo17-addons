@@ -44,7 +44,7 @@
     "assets": {
         "web.assets_backend": [
             "product_connect/static/src/scss/*",
-            "product_connect/static/src/js/*",
+            "product_connect/static/src/js/*/*",
             "product_connect/static/src/xml/*",
         ],
     },
