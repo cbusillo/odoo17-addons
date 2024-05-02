@@ -63,8 +63,7 @@ export class FileDropWidget extends BinaryField {
             )
             try {
                 this.notification.add(`Resizing ${sortedUploadFiles.length} Image(s)`, {
-                    title: 'Image(s) resizing.',
-                    type: 'success',
+                    type: 'info',
                 })
                 const sortedUploadedImageBase = await Promise.all(
                     sortedUploadFiles.map(async (file) => {
@@ -82,13 +81,11 @@ export class FileDropWidget extends BinaryField {
                     index: index + highestIndex + 1,
                 }))
                 this.notification.add(`Uploading ${recordsToSend.length} Image(s)`, {
-                    title: 'Image(s) uploading.',
-                    type: 'success',
+                    type: 'info',
                 })
                 await this.batchUpload(recordsToSend)
                 this.props.record.load()
-                this.notification.add(`${recordsToSend.length} Images uploaded successfully`, {
-                    title: 'Images uploaded',
+                this.notification.add(`${recordsToSend.length} Image(s) uploaded successfully`, {
                     type: 'success',
                 })
 
@@ -116,17 +113,10 @@ export class FileDropWidget extends BinaryField {
             const uploadPromise = this.orm.create(this.imageModelName, batch)
                 .then((createResult) => {
                     activePromises.delete(uploadPromise);
-
-                    this.notification.add(`${createResult.length} Images uploaded successfully`, {
-                        title: 'Success',
-                        type: 'success',
-                    });
-
                     this.updateDropMessage(createResult.length);
                 })
                 .catch((error) => {
                     activePromises.delete(uploadPromise);
-
                     console.error("Error uploading images:", error);
                     this.notification.add('Failed to upload images', {
                         title: 'Error',
