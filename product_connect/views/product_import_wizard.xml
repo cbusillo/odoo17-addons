@@ -42,11 +42,13 @@
                     </field>
                 </sheet>
                 <footer>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
-                    <button name="action_previous_product" type="object" string="Previous" class="oe_highlight"/>
-                    <button name="action_next_product" type="object" string="Next" class="oe_highlight"/>
-                    <button name="action_done" type="object" string="Done" class="btn-primary"/>
-                    <button name="action_edit_next" type="object" string="Lookup" class="btn-primary"/>
+                    <button name="action_previous_product" type="object" string="Previous" class="oe_highlight"
+                            data-hotkey="p" icon="fa-arrow-left"/>
+                    <button name="action_next_product" type="object"
+                            string="Next" class="oe_highlight" data-hotkey="n"
+                            icon="fa-arrow-right"/>
+                    <button name="action_done" type="object" string="Done" class="oe_highlight"
+                            icon="fa-check" data-hotkey="d"/>
                 </footer>
             </form>
         </field>

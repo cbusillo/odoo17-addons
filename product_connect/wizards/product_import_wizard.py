@@ -43,16 +43,7 @@ class ProductImportImageWizard(models.TransientModel):
 
     @api.onchange('barcode')
     def _onchange_product_barcode(self) -> None:
-        self._exit_product()
-        if not self.barcode:
-            return None
-        product = self.env['product.import'].search([('default_code', '=', self.barcode)], limit=1)
-        if not product:
-            # noinspection PyProtectedMember
-            raise UserError(_('No product found with the given barcode.'))
-
-        self.product = product
-        self._ensure_image_placeholders(product)
+        self._lookup()
 
     # noinspection PyShadowingNames
     @api.model
@@ -94,7 +85,6 @@ class ProductImportImageWizard(models.TransientModel):
         return self._navigate_product('previous')
 
     def _navigate_product(self, direction: str) -> dict[str, str]:
-        self.ensure_one()
         self._exit_product()
 
         order = 'id' if direction == 'next' else 'id desc'
@@ -120,24 +110,7 @@ class ProductImportImageWizard(models.TransientModel):
             'target': 'new',
         }
 
-    def action_edit_next(self) -> dict[str, str]:
-        self.ensure_one()
-        self._exit_product()
-        self.product = False
-        self.default_code = False
-        self.name = False
-        self.images = [(5,)]
-
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'product.import.image.wizard',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'new',
-        }
-
     def action_done(self) -> dict[str, str]:
-        self.ensure_one()
         self._exit_product()
         return {
             'type': 'ir.actions.client',
@@ -145,6 +118,22 @@ class ProductImportImageWizard(models.TransientModel):
         }
 
     def _exit_product(self) -> None:
+        self.ensure_one()
+        self.barcode = None
         unused_images = self.images.filtered(lambda r: not r.image_1920)
         if unused_images:
             unused_images.unlink()
+
+    def _lookup(self) -> None:
+        self.ensure_one()
+        barcode = self.barcode
+        self._exit_product()
+        if not barcode:
+            return None
+        product = self.env['product.import'].search([('default_code', '=', barcode)], limit=1)
+        if not product:
+            # noinspection PyProtectedMember
+            raise UserError(_('No product found with the given barcode.'))
+
+        self.product = product
+        self._ensure_image_placeholders(product)
