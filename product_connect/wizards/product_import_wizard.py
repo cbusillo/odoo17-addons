@@ -141,7 +141,7 @@ class ProductImportImageWizard(models.TransientModel):
         self._exit_product()
         return {
             'type': 'ir.actions.client',
-            'tag': 'reload',
+            'tag': 'reload_context',
         }
 
     def _exit_product(self) -> None:

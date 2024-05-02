@@ -50,7 +50,6 @@ class ProductImport(LabelMixin, odoo.models.Model):
     price = odoo.fields.Float()
     cost = odoo.fields.Float()
     image_1_url = odoo.fields.Char(string="Image 1 URL")
-    image_upload = odoo.fields.Json()
     images = odoo.fields.One2many("product.import.image", "product")
     condition = odoo.fields.Selection(
         [
@@ -139,25 +138,6 @@ class ProductImport(LabelMixin, odoo.models.Model):
                 idx = fields.index("bin")
                 row[idx] = row[idx].upper()
         return super(ProductImport, self).load(fields, data)
-
-    @odoo.api.onchange("image_upload")
-    def _onchange_image_upload(self) -> None:
-        if not self.image_upload:
-            return
-        product = self._origin.id if isinstance(self.id, odoo.models.NewId) else self.id
-        image_data = self.image_upload.get("image")
-        index = self.image_upload.get("index")
-
-        if image_data and index is not None:
-            image = self.env["product.import.image"].create(
-                {
-                    "image_1920": image_data,
-                    "index": index,
-                    "product": product,
-                }
-            )
-            self.images |= image
-            self.image_upload = False
 
     @odoo.api.onchange("default_code", "mpn", "condition", "bin", "quantity")
     def _onchange_product_details(self) -> None:

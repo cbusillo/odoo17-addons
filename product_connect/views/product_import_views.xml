@@ -68,8 +68,7 @@
                 <field name="price"/>
                 <field name="cost"/>
                 <field name="image_1_url"/>
-                <field name="images"/>
-                <field name="image_upload" widget="file_drop" string="Upload"/>
+                <field name="images" widget="file_drop"/>
                 <field name="default_code" readonly=""/>
             </tree>
         </field>
