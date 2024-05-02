@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
     <t t-name="product_connect.FileDropWidget">
-        <div class="o_field_file_drop drag-over"
-             t-on-drop="onDrop"
-             t-on-dragover="onDragOver"
-             t-on-dragenter="onDragEnter"
-             t-on-dragleave="onDragLeave"
-             t-att-allowDrop="true">
-            Drop...
-        </div>
+        <t t-if="state.message">
+
+            <div class="o_field_file_drop drag-over px-1 text-center"
+                 t-on-drop="onDrop"
+                 t-on-dragover="onDragOver"
+                 t-on-dragenter="onDragEnter"
+                 t-on-dragleave="onDragLeave"
+                 t-att-allowDrop="true">
+                <t t-out="state.message"/>
+            </div>
+        </t>
     </t>
 </templates>
