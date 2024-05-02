@@ -85,15 +85,14 @@ export class FileDropWidget extends BinaryField {
                     title: 'Image(s) uploading.',
                     type: 'success',
                 })
-                const createResult = await this.orm.create(this.imageModelName, recordsToSend)
+                await this.batchUpload(recordsToSend)
                 this.props.record.load()
-                this.notification.add(`${createResult.length} Images uploaded successfully`, {
+                this.notification.add(`${recordsToSend.length} Images uploaded successfully`, {
                     title: 'Images uploaded',
                     type: 'success',
                 })
 
-                this.updateDropMessage(createResult.length)
-                this.render()
+                this.updateDropMessage(recordsToSend.length)
 
             } catch (error) {
                 console.error('Error uploading images:', error)
@@ -104,6 +103,28 @@ export class FileDropWidget extends BinaryField {
             }
         } else {
             console.error('dataTransfer is not available')
+        }
+    }
+
+    async batchUpload(records, batchSize = 5) {
+        for (let i = 0; i < records.length; i += batchSize) {
+            const batch = records.slice(i, i + batchSize);
+
+            try {
+                const createResult = await this.orm.create(this.imageModelName, batch);
+                this.notification.add(`${createResult.length} Images uploaded successfully`, {
+                    title: 'Success',
+                    type: 'success',
+                });
+
+                this.updateDropMessage(createResult.length);  // Update frontend state
+            } catch (error) {
+                console.error("Error uploading images:", error);
+                this.notification.add('Failed to upload images', {
+                    title: 'Error',
+                    type: 'danger',
+                });
+            }
         }
     }
 
