@@ -62,6 +62,10 @@ export class FileDropWidget extends BinaryField {
                 a.name.localeCompare(b.name),
             )
             try {
+                this.notification.add(`Resizing ${sortedUploadFiles.length} Image(s)`, {
+                    title: 'Image(s) resizing.',
+                    type: 'success',
+                })
                 const sortedUploadedImageBase = await Promise.all(
                     sortedUploadFiles.map(async (file) => {
                         if (!(file instanceof Blob)) {
@@ -77,6 +81,10 @@ export class FileDropWidget extends BinaryField {
                     image_1920: image,
                     index: index + highestIndex + 1,
                 }))
+                this.notification.add(`Uploading ${recordsToSend.length} Image(s)`, {
+                    title: 'Image(s) uploading.',
+                    type: 'success',
+                })
                 const createResult = await this.orm.create(this.imageModelName, recordsToSend)
                 this.props.record.load()
                 this.notification.add(`${createResult.length} Images uploaded successfully`, {
