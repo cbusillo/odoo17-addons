@@ -106,27 +106,46 @@ export class FileDropWidget extends BinaryField {
         }
     }
 
-    async batchUpload(records, batchSize = 5) {
+    async batchUpload(records, batchSize = 5, maxConcurrent = 5) {
+        const batchPromises = [];
+        const activePromises = new Set();  // Track active uploads
+
         for (let i = 0; i < records.length; i += batchSize) {
             const batch = records.slice(i, i + batchSize);
 
-            try {
-                const createResult = await this.orm.create(this.imageModelName, batch);
-                this.notification.add(`${createResult.length} Images uploaded successfully`, {
-                    title: 'Success',
-                    type: 'success',
+            const uploadPromise = this.orm.create(this.imageModelName, batch)
+                .then((createResult) => {
+                    activePromises.delete(uploadPromise);
+
+                    this.notification.add(`${createResult.length} Images uploaded successfully`, {
+                        title: 'Success',
+                        type: 'success',
+                    });
+
+                    this.updateDropMessage(createResult.length);
+                })
+                .catch((error) => {
+                    activePromises.delete(uploadPromise);
+
+                    console.error("Error uploading images:", error);
+                    this.notification.add('Failed to upload images', {
+                        title: 'Error',
+                        type: 'danger',
+                    });
                 });
 
-                this.updateDropMessage(createResult.length);  // Update frontend state
-            } catch (error) {
-                console.error("Error uploading images:", error);
-                this.notification.add('Failed to upload images', {
-                    title: 'Error',
-                    type: 'danger',
-                });
+            batchPromises.push(uploadPromise);
+            activePromises.add(uploadPromise);
+
+            // Wait for an active promise to resolve if limit is reached
+            if (activePromises.size >= maxConcurrent) {
+                await Promise.race(activePromises);
             }
         }
+
+        await Promise.all(batchPromises);  // Wait for all uploads to finish
     }
+
 
     onDragEnter(ev) {
         ev.preventDefault()
