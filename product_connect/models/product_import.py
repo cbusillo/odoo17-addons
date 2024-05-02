@@ -23,8 +23,8 @@ class ProductImportImage(odoo.models.Model):
         ("index_uniq", "unique (index, product)", "Index must be unique per product!"),
     ]
 
-    index = odoo.fields.Integer()
-    product = odoo.fields.Many2one("product.import", ondelete="cascade", required=True)
+    index = odoo.fields.Integer(index=True, required=True)
+    product = odoo.fields.Many2one("product.import", ondelete="cascade", required=True, index=True)
 
 
 class ProductImport(LabelMixin, odoo.models.Model):
