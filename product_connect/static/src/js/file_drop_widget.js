@@ -23,42 +23,45 @@ export class FileDropWidget extends BinaryField {
             const { files } = ev.dataTransfer;
             const sortedFiles = [...files].sort((a, b) => a.name.localeCompare(b.name));
 
-            const filePromises = sortedFiles.map((file, index) => {
+            const uploadPromises = sortedFiles.map((file, index) => {
                 return new Promise((resolve, reject) => {
                     if (file instanceof Blob) {
-                        const reader = new FileReader();
-                        reader.onload = async (e) => {
-                            const { result } = e.target;
-                            const splitResult = result.split(',');
-                            if (splitResult.length > 1) {
-                                const baseData = splitResult[1];
-                                const imageData = {
-                                    image: baseData,
-                                    index: index,
-                                };
-                                resolve(imageData);
-                            } else {
-                                reject(new Error('Unable to split result into data and mime type'));
-                            }
-                        };
-                        reader.onerror = (error) => {
-                            reject(error);
-                        };
-                        reader.readAsDataURL(file);
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        formData.append('index', index);
+
+                        fetch('/upload', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                            .then((response) => {
+                                if (response.ok) {
+                                    return response.json();
+                                } else {
+                                    throw new Error('Upload failed');
+                                }
+                            })
+                            .then((data) => {
+                                resolve(data);
+                            })
+                            .catch((error) => {
+                                reject(error);
+                            });
                     } else {
                         reject(new Error('File is not a Blob'));
                     }
                 });
             });
 
-            Promise.all(filePromises)
-                .then((imageDatas) => {
-                    imageDatas.forEach((imageData) => {
-                        this.props.record.update({ [this.props.name]: imageData });
+            Promise.all(uploadPromises)
+                .then((results) => {
+                    results.forEach((result) => {
+                        const { index, url } = result;
+                        this.props.record.update({ [this.props.name]: { index, url } });
                     });
                 })
                 .catch((error) => {
-                    console.error('Error processing files:', error);
+                    console.error('Error uploading files:', error);
                 });
         } else {
             console.error('dataTransfer is not available');
