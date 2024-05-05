@@ -27,7 +27,7 @@ class MotorTestSection(models.Model):
     sequence = fields.Integer(default=10)
     templates = fields.One2many("motor.test.template", "section")
     tests = fields.One2many("motor.test", "section")
-    motor = fields.Many2one("motor")
+    motor = fields.Many2one("motor", ondelete="restrict")
 
 
 class MotorTestTemplate(models.Model):
@@ -98,7 +98,7 @@ class MotorTest(models.Model):
     _order = "section_sequence, sequence, id"
 
     name = fields.Char(related="template.name")
-    motor = fields.Many2one("motor", ondelete="cascade", required=True)
+    motor = fields.Many2one("motor", ondelete="restrict", required=True)
     template = fields.Many2one(
         "motor.test.template", string="Test Template", ondelete="restrict"
     )
@@ -151,7 +151,7 @@ class MotorPart(models.Model):
     _description = "Motor Parts"
     _order = "sequence, id"
 
-    motor = fields.Many2one(comodel_name="motor", required=True, ondelete="cascade")
+    motor = fields.Many2one(comodel_name="motor", required=True, ondelete="restrict")
     template = fields.Many2one(
         comodel_name="motor.part.template",
         ondelete="cascade",
@@ -169,7 +169,7 @@ class MotorCompression(models.Model):
     _description = "Motor Compression Data"
     _order = "cylinder_number"
 
-    motor = fields.Many2one("motor", ondelete="cascade")
+    motor = fields.Many2one("motor", ondelete="restrict")
     cylinder_number = fields.Integer()
     compression_psi = fields.Integer("Compression PSI")
     compression_image = fields.Binary()
@@ -180,7 +180,7 @@ class MotorImage(models.Model):
     _inherit = ["image.mixin"]
     _description = "Motor Images"
 
-    motor = fields.Many2one("motor", ondelete="cascade")
+    motor = fields.Many2one("motor", ondelete="restrict")
     name = fields.Char()
     image_data = fields.Binary()
 
@@ -192,39 +192,12 @@ class Motor(models.Model, LabelMixin):
 
     # Basic Info
     name = fields.Char(compute="_compute_name", readonly=True, store=True)
-
-    @api.depends(
-        "motor_number", "manufacturer", "model", "year", "serial_number", "horsepower"
-    )
-    def _compute_name(self) -> None:
-        for record in self:
-            horsepower = (
-                f" {int(record.horsepower)}HP"
-                if record.horsepower and record.horsepower.is_integer()
-                else f" {record.horsepower}HP"
-                if record.horsepower
-                else None
-            )
-            serial_number = (
-                f" - {record.serial_number}" if record.serial_number else None
-            )
-
-            name_parts = [
-                record.motor_number,
-                record.year,
-                record.manufacturer.name,
-                horsepower,
-                record.model,
-                serial_number,
-            ]
-            name = " ".join(part for part in name_parts if part)
-
-            if name:
-                record.name = name
-
+    active = fields.Boolean(default=True)
     motor_number = fields.Char()
     technician = fields.Many2one(
-        "res.users", string="Tech Name", domain="[('is_technician', '=', True)]"
+        "res.users", string="Tech Name",
+        domain="[('is_technician', '=', True),('active', 'in', [True, False])]",
+        ondelete="restrict",
     )
     manufacturer = fields.Many2one(
         "product.manufacturer", domain="[('is_engine_manufacturer', '=', True)]"
@@ -290,6 +263,65 @@ class Motor(models.Model, LabelMixin):
         store=True,
     )
 
+    @api.model_create_multi
+    def create(self, vals_list: list[dict]) -> Self:
+        vals_list = [self._sanitize_vals(vals) for vals in vals_list]
+
+        records = super().create(vals_list)
+        for record in records:
+            record.motor_number = f"M-{record.id}"
+            record._create_default_images(record)
+
+            record._create_motor_parts()
+            record._create_motor_tests()
+
+        return records
+
+    def write(self, vals) -> Self:
+        if self.env.context.get("_stage_updating"):
+            return super().write(vals)
+        vals = self._sanitize_vals(vals)
+
+        result = super().write(vals)
+        for record in self.with_context(_stage_updating=True):
+            record._update_stage()
+        return result
+
+    def unlink(self) -> None:
+        if not self.env.user.has_group("base.group_system"):
+            raise ValidationError("Cannot delete a user, please archive.")
+
+        return super().unlink()
+
+    @api.depends(
+        "motor_number", "manufacturer", "model", "year", "serial_number", "horsepower"
+    )
+    def _compute_name(self) -> None:
+        for record in self:
+            horsepower = (
+                f" {int(record.horsepower)}HP"
+                if record.horsepower and record.horsepower.is_integer()
+                else f" {record.horsepower}HP"
+                if record.horsepower
+                else None
+            )
+            serial_number = (
+                f" - {record.serial_number}" if record.serial_number else None
+            )
+
+            name_parts = [
+                record.motor_number,
+                record.year,
+                record.manufacturer.name,
+                horsepower,
+                record.model,
+                serial_number,
+            ]
+            name = " ".join(part for part in name_parts if part)
+
+            if name:
+                record.name = name
+
     @api.depends("parts.missing", "parts.template.hide_compression_page")
     def _compute_hide_compression_page(self) -> None:
         for motor in self:
@@ -354,30 +386,6 @@ class Motor(models.Model, LabelMixin):
         if "serial_number" in vals and vals["serial_number"]:
             vals["serial_number"] = vals["serial_number"].upper()
         return vals
-
-    @api.model_create_multi
-    def create(self, vals_list: list[dict]) -> Self:
-        vals_list = [self._sanitize_vals(vals) for vals in vals_list]
-
-        records = super().create(vals_list)
-        for record in records:
-            record.motor_number = f"M-{record.id}"
-            record._create_default_images(record)
-
-            record._create_motor_parts()
-            record._create_motor_tests()
-
-        return records
-
-    def write(self, vals) -> Self:
-        if self.env.context.get("_stage_updating"):
-            return super().write(vals)
-        vals = self._sanitize_vals(vals)
-
-        result = super().write(vals)
-        for record in self.with_context(_stage_updating=True):
-            record._update_stage()
-        return result
 
     def _create_motor_tests(self) -> None:
         test_templates = self.env["motor.test.template"].search([])

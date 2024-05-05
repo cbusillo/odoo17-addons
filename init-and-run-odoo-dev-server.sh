@@ -38,11 +38,10 @@ if [ "$FLAG" = "init" ]; then
     rm -f init-done.flag
     ./init-and-run-odoo-dev.sh sync-prod testing
 fi
-
-sleep 5
-
-service odoo start
 EOF
+
+echo "Starting Odoo..."
+ssh opw-dev "service odoo start"
 
 if [ "$INITIAL_STATE" -ne 0 ]; then
     echo "Stopping Tailscale..."

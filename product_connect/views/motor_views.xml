@@ -6,14 +6,14 @@
         <field name="arch" type="xml">
             <tree string="Motors List">
                 <field name="motor_number" string="Motor"/>
-                <field name="create_date"/>
+                <field name="technician" optional="hide"/>
+                <field name="create_date" optional="show"/>
                 <field name="manufacturer" string="Manu"/>
                 <field name="horsepower"/>
                 <field name="model"/>
                 <field name="serial_number" string="Serial"/>
                 <field name="year"/>
                 <field name="color"/>
-                <field name="technician"/>
                 <field name="cost" widget="float_factor"/>
             </tree>
         </field>
