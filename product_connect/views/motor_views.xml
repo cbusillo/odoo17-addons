@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <tree string="Motors List">
                 <field name="motor_number" string="Motor"/>
+                <field name="technician" optional="hide"/>
                 <field name="manufacturer" string="Manu"/>
                 <field name="horsepower"/>
                 <field name="model"/>
