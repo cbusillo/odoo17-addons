@@ -216,15 +216,13 @@
                                 <tree editable="bottom" open_form_view="1">
                                     <field name="is_listable" widget="boolean_toggle"/>
                                     <field name="computed_name"/>
-                                    <field name="name"/>
+                                    <field name="name" placeholder="name..." widget="char"/>
                                     <field name="mpn"/>
                                     <field name="product_type"/>
                                     <field name="quantity"/>
                                     <field name="bin"/>
                                     <field name="weight"/>
                                     <field name="price"/>
-                                    <field name="bin"/>
-
                                 </tree>
                             </field>
                         </page>

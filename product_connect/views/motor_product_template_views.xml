@@ -25,6 +25,10 @@
                 <sheet>
                     <group>
                         <field name="name"/>
+                        <field name="product_type"/>
+                        <field name="quantity"/>
+                        <field name="bin"/>
+                        <field name="weight"/>
                         <field name="manufacturer" widget="selection_badge"/>
                         <field name="motor_configuration" widget="selection_badge"/>
                         <field name="motor_stroke"/>
@@ -50,5 +54,5 @@
     </record>
 
     <menuitem id="menu_product_motor_product" name="Motor Products" parent="menu_subheader_config_motor"
-              action="action_motor_product_template" sequence="20"/>
+              action="action_motor_product_template" sequence="40"/>
 </odoo>
