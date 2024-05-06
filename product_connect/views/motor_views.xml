@@ -213,7 +213,7 @@
                         </page>
                         <page string="Products" invisible="stage != 'finalization'">
                             <field name="products">
-                                <tree editable="bottom" create="False" delete="False" open_form_view="0">
+                                <tree editable="bottom" open_form_view="1">
                                     <field name="is_listable" widget="boolean_toggle"/>
                                     <field name="computed_name"/>
                                     <field name="name"/>
