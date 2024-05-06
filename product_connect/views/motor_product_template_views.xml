@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_motor_product_template_tree" model="ir.ui.view">
+        <field name="name">motor.product.template.tree</field>
+        <field name="model">motor.product.template</field>
+        <field name="arch" type="xml">
+            <tree string="Motor Products" editable="bottom" open_form_view="1">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="manufacturer"/>
+                <field name="motor_configuration"/>
+                <field name="motor_stroke"/>
+                <field name="excluded_parts" widget="many2many_tags"/>
+                <field name="excluded_tests" widget="many2many_tags"/>
+                <field name="sequence"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_motor_product_template_form" model="ir.ui.view">
+        <field name="name">motor.product.template.form</field>
+        <field name="model">motor.product.template</field>
+        <field name="arch" type="xml">
+            <form string="Motor Product">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="manufacturer" widget="selection_badge"/>
+                        <field name="motor_configuration" widget="selection_badge"/>
+                        <field name="motor_stroke"/>
+                        <field name="excluded_parts"/>
+                        <field name="excluded_tests"/>
+                        <field name="is_quantity_listing" widget="boolean_toggle"/>
+                        <field name="include_year_in_name" widget="boolean_toggle"/>
+                        <field name="include_hp_in_name" widget="boolean_toggle"/>
+                        <field name="include_model_in_name" widget="boolean_toggle"/>
+                        <field name="include_oem_in_name" widget="boolean_toggle"/>
+                        <field name="sequence"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_motor_product_template" model="ir.actions.act_window">
+        <field name="name">Motor Products</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">motor.product.template</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_product_motor_product" name="Motor Products" parent="menu_subheader_config_motor"
+              action="action_motor_product_template" sequence="20"/>
+</odoo>

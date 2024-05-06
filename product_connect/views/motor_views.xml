@@ -65,7 +65,7 @@
                               invisible="stage not in ['parts', 'basic_testing', 'extended_testing', 'finalization']">
                             <field name="parts">
                                 <tree editable="bottom" create="False" delete="False" open_form_view="0">
-                                    <field name="missing" widget="boolean_toggle"
+                                    <field name="is_missing" widget="boolean_toggle"
                                            class="large-toggle o_motor_part_missing_column"/>
                                     <field name="name" class="sc_full_width"/>
                                     <field name="template" column_invisible="1"/>
@@ -168,7 +168,7 @@
                             <group string="Missing Parts">
                                 <field name="parts" mode="tree" readonly="1">
                                     <tree>
-                                        <field name="missing"/>
+                                        <field name="is_missing"/>
                                         <field name="name"/>
                                     </tree>
                                 </field>
@@ -210,6 +210,23 @@
                                     </tree>
                                 </field>
                             </group>
+                        </page>
+                        <page string="Products" invisible="stage != 'finalization'">
+                            <field name="products">
+                                <tree editable="bottom" create="False" delete="False" open_form_view="0">
+                                    <field name="is_listable" widget="boolean_toggle"/>
+                                    <field name="computed_name"/>
+                                    <field name="name"/>
+                                    <field name="mpn"/>
+                                    <field name="product_type"/>
+                                    <field name="quantity"/>
+                                    <field name="bin"/>
+                                    <field name="weight"/>
+                                    <field name="price"/>
+                                    <field name="bin"/>
+
+                                </tree>
+                            </field>
                         </page>
                         <page string="Finalization" invisible="stage != 'finalization'">
                             <!-- Add fields relevant for the finalization stage here -->

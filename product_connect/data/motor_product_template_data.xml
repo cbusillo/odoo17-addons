@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Motor Product Templates for 4 Stroke Parts -->
+        <record id="product_template_lower_unit" model="motor.product.template">
+            <field name="name">Lower Unit</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_trim_unit" model="motor.product.template">
+            <field name="name">Trim Unit</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_trim_switch" model="motor.product.template">
+            <field name="name">Trim Switch</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_cable_cover_plate" model="motor.product.template">
+            <field name="name">Cable Cover Plate W/ Misc Pieces</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_cowling_latches" model="motor.product.template">
+            <field name="name">Cowling Latches / Clamps</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_lower_cowling" model="motor.product.template">
+            <field name="name">Lower Cowling / Apron / Pans</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_tilt_tube" model="motor.product.template">
+            <field name="name">Tilt Tube / Clamp / Bolt</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_powerhead" model="motor.product.template">
+            <field name="name">Powerhead</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_crankshaft" model="motor.product.template">
+            <field name="name">CrankShaft</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_pistons" model="motor.product.template">
+            <field name="name">Pistons</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_cylinder_head" model="motor.product.template">
+            <field name="name">Cylinder Head</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_oil_dip_stick" model="motor.product.template">
+            <field name="name">Oil Dip Stick</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_ignition_coils" model="motor.product.template">
+            <field name="name">Ignition Coils</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_rectifier_regulator" model="motor.product.template">
+            <field name="name">Rectifier Regulator</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_ecu_pcm_cdi" model="motor.product.template">
+            <field name="name">ECU / PCM / CDI</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_starter_relay" model="motor.product.template">
+            <field name="name">Starter Relay</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_trim_relay" model="motor.product.template">
+            <field name="name">Trim Relay</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_fuse_box" model="motor.product.template">
+            <field name="name">Fuse Box</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_engine_wire_harness" model="motor.product.template">
+            <field name="name">Engine Wire Harness</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_battery_cables" model="motor.product.template">
+            <field name="name">Battery Cables</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_fuel_filter" model="motor.product.template">
+            <field name="name">Fuel Filter</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_fuel_lift_pump" model="motor.product.template">
+            <field name="name">Fuel Lift Pump</field>
+            <field name="motor_stroke">4</field>
+        </record>
+
+        <record id="product_template_vst_assembly" model="motor.product.template">
+            <field name="name">VST Assembly</field>
+            <field name="motor_stroke">4</field>
+        </record>
+    </data>
+</odoo>

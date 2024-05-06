@@ -8,7 +8,7 @@ from odoo.exceptions import ValidationError
 
 from odoo import _, api, fields, models
 from ..mixins.label import LabelMixin
-from ..utils.constants import YES, YES_NO_SELECTION
+from ..utils import constants
 
 
 class MotorCompression(models.Model):
@@ -46,33 +46,10 @@ class Motor(models.Model, LabelMixin):
         domain="[('is_technician', '=', True),('active', 'in', [True, False])]",
         ondelete="restrict",
     )
-    manufacturer = fields.Many2one(
-        "product.manufacturer", domain="[('is_engine_manufacturer', '=', True)]"
-    )
+    manufacturer = fields.Many2one("product.manufacturer", domain="[('is_engine_manufacturer', '=', True)]")
     horsepower = fields.Float(digits=(3, 1), string="HP")
-    motor_stroke = fields.Selection(
-        [
-            ("2", "2 Stroke"),
-            ("4", "4 Stroke"),
-        ]
-    )
-    motor_configuration = fields.Selection(
-        [
-            ("s1", "Single 1"),
-            ("i2", "Inline 2"),
-            ("i3", "Inline 3"),
-            ("i4", "Inline 4"),
-            ("i5", "Inline 5"),
-            ("i6", "Inline 6"),
-            ("i8", "Inline 8"),
-            ("v2", "V2"),
-            ("v4", "V4"),
-            ("v6", "V6"),
-            ("v8", "V8"),
-            ("v10", "V10"),
-            ("v12", "V12"),
-        ]
-    )
+    motor_stroke = fields.Selection(constants.MOTOR_STROKE_SELECTION)
+    motor_configuration = fields.Selection(constants.MOTOR_CONFIGURATION_SELECTION)
     model = fields.Char()
     serial_number = fields.Char()
 
@@ -84,31 +61,23 @@ class Motor(models.Model, LabelMixin):
         ]
 
     year = fields.Selection(_get_years, string="Model Year")
-    color = fields.Many2one(
-        "product.color",
-        domain="[('applicable_tags.name', '=', 'Motors')]",
-    )
+    color = fields.Many2one("product.color", domain="[('applicable_tags.name', '=', 'Motors')]")
     cost = fields.Float()
 
-    is_tag_readable = fields.Selection(YES_NO_SELECTION, default=YES)
+    is_tag_readable = fields.Selection(constants.YES_NO_SELECTION, default=constants.YES)
     notes = fields.Text()
     images = fields.One2many("motor.image", "motor")
     parts = fields.One2many("motor.part", "motor")
     tests = fields.One2many("motor.test", "motor")
     test_sections = fields.One2many("motor.test.section", "motor")
-    basic_tests = fields.One2many(
-        "motor.test", "motor", domain=[("template.stage", "=", "basic")]
-    )
-    extended_tests = fields.One2many(
-        "motor.test", "motor", domain=[("template.stage", "=", "extended")]
-    )
+    basic_tests = fields.One2many("motor.test", "motor", domain=[("template.stage", "=", "basic")])
+    extended_tests = fields.One2many("motor.test", "motor", domain=[("template.stage", "=", "extended")])
 
-    # Basic Testing
     compression = fields.One2many("motor.compression", "motor")
-    hide_compression_page = fields.Boolean(
-        compute="_compute_hide_compression_page",
-        store=True,
-    )
+    hide_compression_page = fields.Boolean(compute="_compute_hide_compression_page", store=True)
+    products = fields.One2many("motor.product", "motor")
+
+    stage = fields.Selection(constants.MOTOR_STAGE_SELECTION, default="basic_info", required=True)
 
     @api.model_create_multi
     def create(self, vals_list: list[dict]) -> Self:
@@ -132,6 +101,7 @@ class Motor(models.Model, LabelMixin):
         result = super().write(vals)
         for record in self.with_context(_stage_updating=True):
             record._update_stage()
+            record._create_motor_products()
         return result
 
     def unlink(self) -> None:
@@ -145,13 +115,6 @@ class Motor(models.Model, LabelMixin):
     )
     def _compute_name(self) -> None:
         for record in self:
-            horsepower = (
-                f" {int(record.horsepower)}HP"
-                if record.horsepower and record.horsepower.is_integer()
-                else f" {record.horsepower}HP"
-                if record.horsepower
-                else None
-            )
             serial_number = (
                 f" - {record.serial_number}" if record.serial_number else None
             )
@@ -160,7 +123,7 @@ class Motor(models.Model, LabelMixin):
                 record.motor_number,
                 record.year,
                 record.manufacturer.name,
-                horsepower,
+                record.get_horsepower_formatted(),
                 record.model,
                 serial_number,
             ]
@@ -169,28 +132,13 @@ class Motor(models.Model, LabelMixin):
             if name:
                 record.name = name
 
-    @api.depends("parts.missing", "parts.template.hide_compression_page")
+    @api.depends("parts.is_missing", "parts.template.hide_compression_page")
     def _compute_hide_compression_page(self) -> None:
         for motor in self:
             hide_parts = motor.parts.filtered(
-                lambda p: p.missing and p.template.hide_compression_page
+                lambda p: p.is_missing and p.template.hide_compression_page
             )
             motor.hide_compression_page = bool(hide_parts)
-
-    # Extended Testing
-    # Finalization
-    stage = fields.Selection(
-        [
-            ("basic_info", "Basic Info"),
-            ("images", "Images"),
-            ("parts", "Parts"),
-            ("basic_testing", "Basic Testing"),
-            ("extended_testing", "Extended Testing"),
-            ("finalization", "Finalization"),
-        ],
-        default="basic_info",
-        required=True,
-    )
 
     def generate_qr_code(self) -> str:
         qr_code = qrcode.QRCode(
@@ -210,11 +158,13 @@ class Motor(models.Model, LabelMixin):
         return qr_image_base64
 
     def get_horsepower_formatted(self) -> str:
-        if not self.horsepower:
-            return ""
-        if self.horsepower.is_integer():
-            return f"{int(self.horsepower)}HP"
-        return f"{self.horsepower}HP"
+        return (
+            f" {int(self.horsepower)}HP"
+            if self.horsepower and self.horsepower.is_integer()
+            else f" {self.horsepower}HP"
+            if self.horsepower
+            else ""
+        )
 
     @api.constrains("horsepower")
     def _check_horsepower(self) -> None:
@@ -260,6 +210,45 @@ class Motor(models.Model, LabelMixin):
         if part_vals:
             self.env["motor.part"].create(part_vals)
 
+    def _create_motor_products(self) -> None:
+        product_templates = self.env["motor.product.template"].search([])
+        current_product_ids = set(self.products.ids)  # Existing product IDs related to this motor
+
+        for product_template in product_templates:
+            if product_template.motor_stroke and product_template.motor_stroke != self.motor_stroke:
+                continue
+            if product_template.motor_configuration and product_template.motor_configuration != self.motor_configuration:
+                continue
+            if product_template.manufacturer and product_template.manufacturer != self.manufacturer:
+                continue
+
+            excluded_parts_ids = product_template.excluded_parts.mapped('id')
+            if set(self.parts.mapped('template.id')) & set(excluded_parts_ids):
+                continue
+
+            excluded_tests_ids = product_template.excluded_tests.mapped('id')
+            if set(self.tests.mapped('template.id')) & set(excluded_tests_ids):
+                continue
+
+            product_data = {
+                'motor': self.id,
+                'template': product_template.id,
+            }
+
+            existing_product = self.products.filtered(
+                lambda p: p.template == product_template)
+
+            if existing_product:
+                current_product_ids.discard(existing_product.id)
+            else:
+                product_data["quantity"] = product_template.quantity or 1
+                product_data["bin"] = product_template.bin
+                product_data["weight"] = product_template.weight
+                self.env['motor.product'].create(product_data)
+
+        if current_product_ids:
+            self.products.filtered(lambda p: p.id in current_product_ids).unlink()
+
     def _get_cylinder_count(self) -> int:
         match = re.search(r"\d+", self.motor_configuration)
         if match:
@@ -290,17 +279,7 @@ class Motor(models.Model, LabelMixin):
                 self.compression += new_cylinder
 
     def _create_default_images(self, motor_record: Self) -> None:
-        image_names = [
-            "Port Side",
-            "Starboard Side",
-            "Port Mid Section",
-            "Starboard Midsection",
-            "Data Label",
-            "Powerhead - Port Side",
-            "Powerhead - Starboard Side",
-            "Powerhead - Front",
-            "Powerhead - Back",
-        ]
+        image_names = constants.MOTOR_IMAGE_NAME_AND_ORDER
         for name in image_names:
             self.env["motor.image"].create(
                 {

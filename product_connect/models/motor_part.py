@@ -27,4 +27,4 @@ class MotorPart(models.Model):
     hidden_tests = fields.Many2many(
         "motor.test.template", related="template.hidden_tests", readonly=False
     )
-    missing = fields.Boolean(default=False)
+    is_missing = fields.Boolean(default=False)

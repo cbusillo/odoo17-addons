@@ -22,11 +22,13 @@
         "data/motor_test_selection_data.xml",
         "data/motor_test_template_data.xml",
         "data/motor_part_template_data.xml",
+        "data/motor_product_template_data.xml",
         "data/res_config_data.xml",
         "report/motor_reports.xml",
         "report/product_reports.xml",
         "views/motor_views.xml",  # motor_views needs to be loaded first (menu parent)
         "views/motor_part_template_views.xml",
+        "views/motor_product_template_views.xml",
         "views/motor_test_template_views.xml",
         "views/motor_test_selection_views.xml",
         "views/motor_test_section_views.xml",

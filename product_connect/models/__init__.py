@@ -3,6 +3,7 @@ import importlib
 modules = [
     'motor',
     'motor_part',
+    'motor_product',
     'motor_test',
     'printnode_interface',
     'product_color',
