@@ -236,6 +236,27 @@
         </field>
     </record>
 
+    <record id="view_motor_product_tree" model="ir.ui.view">
+        <field name="name">motor.product.tree</field>
+        <field name="model">motor.product</field>
+        <field name="arch" type="xml">
+            <tree string="Motor Products" default_group_by="motor">
+                <field name="computed_name"/>
+                <field name="mpn"/>
+                <field name="name"/>
+                <field name="bin"/>
+                <field name="price"/>
+                <field name="template"/>
+                <field name="product_type"/>
+                <field name="default_code"/>
+                <field name="quantity"/>
+                <field name="weight"/>
+                <field name="sequence"/>
+                <field name="is_listable"/>
+            </tree>
+        </field>
+    </record>
+
     <record id="view_motor_product_form" model="ir.ui.view">
         <field name="name">motor.product.form</field>
         <field name="model">motor.product</field>
@@ -341,17 +362,7 @@
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">motor.product</field>
         <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="view_motor_product_form"/>
     </record>
-
-    <record id="motor_model_action" model="ir.actions.act_window">
-        <field name="name">Motor Details</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="res_model">motor</field>
-        <field name="view_mode">form</field>
-        <field name="views" eval="[(ref('view_motor_form'), 'form'), (ref('view_motor_product_form'), 'form')]"/>
-    </record>
-
 
     <record id="server_action_motor_print_labels" model="ir.actions.server">
         <field name="name">Print Motor Labels</field>
@@ -367,9 +378,9 @@
     <!-- Menu -->
     <menuitem id="menu_subheader_motor" name="Motors" parent="stock.menu_stock_inventory_control"/>
     <menuitem id="menu_subheader_config_motor" name="Motors" parent="stock.menu_stock_config_settings"/>
-    <menuitem id="menu_product_motor" name="Motor Check-in" parent="menu_subheader_motor" action="action_motor_form"
+    <menuitem id="menu_motor" name="Motor Check-in" parent="menu_subheader_motor" action="action_motor_form"
               sequence="10"/>
-    <menuitem id="menu_product_motor_product" name="Motor Products" parent="menu_subheader_motor"
+    <menuitem id="menu_motor_product" name="Motor Products" parent="menu_subheader_motor"
               action="action_motor_product_form" sequence="20"/>
 
 </odoo>
