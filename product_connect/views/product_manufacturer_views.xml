@@ -8,7 +8,7 @@
             <tree string="Product Manufacturer" editable="bottom">
                 <field name="name"/>
                 <field name="name_normalized"/>
-                <field name="is_engine_manufacturer"/>
+                <field name="is_motor_manufacturer"/>
                 <field name="image_1920"/>
             </tree>
         </field>
@@ -24,7 +24,7 @@
                     <group>
                         <field name="name"/>
                         <field name="name_normalized" readonly="1"/>
-                        <field name="is_engine_manufacturer"/>
+                        <field name="is_motor_manufacturer"/>
                         <field name="image_1920" widget="image"/>
                     </group>
                 </sheet>

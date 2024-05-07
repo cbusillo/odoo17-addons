@@ -1,16 +1,24 @@
-from . import (
-    motor, printnode_interface, product_color, product_import, product_manufacturer, product_product, product_template,
-    res_users, shopify_sync
-)
+import importlib
 
-__all__ = [
+modules = [
     'motor',
+    'motor_part',
+    'motor_product',
+    'motor_stat',
+    'motor_test',
+    'printnode_interface',
     'product_color',
     'product_import',
     'product_manufacturer',
     'product_product',
     'product_template',
-    'printnode_interface',
     'res_users',
     'shopify_sync'
 ]
+
+__all__ = modules
+
+globals().update({
+    module: importlib.import_module('.' + module, package=__name__)
+    for module in modules
+})

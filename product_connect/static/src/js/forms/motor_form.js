@@ -12,8 +12,8 @@ class MotorFormController extends FormController {
             const requiredFieldsToSave = [
                 'technician',
                 'manufacturer',
-                'motor_stroke',
-                'motor_configuration',
+                'stroke',
+                'configuration',
                 'color',
             ]
             const requiredFieldsToPrint = [
