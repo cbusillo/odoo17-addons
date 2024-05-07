@@ -58,11 +58,12 @@ export class ImageUploadWidget extends BinaryField {
 
 
         await this.props.record.update({ image_1920: data })
-
+        await this.props.record.save()
         this.state.image = data
         this.state.size = this.getPreviewImageSize()
 
         ev.target.value = null
+
     }
 
     onClick() {
