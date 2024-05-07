@@ -5,7 +5,7 @@ set -e
 PROD_SERVER="opw-prod"
 PROD_DB="opw"
 PROD_DB_USER="odoo"
-PROD_FILESTORE_PATH="/opt/odoo/.local/share/Odoo/filestore/$PROD_DB"
+PROD_FILESTORE_PATH="/opt/odoo/.local/share/Odoo/filestore"
 TEMP_DB_BACKUP="/tmp/$PROD_DB-$(date +%F).sql"
 
 # Configuration for Odoo development environment
