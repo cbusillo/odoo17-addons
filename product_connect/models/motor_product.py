@@ -46,7 +46,7 @@ class MotorProduct(models.Model):
         required=True, index=True, readonly=True, default=lambda self: self.env["product.template"].get_next_sku())
     motor = fields.Many2one("motor", required=True, ondelete="restrict")
     images = fields.One2many("motor.product.image", "product")
-    template = fields.Many2one("motor.product.template", required=True, ondelete="restrict")
+    template = fields.Many2one("motor.product.template", required=True, ondelete="restrict", readonly=True)
     computed_name = fields.Char(compute="_compute_name", store=True)
     name = fields.Char()
     mpn = fields.Char()

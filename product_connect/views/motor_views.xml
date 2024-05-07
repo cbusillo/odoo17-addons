@@ -249,19 +249,21 @@
                                     <field name="motor"/>
                                     <field name="computed_name"/>
                                     <field name="mpn"/>
+                                    <field name="name"/>
+                                    <field name="bin"/>
+                                    <field name="price"/>
+                                </group>
+                                <group>
+                                    <field name="template"/>
+                                    <field name="product_type"/>
+                                    <field name="default_code"/>
                                     <field name="quantity"/>
                                     <field name="weight"/>
                                     <field name="sequence"/>
                                 </group>
                                 <group>
-                                    <field name="template"/>
-                                    <field name="default_code"/>
-                                    <field name="name"/>
-                                    <field name="product_type"/>
-                                    <field name="bin"/>
-                                    <field name="price"/>
+                                    <field name="is_listable"/>
                                 </group>
-                                <field name="is_listable"/>
                             </group>
                         </page>
                         <page string="Images">
