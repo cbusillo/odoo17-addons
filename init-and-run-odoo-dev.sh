@@ -53,7 +53,7 @@ sync_from_prod() {
 
     echo "Production database backup completed. Starting rsync of filestore..."
     mkdir -p "$ODOO_FILESTORE_PATH"
-    rsync -avz --delete "$PROD_SERVER:$PROD_FILESTORE_PATH/" "$ODOO_FILESTORE_PATH/"
+    rsync -avz --delete "$PROD_SERVER:$PROD_FILESTORE_PATH" "$ODOO_FILESTORE_PATH"
 
     echo "Filestore sync completed. Restoring database on development environment..."
       restart_postgres
