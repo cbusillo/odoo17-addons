@@ -12,11 +12,9 @@ TEMP_DB_BACKUP="/tmp/$PROD_DB-$(date +%F).sql"
 if [ -z "$2" ] || [ "$2" = "local" ]; then
     ODOO_BIN="../../Odoo/odoo17-base/odoo-bin"
     ODOO_CONFIG_FILE="../odoo17.local.cfg"
-    LOCAL_FILESTORE_PATH="/Users/cbusillo/PycharmProjects/Odoo/filestore/filestore/odoo/"
 elif [ "$2" = "testing" ]; then
     ODOO_BIN="../odoo/odoo-bin"
     ODOO_CONFIG_FILE="/etc/odoo.conf"
-    LOCAL_FILESTORE_PATH="/opt/odoo/.local/share/Odoo/filestore/opw"  # Replace with the actual path on your testing server
 else
     echo "Invalid environment. Please specify 'local' or 'test'."
     exit 1
@@ -30,6 +28,7 @@ ODOO_DB_SERVER=$(echo "$DB_CREDENTIALS" | jq -r '.db_host')
 ODOO_DB=$(echo "$DB_CREDENTIALS" | jq -r '.db_name')
 ODOO_USER=$(echo "$DB_CREDENTIALS" | jq -r '.db_user')
 ODOO_PASSWORD=$(echo "$DB_CREDENTIALS" | jq -r '.db_password')
+ODOO_FILESTORE_PATH=$(echo "$DB_CREDENTIALS" | jq -r '.data_dir')
 export PGPASSWORD="$ODOO_PASSWORD"
 
 ODOO_RUN="$ODOO_BIN -c $ODOO_CONFIG_FILE"
@@ -53,8 +52,8 @@ sync_from_prod() {
 
 
     echo "Production database backup completed. Starting rsync of filestore..."
-    mkdir -p "$LOCAL_FILESTORE_PATH"
-    rsync -avz --delete "$PROD_SERVER:$PROD_FILESTORE_PATH/" "$LOCAL_FILESTORE_PATH/"
+    mkdir -p "$ODOO_FILESTORE_PATH"
+    rsync -avz --delete "$PROD_SERVER:$PROD_FILESTORE_PATH/" "$ODOO_FILESTORE_PATH/"
 
     echo "Filestore sync completed. Restoring database on development environment..."
       restart_postgres

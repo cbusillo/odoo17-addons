@@ -1,6 +1,6 @@
 import configparser
-import sys
 import json
+import sys
 
 
 def get_odoo_config_values(file_path: str) -> str:
@@ -13,6 +13,7 @@ def get_odoo_config_values(file_path: str) -> str:
         "db_user": "odoo",
         "db_password": "",
         "db_name": "odoo",
+        "data_dir": "",
     }
 
     config_values = {}
