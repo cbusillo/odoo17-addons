@@ -44,8 +44,10 @@ class MotorProduct(models.Model):
 
     default_code = fields.Char(
         required=True, index=True, readonly=True, default=lambda self: self.env["product.template"].get_next_sku())
-    motor = fields.Many2one("motor", required=True, ondelete="restrict")
+    motor = fields.Many2one("motor", required=True, ondelete="restrict", readonly=True)
+    active = fields.Boolean(default=True)
     images = fields.One2many("motor.product.image", "product")
+    icon = fields.Binary(compute="_compute_icon", store=True)
     template = fields.Many2one("motor.product.template", required=True, ondelete="restrict", readonly=True)
     computed_name = fields.Char(compute="_compute_name", store=True)
     name = fields.Char()
@@ -72,16 +74,31 @@ class MotorProduct(models.Model):
         for record in self:
             record.display_name = f"{record.default_code} - {record.name or record.computed_name}"
 
-    @api.depends("motor.manufacturer.name", "template.name", "mpn")
+    @api.depends("images")
+    def _compute_icon(self) -> None:
+        for record in self:
+            record.icon = record.images[0].image_1920 if record.images else None
+
+    @api.depends(
+        "motor.manufacturer.name", "template.name", "mpn", "motor.year", "motor.horsepower", "motor.model",
+        "template.include_year_in_name", "template.include_hp_in_name", "template.include_model_in_name",
+        "template.include_oem_in_name")
     def _compute_name(self) -> None:
         for record in self:
             name_parts = [
                 record.motor.year if record.template.include_year_in_name else None,
-                record.motor.manufacturer.name,
+                record.motor.manufacturer.name if record.motor.manufacturer else None,
                 record.motor.get_horsepower_formatted() if record.template.include_hp_in_name else None,
                 record.motor.model if record.template.include_model_in_name else None,
                 record.template.name,
                 record.mpn if record.template.include_model_in_name else None,
                 "OEM" if record.template.include_oem_in_name else None,
             ]
-            record.computed_name = " ".join(part for part in name_parts if part)
+            new_computed_name = " ".join(part for part in name_parts if part)
+            if not record.name or record.name == record.computed_name:
+                record.name = new_computed_name
+            record.computed_name = new_computed_name
+
+    def reset_name(self) -> None:
+        for record in self:
+            record.name = record.computed_name

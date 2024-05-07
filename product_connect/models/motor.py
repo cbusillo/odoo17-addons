@@ -24,6 +24,7 @@ class Motor(models.Model, LabelMixin):
         domain="[('is_technician', '=', True),('active', 'in', [True, False])]",
         ondelete="restrict",
     )
+    signature = fields.Binary()
     manufacturer = fields.Many2one("product.manufacturer", domain="[('is_motor_manufacturer', '=', True)]")
     horsepower = fields.Float(digits=(3, 1), string="HP")
     horsepower_formatted = fields.Char(compute="_compute_horsepower_formatted")
@@ -46,7 +47,7 @@ class Motor(models.Model, LabelMixin):
     is_tag_readable = fields.Selection(constants.YES_NO_SELECTION, default=constants.YES)
     notes = fields.Text()
     images = fields.One2many("motor.image", "motor")
-    icon = fields.Binary(compute="_compute_icon")
+    icon = fields.Binary(compute="_compute_icon", store=True)
     parts = fields.One2many("motor.part", "motor")
     tests = fields.One2many("motor.test", "motor")
     test_sections = fields.One2many("motor.test.section", "motor")

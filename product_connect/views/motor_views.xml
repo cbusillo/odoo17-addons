@@ -32,6 +32,21 @@
                 </header>
                 <field name="stage" invisible="1"/>
                 <sheet>
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active" widget_id="widget_1"/>
+                    <field name="icon" widget="image" class="oe_avatar"/>
+
+                    <div class="oe_title">
+                        <label for="display_name" string="Motor Name"/>
+                        <h1>
+                            <div class="d-flex">
+                                <field class="text-break" name="display_name" options="{'line_breaks': False}"
+                                       on_change="1"/>
+                            </div>
+                        </h1>
+                    </div>
+
                     <notebook>
                         <page id="basic_info" string="Basic Info">
                             <group>
@@ -216,7 +231,6 @@
                                 <tree editable="bottom" open_form_view="1">
                                     <field name="is_listable" widget="boolean_toggle"/>
                                     <field name="default_code"/>
-                                    <field name="computed_name"/>
                                     <field name="name" width="20px"/>
                                     <field name="mpn" width="20px"/>
                                     <field name="product_type" width="20px"/>
@@ -231,6 +245,10 @@
                             <!-- Add fields relevant for the finalization stage here -->
                         </page>
                     </notebook>
+                    <div class="p-2">Please sign here to acknowledge the completion of the motor check-in.</div>
+                    <div class="px-2 pb-2">
+                        <widget name="signature" string="Sign here"/>
+                    </div>
                 </sheet>
             </form>
         </field>
@@ -241,18 +259,18 @@
         <field name="model">motor.product</field>
         <field name="arch" type="xml">
             <tree string="Motor Products" default_group_by="motor">
-                <field name="computed_name"/>
-                <field name="mpn"/>
-                <field name="name"/>
-                <field name="bin"/>
+                <field name="computed_name" column_invisible="1"/>
+                <field name="is_listable" widget="boolean_toggle"/>
+                <field name="default_code" width="20px"/>
+                <button name="reset_name" type="object" icon="fa-refresh" class="sc_refresh_button_row"/>
+                <field name="name" decoration-warning="computed_name != name"/>
+                <field name="mpn" width="20px"/>
+                <field name="bin" width="20px"/>
                 <field name="price"/>
                 <field name="template"/>
                 <field name="product_type"/>
-                <field name="default_code"/>
                 <field name="quantity"/>
                 <field name="weight"/>
-                <field name="sequence"/>
-                <field name="is_listable"/>
             </tree>
         </field>
     </record>
@@ -262,7 +280,22 @@
         <field name="model">motor.product</field>
         <field name="arch" type="xml">
             <form string="Motor Product">
-                <sheet>
+                <sheet name="motor_product_form">
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active" widget_id="widget_1"/>
+                    <field name="icon" widget="image" class="oe_avatar"/>
+
+                    <div class="oe_title">
+                        <label for="name" string="Motor Product Name"/>
+                        <h1>
+                            <div class="d-flex">
+                                <field class="text-break" name="name" options="{'line_breaks': False}"
+                                       decoration-warning="computed_name != name"/>
+                            </div>
+                        </h1>
+                    </div>
+
                     <notebook>
                         <page string="Details">
                             <group>
@@ -270,7 +303,6 @@
                                     <field name="motor"/>
                                     <field name="computed_name"/>
                                     <field name="mpn"/>
-                                    <field name="name"/>
                                     <field name="bin"/>
                                     <field name="price"/>
                                 </group>
@@ -283,7 +315,7 @@
                                     <field name="sequence"/>
                                 </group>
                                 <group>
-                                    <field name="is_listable"/>
+                                    <field name="is_listable" widget="boolean_toggle"/>
                                 </group>
                             </group>
                         </page>
@@ -362,8 +394,6 @@
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">motor.product</field>
         <field name="view_mode">tree,form</field>
-        <field name="views"
-               eval="[(ref('view_motor_product_tree'), 'tree'), (ref('view_motor_product_form'), 'form')]"/>
     </record>
 
     <record id="server_action_motor_print_labels" model="ir.actions.server">
