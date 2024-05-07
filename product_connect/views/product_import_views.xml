@@ -102,7 +102,7 @@
                         <field name="images" widget="one2many">
                             <tree string="Images">
                                 <field name="product"/>
-                                <field name="image_1920" widget="image" options="{'preview_image': 'image_256'}"/>
+                                <field name="image_1920" widget="image_upload"/>
                                 <field name="index"/>
                             </tree>
                         </field>
