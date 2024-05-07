@@ -74,7 +74,7 @@ class MotorProduct(models.Model):
         for record in self:
             record.display_name = f"{record.default_code} - {record.name or record.computed_name}"
 
-    @api.depends("images")
+    @api.depends("images.image_1920")
     def _compute_icon(self) -> None:
         for record in self:
             record.icon = record.images[0].image_1920 if record.images else None
