@@ -362,6 +362,8 @@
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">motor.product</field>
         <field name="view_mode">tree,form</field>
+        <field name="views"
+               eval="[(ref('view_motor_product_tree'), 'tree'), (ref('view_motor_product_form'), 'form')]"/>
     </record>
 
     <record id="server_action_motor_print_labels" model="ir.actions.server">
