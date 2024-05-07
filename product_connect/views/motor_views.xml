@@ -11,6 +11,9 @@
                 <field name="manufacturer" string="Manu"/>
                 <field name="horsepower"/>
                 <field name="model"/>
+                <field name="stroke" optional="hide"/>
+                <field name="configuration" optional="hide"/>
+                <field name="color" optional="hide"/>
                 <field name="serial_number" string="Serial"/>
                 <field name="year"/>
                 <field name="color"/>
