@@ -69,16 +69,9 @@ class ProductImport(LabelMixin, odoo.models.Model):
 
     @odoo.api.model_create_multi
     def create(self, vals_list: list[dict]) -> Self:
-        product_template = self.env["product.template"]
         for vals in vals_list:
             if vals.get("default_code", "") == "New" or not vals.get("default_code"):
-                while True:
-                    new_sku = self.env["ir.sequence"].next_by_code("product.import")
-                    if not product_template.search(
-                            [("default_code", "=", new_sku)]
-                    ) and not self.search([("default_code", "=", new_sku)]):
-                        vals["default_code"] = new_sku
-                        break
+                vals["default_code"] = self.env["product.template"].get_next_sku()
 
             for field in ["mpn", "bin"]:
                 if field in vals:

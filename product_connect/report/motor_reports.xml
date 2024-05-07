@@ -64,7 +64,7 @@
                                 <span t-field="o.serial_number"/>
                             </p>
                             <p style="font-size: 6mm;margin: 0">
-                                <span t-field="o.motor_stroke"/>
+                                <span t-field="o.stroke"/>
                             </p>
                         </div>
 

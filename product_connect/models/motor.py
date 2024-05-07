@@ -11,34 +11,12 @@ from ..mixins.label import LabelMixin
 from ..utils import constants
 
 
-class MotorCompression(models.Model):
-    _name = "motor.compression"
-    _description = "Motor Compression Data"
-    _order = "cylinder_number"
-
-    motor = fields.Many2one("motor", ondelete="restrict")
-    cylinder_number = fields.Integer()
-    compression_psi = fields.Integer("Compression PSI")
-    compression_image = fields.Binary()
-
-
-class MotorImage(models.Model):
-    _name = "motor.image"
-    _inherit = ["image.mixin"]
-    _description = "Motor Images"
-
-    motor = fields.Many2one("motor", ondelete="restrict")
-    name = fields.Char()
-    image_data = fields.Binary()
-
-
 class Motor(models.Model, LabelMixin):
     _name = "motor"
     _description = "Motor Information"
     _order = "id desc"
 
     # Basic Info
-    name = fields.Char(compute="_compute_name", readonly=True, store=True)
     active = fields.Boolean(default=True)
     motor_number = fields.Char()
     technician = fields.Many2one(
@@ -46,10 +24,11 @@ class Motor(models.Model, LabelMixin):
         domain="[('is_technician', '=', True),('active', 'in', [True, False])]",
         ondelete="restrict",
     )
-    manufacturer = fields.Many2one("product.manufacturer", domain="[('is_engine_manufacturer', '=', True)]")
+    manufacturer = fields.Many2one("product.manufacturer", domain="[('is_motor_manufacturer', '=', True)]")
     horsepower = fields.Float(digits=(3, 1), string="HP")
-    motor_stroke = fields.Selection(constants.MOTOR_STROKE_SELECTION)
-    motor_configuration = fields.Selection(constants.MOTOR_CONFIGURATION_SELECTION)
+    horsepower_formatted = fields.Char(compute="_compute_horsepower_formatted")
+    stroke = fields.Many2one("motor.stroke")
+    configuration = fields.Many2one("motor.configuration")
     model = fields.Char()
     serial_number = fields.Char()
 
@@ -67,6 +46,7 @@ class Motor(models.Model, LabelMixin):
     is_tag_readable = fields.Selection(constants.YES_NO_SELECTION, default=constants.YES)
     notes = fields.Text()
     images = fields.One2many("motor.image", "motor")
+    icon = fields.Binary(compute="_compute_icon")
     parts = fields.One2many("motor.part", "motor")
     tests = fields.One2many("motor.test", "motor")
     test_sections = fields.One2many("motor.test.section", "motor")
@@ -104,16 +84,20 @@ class Motor(models.Model, LabelMixin):
             record._create_motor_products()
         return result
 
-    def unlink(self) -> None:
-        if not self.env.user.has_group("base.group_system"):
-            raise ValidationError("Cannot delete a user, please archive.")
+    @api.depends("images")
+    def _compute_icon(self) -> None:
+        for record in self:
+            record.icon = record.images[0].image_128 if record.images else False
 
-        return super().unlink()
+    @api.depends("horsepower")
+    def _compute_horsepower_formatted(self) -> None:
+        for record in self:
+            record.horsepower_formatted = record.get_horsepower_formatted()
 
     @api.depends(
         "motor_number", "manufacturer", "model", "year", "serial_number", "horsepower"
     )
-    def _compute_name(self) -> None:
+    def _compute_display_name(self) -> None:
         for record in self:
             serial_number = (
                 f" - {record.serial_number}" if record.serial_number else None
@@ -130,7 +114,7 @@ class Motor(models.Model, LabelMixin):
             name = " ".join(part for part in name_parts if part)
 
             if name:
-                record.name = name
+                record.display_name = name
 
     @api.depends("parts.is_missing", "parts.template.hide_compression_page")
     def _compute_hide_compression_page(self) -> None:
@@ -158,13 +142,13 @@ class Motor(models.Model, LabelMixin):
         return qr_image_base64
 
     def get_horsepower_formatted(self) -> str:
-        return (
-            f" {int(self.horsepower)}HP"
-            if self.horsepower and self.horsepower.is_integer()
-            else f" {self.horsepower}HP"
-            if self.horsepower
-            else ""
-        )
+        if not self.horsepower:
+            return ""
+
+        if self.horsepower.is_integer():
+            return f"{int(self.horsepower)} HP"
+        else:
+            return f"{self.horsepower} HP"
 
     @api.constrains("horsepower")
     def _check_horsepower(self) -> None:
@@ -215,11 +199,11 @@ class Motor(models.Model, LabelMixin):
         current_product_ids = set(self.products.ids)  # Existing product IDs related to this motor
 
         for product_template in product_templates:
-            if product_template.motor_stroke and product_template.motor_stroke != self.motor_stroke:
+            if product_template.stroke and product_template.stroke != self.stroke:
                 continue
-            if product_template.motor_configuration and product_template.motor_configuration != self.motor_configuration:
+            if product_template.configuration and product_template.configuration != self.configuration:
                 continue
-            if product_template.manufacturer and product_template.manufacturer != self.manufacturer:
+            if product_template.manufacturers and self.manufacturer not in product_template.manufacturers:
                 continue
 
             excluded_parts_ids = product_template.excluded_parts.mapped('id')
@@ -250,14 +234,14 @@ class Motor(models.Model, LabelMixin):
             self.products.filtered(lambda p: p.id in current_product_ids).unlink()
 
     def _get_cylinder_count(self) -> int:
-        match = re.search(r"\d+", self.motor_configuration)
+        match = re.search(r"\d+", self.configuration.name)
         if match:
             return int(match.group())
         return 0
 
-    @api.onchange("motor_configuration")
+    @api.onchange("configuration")
     def _onchange_motor_configuration(self) -> None:
-        if not self.motor_configuration:
+        if not self.configuration:
             return
 
         desired_cylinders = self._get_cylinder_count()
@@ -293,8 +277,8 @@ class Motor(models.Model, LabelMixin):
             "basic_testing": [
                 "motor_number",
                 "manufacturer",
-                "motor_stroke",
-                "motor_configuration",
+                "stroke",
+                "configuration",
                 "color",
             ],
             "extended_testing": [

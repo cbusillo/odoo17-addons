@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Product Connect Module",
-    "version": "17.0.2.3",
+    "version": "17.0.3.1",
     "category": "Industries",
     "author": "Chris Busillo",
     "company": "Shiny Computers",
@@ -22,6 +22,7 @@
         "data/motor_test_selection_data.xml",
         "data/motor_test_template_data.xml",
         "data/motor_part_template_data.xml",
+        "data/motor_stat_data.xml",
         "data/motor_product_template_data.xml",
         "data/res_config_data.xml",
         "report/motor_reports.xml",

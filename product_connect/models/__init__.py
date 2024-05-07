@@ -4,6 +4,7 @@ modules = [
     'motor',
     'motor_part',
     'motor_product',
+    'motor_stat',
     'motor_test',
     'printnode_interface',
     'product_color',

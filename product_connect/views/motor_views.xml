@@ -39,8 +39,8 @@
                                 <field name="technician" widget="resettable_selection_badge" required="1"/>
                                 <field name="manufacturer" widget="resettable_selection_badge" required="1"/>
                                 <field name="horsepower"/>
-                                <field name="motor_stroke" required="1" widget="resettable_selection_badge"/>
-                                <field name="motor_configuration" required="1" widget="resettable_selection_badge"/>
+                                <field name="stroke" required="1" widget="resettable_selection_badge"/>
+                                <field name="configuration" required="1" widget="resettable_selection_badge"/>
                                 <field name="model"/>
                                 <field name="serial_number"/>
                                 <field name="year" widget="resettable_selection_badge"/>
@@ -146,8 +146,8 @@
                                 <field name="motor_number" readonly="1"/>
                                 <field name="manufacturer" readonly="1"/>
                                 <field name="horsepower" readonly="1"/>
-                                <field name="motor_stroke" readonly="1"/>
-                                <field name="motor_configuration" readonly="1"/>
+                                <field name="stroke" readonly="1"/>
+                                <field name="configuration" readonly="1"/>
                                 <field name="model" readonly="1"/>
                                 <field name="serial_number" readonly="1"/>
                                 <field name="year" readonly="1"/>
@@ -215,12 +215,13 @@
                             <field name="products">
                                 <tree editable="bottom" open_form_view="1">
                                     <field name="is_listable" widget="boolean_toggle"/>
+                                    <field name="default_code"/>
                                     <field name="computed_name"/>
-                                    <field name="name" placeholder="name..." widget="char"/>
-                                    <field name="mpn"/>
-                                    <field name="product_type"/>
+                                    <field name="name" width="20px"/>
+                                    <field name="mpn" width="20px"/>
+                                    <field name="product_type" width="20px"/>
                                     <field name="quantity"/>
-                                    <field name="bin"/>
+                                    <field name="bin" width="20px"/>
                                     <field name="weight"/>
                                     <field name="price"/>
                                 </tree>
@@ -235,13 +236,120 @@
         </field>
     </record>
 
+    <record id="view_motor_product_form" model="ir.ui.view">
+        <field name="name">motor.product.form</field>
+        <field name="model">motor.product</field>
+        <field name="arch" type="xml">
+            <form string="Motor Product">
+                <sheet>
+                    <notebook>
+                        <page string="Details">
+                            <group>
+                                <group>
+                                    <field name="motor"/>
+                                    <field name="computed_name"/>
+                                    <field name="mpn"/>
+                                    <field name="quantity"/>
+                                    <field name="weight"/>
+                                    <field name="sequence"/>
+                                </group>
+                                <group>
+                                    <field name="template"/>
+                                    <field name="default_code"/>
+                                    <field name="name"/>
+                                    <field name="product_type"/>
+                                    <field name="bin"/>
+                                    <field name="price"/>
+                                </group>
+                                <field name="is_listable"/>
+                            </group>
+                        </page>
+                        <page string="Images">
+                            <field name="images">
+                                <tree editable="bottom" delete="False">
+                                    <field name="name"/>
+                                    <field name="image_256" widget="image" column_invisible="1"/>
+                                    <field name="image_1920" widget="image_upload"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_motor_kanban" model="ir.ui.view">
+        <field name="name">motor.kanban</field>
+        <field name="model">motor</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_small_column" style="padding: 5px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click" style="overflow: hidden;">
+                            <!-- Image display -->
+                            <t t-if="record.icon.raw_value">
+                                <field name="icon" invisible="1"/>
+                                <div class="o_kanban_image"
+                                     style="float: left; margin-right: 10px;">
+                                    <img t-att-src="kanban_image('motor', 'icon', record.id.raw_value)"
+                                         style="border-radius: 5px; max-width: none;" alt="Motor Image"/>
+                                </div>
+                            </t>
+                            <!-- Motor details -->
+                            <div style="float: left; width: 45%; vertical-align: top;">
+                                <div style="margin-bottom: 5px;">
+                                    <field name="motor_number"/>
+                                </div>
+                                <div style="margin-bottom: 5px;">
+                                    <field name="manufacturer"/>
+                                </div>
+                                <div style="margin-bottom: 5px;">
+                                    <strong>Model: </strong>
+                                    <field name="model"/>
+                                </div>
+                                <div style="margin-bottom: 5px; white-space: nowrap">
+                                    <strong>HP: </strong>
+                                    <field name="horsepower_formatted"/>
+                                </div>
+                                <div style="white-space: nowrap;">
+                                    <strong>Serial: </strong>
+                                    <field name="serial_number"/>
+                                </div>
+                            </div>
+                            <div style="clear: both;"></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
     <!-- Action -->
     <record model="ir.actions.act_window" id="action_motor_form">
         <field name="name">Motors</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">motor</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,kanban,form</field>
     </record>
+
+    <record model="ir.actions.act_window" id="action_motor_product_form">
+        <field name="name">Motor Products</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">motor.product</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_motor_product_form"/>
+    </record>
+
+    <record id="motor_model_action" model="ir.actions.act_window">
+        <field name="name">Motor Details</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">motor</field>
+        <field name="view_mode">form</field>
+        <field name="views" eval="[(ref('view_motor_form'), 'form'), (ref('view_motor_product_form'), 'form')]"/>
+    </record>
+
 
     <record id="server_action_motor_print_labels" model="ir.actions.server">
         <field name="name">Print Motor Labels</field>
@@ -259,5 +367,7 @@
     <menuitem id="menu_subheader_config_motor" name="Motors" parent="stock.menu_stock_config_settings"/>
     <menuitem id="menu_product_motor" name="Motor Check-in" parent="menu_subheader_motor" action="action_motor_form"
               sequence="10"/>
+    <menuitem id="menu_product_motor_product" name="Motor Products" parent="menu_subheader_motor"
+              action="action_motor_product_form" sequence="20"/>
 
 </odoo>
