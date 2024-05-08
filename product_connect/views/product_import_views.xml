@@ -99,8 +99,8 @@
                     </group>
                     <group>
                         <field name="image_1_url"/>
-                        <field name="images" widget="one2many">
-                            <tree string="Images">
+                        <field name="images">
+                            <tree string="Images" editable="bottom">
                                 <field name="product"/>
                                 <field name="image_1920" widget="image_upload"/>
                                 <field name="index"/>

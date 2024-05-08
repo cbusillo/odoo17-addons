@@ -7,8 +7,8 @@
             <tree string="Motor Products" editable="bottom" open_form_view="1">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
-                <field name="manufacturers"/>
-                <field name="configuration"/>
+                <field name="manufacturers" widget="many2many_checkboxes"/>
+                <field name="configuration" widget="many2many_checkboxes"/>
                 <field name="stroke" widget="many2many_tags"/>
                 <field name="excluded_parts" widget="many2many_tags"/>
                 <field name="excluded_tests" widget="many2many_tags"/>

@@ -17,6 +17,7 @@
                 <field name="serial_number" string="Serial"/>
                 <field name="year"/>
                 <field name="color"/>
+                <field name="notes" widget="boolean_toggle" readonly="1"/>
                 <field name="cost" widget="float_factor"/>
             </tree>
         </field>
@@ -48,6 +49,10 @@
                                        on_change="1"/>
                             </div>
                         </h1>
+                    </div>
+
+                    <div class="oe_title" invisible="not notes">
+                        See Notes
                     </div>
 
                     <notebook>
@@ -173,15 +178,6 @@
                                 <field name="cost" readonly="1"/>
                                 <field name="is_tag_readable" readonly="1"/>
                             </group>
-                            <group string="Images">
-                                <field name="images" string="" mode="tree" readonly="1">
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="image_128" widget="image" options="{'size': [128, 0]}"
-                                               readonly="1"/>
-                                    </tree>
-                                </field>
-                            </group>
 
                             <group string="Missing Parts">
                                 <field name="parts" mode="tree" readonly="1">
@@ -298,13 +294,12 @@
                         <button name="reset_name" type="object" icon="fa-refresh" class="sc_refresh_button_row"
                                 title="Reset Name"/>
                         <h1>
-                            <div class="d-flex">
+                            <div class="d-flex caution">
                                 <field class="text-break" name="name" options="{'line_breaks': False}"
                                        decoration-warning="computed_name != name"/>
                             </div>
                         </h1>
                     </div>
-
                     <notebook>
                         <page string="Details">
                             <group>
