@@ -200,9 +200,9 @@ class Motor(models.Model, LabelMixin):
         current_product_ids = set(self.products.ids)  # Existing product IDs related to this motor
 
         for product_template in product_templates:
-            if product_template.stroke and product_template.stroke != self.stroke:
+            if product_template.stroke and self.stroke not in product_template.stroke:
                 continue
-            if product_template.configuration and product_template.configuration != self.configuration:
+            if product_template.configuration and self.configuration not in product_template.configuration:
                 continue
             if product_template.manufacturers and self.manufacturer not in product_template.manufacturers:
                 continue
