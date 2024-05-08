@@ -56,7 +56,7 @@ class Motor(models.Model, LabelMixin):
 
     compression = fields.One2many("motor.compression", "motor")
     hide_compression_page = fields.Boolean(compute="_compute_hide_compression_page", store=True)
-    products = fields.One2many("motor.product", "motor")
+    products = fields.One2many("motor.product", "motor", ondelete="set null")
 
     stage = fields.Selection(constants.MOTOR_STAGE_SELECTION, default="basic_info", required=True)
 
@@ -82,7 +82,7 @@ class Motor(models.Model, LabelMixin):
         result = super().write(vals)
         for record in self.with_context(_stage_updating=True):
             record._update_stage()
-            record._create_motor_products()
+            # record._create_motor_products()
         return result
 
     @api.depends("images")

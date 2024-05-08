@@ -80,7 +80,7 @@ class MotorProduct(models.Model):
             record.icon = record.images[0].image_1920 if record.images else None
 
     @api.depends(
-        "motor.manufacturer.name", "template.name", "mpn", "motor.year", "motor.horsepower", "motor.model",
+        "motor.manufacturer.name", "template.name", "mpn", "motor.year", "motor.horsepower",
         "template.include_year_in_name", "template.include_hp_in_name", "template.include_model_in_name",
         "template.include_oem_in_name")
     def _compute_name(self) -> None:
@@ -89,7 +89,6 @@ class MotorProduct(models.Model):
                 record.motor.year if record.template.include_year_in_name else None,
                 record.motor.manufacturer.name if record.motor.manufacturer else None,
                 record.motor.get_horsepower_formatted() if record.template.include_hp_in_name else None,
-                record.motor.model if record.template.include_model_in_name else None,
                 record.template.name,
                 record.mpn if record.template.include_model_in_name else None,
                 "OEM" if record.template.include_oem_in_name else None,

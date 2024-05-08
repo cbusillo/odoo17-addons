@@ -7,6 +7,7 @@
             <tree string="Motor Products" editable="bottom" open_form_view="1">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
+                <field name="product_type"/>
                 <field name="manufacturers" widget="many2many_tags"/>
                 <field name="configuration" widget="many2many_tags"/>
                 <field name="stroke" widget="many2many_tags"/>
