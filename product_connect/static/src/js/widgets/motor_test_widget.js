@@ -1,5 +1,5 @@
 /** @odoo-module **/
-import { Component, onMounted, useState } from '@odoo/owl'
+import { Component, onMounted, onWillUpdateProps, useState } from '@odoo/owl'
 import { useService } from '@web/core/utils/hooks'
 import { registry } from '@web/core/registry'
 import { groupBy, sortBy } from '@web/core/utils/arrays'
@@ -45,6 +45,12 @@ export class MotorTestWidget extends Component {
 
         onMounted(() => {
             this.loadMotorTests()
+        })
+
+        onWillUpdateProps((nextProps) => {
+            if (nextProps.record !== this.props.record) {
+                this.loadMotorTests()
+            }
         })
     }
 

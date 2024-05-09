@@ -470,10 +470,12 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                 if part_type:
                     odoo_product_data["part_type"] = part_type.id
 
-        if self.env["product.template"].is_condition_valid(shopify_condition):
-            odoo_product_data["condition"] = shopify_condition
+        if shopify_condition and (
+                odoo_condition := self.env["product.condition"].search([("code", "=", shopify_condition)], limit=1)
+        ):
+            odoo_product_data["condition"] = odoo_condition.id
         elif odoo_product:
-            odoo_product_data["condition"] = odoo_product.condition
+            odoo_product_data["condition"] = odoo_product.condition.code
         return odoo_product_data
 
     def import_product_images_from_shopify(self, shopify_product, odoo_product) -> None:
@@ -737,7 +739,7 @@ class ShopifySync(NotificationManagerMixin, models.AbstractModel):
                     }
                 ]
 
-            condition_metafield = {"value": odoo_product.condition or ""}
+            condition_metafield = {"value": odoo_product.condition.code or ""}
             if odoo_product.shopify_condition_id:
                 condition_metafield["id"] = self.convert_to_shopify_gid_format(
                     "Metafield", odoo_product.shopify_condition_id

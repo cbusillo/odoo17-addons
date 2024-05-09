@@ -28,7 +28,7 @@ class MotorStroke(models.Model):
     _order = "sequence, id"
 
     name = fields.Char(required=True)
-    code = fields.Char(required=True)
+    code = fields.Char(required=True, index=True, readonly=True)
     sequence = fields.Integer(default=10)
 
 
@@ -38,5 +38,5 @@ class MotorConfiguration(models.Model):
     _order = "sequence, id"
 
     name = fields.Char(required=True)
-    code = fields.Char(required=True)
+    code = fields.Char(required=True, index=True, readonly=True)
     sequence = fields.Integer(default=10)

@@ -21,7 +21,7 @@ class Motor(models.Model, LabelMixin):
     motor_number = fields.Char()
     technician = fields.Many2one(
         "res.users", string="Tech Name",
-        domain="[('is_technician', '=', True),('active', 'in', [True, False])]",
+        domain="['|', ('id', '=', technician), '&', ('is_technician', '=', True), ('active', '=', True)]",
         ondelete="restrict",
     )
     signature = fields.Binary()

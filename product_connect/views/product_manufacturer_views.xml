@@ -1,5 +1,4 @@
 <odoo>
-
     <!-- Tree view -->
     <record id="product_manufacturer_tree_view" model="ir.ui.view">
         <field name="name">product.manufacturer.tree.view</field>
@@ -40,11 +39,8 @@
     </record>
 
     <!-- Menu item -->
-    <record id="menu_product_manufacturer" model="ir.ui.menu">
-        <field name="name">Product Manufacturers</field>
-        <field name="parent_id" ref="stock.menu_product_in_config_stock"/>
-        <field name="action" ref="action_product_manufacturer"/>
-        <field name="sequence" eval="20"/>
-    </record>
+    <menuitem id="menu_action_product_manufacturer" name="Product Manufacturers"
+              parent="stock.menu_product_in_config_stock"
+              action="action_product_manufacturer"/>
 
 </odoo>

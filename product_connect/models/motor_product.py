@@ -43,7 +43,8 @@ class MotorProduct(models.Model):
     _order = "sequence, id"
 
     default_code = fields.Char(
-        required=True, index=True, readonly=True, default=lambda self: self.env["product.template"].get_next_sku())
+        required=True, index=True, copy=False, readonly=True,
+        default=lambda self: self.env["product.template"].get_next_sku())
     motor = fields.Many2one("motor", required=True, ondelete="restrict", readonly=True)
     active = fields.Boolean(default=True)
     images = fields.One2many("motor.product.image", "product")

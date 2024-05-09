@@ -223,26 +223,6 @@
         <field name="view_id" ref="product_template_tree_edit"/>
     </record>
 
-    <!-- Tree view -->
-    <record id="product_type_tree_view" model="ir.ui.view">
-        <field name="name">product.type.tree.view</field>
-        <field name="model">product.type</field>
-        <field name="arch" type="xml">
-            <tree string="Product Type" editable="bottom">
-                <field name="name"/>
-                <field name="ebay_category_id" widget="char"/>
-                <field name="product_count"/>
-            </tree>
-        </field>
-    </record>
-
-    <!-- Action -->
-    <record id="action_product_type" model="ir.actions.act_window">
-        <field name="name">Product Types</field>
-        <field name="res_model">product.type</field>
-        <field name="view_mode">tree,form</field>
-    </record>
-
 
     <record id="stock.product_template_action_product" model="ir.actions.act_window">
         <field name="view_mode">tree,kanban,form</field>
@@ -250,12 +230,18 @@
 
 
     <!-- Menu item -->
-
-
     <menuitem id="menu_product_template_edit" name="Product Edit" action="action_product_template_tree_edit"
               parent="stock.menu_stock_inventory_control" sequence="2"/>
     <menuitem id="menu_product_template_dimensions_form" name="Product Dimensions"
               parent="stock.menu_stock_inventory_control" sequence="3"
               action="action_product_template_dimensions_form"/>
+
+    <!-- reorder configuration menu items -->
+    <record id="stock.menu_product_category_config_stock" model="ir.ui.menu">
+        <field name="sequence">10</field>
+    </record>
+    <record id="stock.menu_wms_barcode_nomenclature_all" model="ir.ui.menu">
+        <field name="sequence">10</field>
+    </record>
 
 </odoo>

@@ -1,7 +1,6 @@
 import base64
 import io
 import logging
-from typing import Any, Self
 
 import odoo
 import requests
@@ -30,12 +29,11 @@ class ProductImportImage(odoo.models.Model):
 class ProductImport(LabelMixin, odoo.models.Model):
     _name = "product.import"
     _description = "Product Import"
-    _sql_constraints = [
-        ("default_code_uniq", "unique (default_code)", "SKU already exists !"),
-    ]
+    _sql_constraints = [("default_code_uniq", "unique (default_code)", "SKU already exists !")]
 
     default_code = odoo.fields.Char(
-        string="SKU", required=True, copy=False, index=True, default=lambda self: "New"
+        string="SKU", required=True, copy=False, index=True,
+        default=lambda self: self.env["product.template"].get_next_sku()
     )
     mpn = odoo.fields.Char(string="MPN", index=True)
     manufacturer = odoo.fields.Many2one("product.manufacturer", index=True)
@@ -51,16 +49,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
     cost = odoo.fields.Float()
     image_1_url = odoo.fields.Char(string="Image 1 URL")
     images = odoo.fields.One2many("product.import.image", "product")
-    condition = odoo.fields.Selection(
-        [
-            ("used", "Used"),
-            ("new", "New"),
-            ("open_box", "Open Box"),
-            ("broken", "Broken"),
-            ("refurbished", "Refurbished"),
-        ],
-        default="used",
-    )
+    condition = odoo.fields.Many2one("product.condition", index=True)
     export_to_shopify = odoo.fields.Binary()
 
     def name_get(self) -> list[tuple[int, str]]:
@@ -70,67 +59,11 @@ class ProductImport(LabelMixin, odoo.models.Model):
             result.append((record.id, name))
         return result
 
-    @odoo.api.model_create_multi
-    def create(self, vals_list: list[dict]) -> Self:
-        for vals in vals_list:
-            if vals.get("default_code", "") == "New" or not vals.get("default_code"):
-                vals["default_code"] = self.env["product.template"].get_next_sku()
-
-            for field in ["mpn", "bin"]:
-                if field in vals:
-                    if vals[field]:
-                        vals[field] = vals[field].upper()
-
-            temp_record = self.new(vals)
-            if (
-                    temp_record.default_code != "New"
-                    and temp_record.default_code
-                    and temp_record.mpn
-                    and temp_record.condition
-                    and temp_record.quantity > 0
-            ):
-                temp_record.print_product_labels(print_quantity=True)
-        return super().create(vals_list)
-
-    def write(self, vals: dict) -> bool:
-        for field in ["mpn", "bin"]:
-            if field in vals:
-                vals[field] = vals[field].upper()
-
-        fields_of_interest = ["mpn", "condition", "quantity"]
+    @odoo.api.onchange("bin", "mpn")
+    def _format_fields_upper(self) -> None:
         for record in self:
-            if any(key in vals and not vals[key] for key in fields_of_interest):
-                continue
-            temp_data = record.copy_data()[0]
-            temp_data.update(vals)
-            temp_record = self.new(temp_data)
-
-            if any(
-                    getattr(temp_record, key) != getattr(record, key)
-                    for key in fields_of_interest
-            ):
-                if all(
-                        getattr(temp_record, key) or getattr(record, key)
-                        for key in fields_of_interest
-                ):
-                    if (
-                            getattr(temp_record, "quantity", 0) > 0
-                            or getattr(record, "quantity", 0) > 0
-                    ):
-                        temp_record.print_product_labels(print_quantity=True)
-
-        return super().write(vals)
-
-    @odoo.api.model
-    def load(self, fields: list[str], data: list[list[str]]) -> dict[str, Any]:
-        for row in data:
-            if "mpn" in fields:
-                idx = fields.index("mpn")
-                row[idx] = row[idx].upper()
-            if "bin" in fields:
-                idx = fields.index("bin")
-                row[idx] = row[idx].upper()
-        return super(ProductImport, self).load(fields, data)
+            record.mpn = record.mpn.upper() if record.mpn else False
+            record.bin = record.bin.upper() if record.bin else False
 
     @odoo.api.onchange("default_code", "mpn", "condition", "bin", "quantity")
     def _onchange_product_details(self) -> None:
@@ -142,11 +75,8 @@ class ProductImport(LabelMixin, odoo.models.Model):
                     for product in existing_products
                 ]
                 raise UserError(
-                    f"A product with the same MPN already exists.  Its SKU is/are {existing_products_display}"
+                    f"A product with the same MPN already exists.  Its SKU is {existing_products_display}"
                 )
-        if self._origin.bin != self.bin and self.bin:
-            if self.existing_bin() is False:
-                self.print_bin_labels()
 
     def _products_from_existing_records(
             self, field_name: str, field_value: str
@@ -187,7 +117,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
         return list(existing_products.values())
 
     def products_from_mpn_condition_new(self) -> list[dict[str, str]] | None:
-        if self.mpn and self.condition == "new":
+        if self.mpn and self.condition.code == "new":
             existing_products = self._products_from_existing_records("mpn", self.mpn)
             existing_new_products = [
                 product
@@ -197,13 +127,6 @@ class ProductImport(LabelMixin, odoo.models.Model):
             if existing_new_products:
                 return existing_new_products
         return None
-
-    def existing_bin(self) -> bool:
-        if self.bin:
-            existing_products = self._products_from_existing_records("bin", self.bin)
-            if existing_products:
-                return True
-        return False
 
     def get_image_from_url(self, url: str) -> bytes | bool:
         if not url:

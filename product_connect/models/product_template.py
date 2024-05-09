@@ -15,16 +15,21 @@ class ProductType(models.Model):
 
     name = fields.Char(required=True, index=True)
     ebay_category_id = fields.Integer(string="eBay Category ID", index=True)
-    product_count = fields.Integer(
-        string="Number of Products", compute="_compute_product_count", store=True
-    )
 
-    @api.depends("product_ids")
-    def _compute_product_count(self) -> None:
-        for record in self:
-            record.product_count = len(record.product_ids)
+    products = fields.One2many("product.template", "part_type")
 
-    product_ids = fields.One2many("product.template", "part_type", string="Products")
+
+class ProductCondition(models.Model):
+    _name = "product.condition"
+    _description = "Product Condition"
+    _sql_constraints = [("name_uniq", "unique (name)", "Product Condition name already exists !")]
+
+    name = fields.Char(required=True, index=True)
+    code = fields.Char(required=True, index=True, readonly=True)
+    ebay_condition_id = fields.Integer(string="eBay Condition ID", index=True)
+
+    products = fields.One2many("product.template", "condition")
+    products_import = fields.One2many("product.import", "condition")
 
 
 class ProductTemplate(models.Model, LabelMixin):
@@ -52,17 +57,8 @@ class ProductTemplate(models.Model, LabelMixin):
     manufacturer = fields.Many2one("product.manufacturer", index=True)
     manufacturer_barcode = fields.Char(index=True)
     part_type = fields.Many2one("product.type", index=True)
-    condition = fields.Selection(
-        [
-            ("used", "Used"),
-            ("new", "New"),
-            ("open_box", "Open Box"),
-            ("broken", "Broken"),
-            ("refurbished", "Refurbished"),
-        ],
-        default="used",
-    )
-    default_code = fields.Char("SKU", index=True, default=lambda self: self.get_next_sku())
+    condition = fields.Many2one("product.condition", index=True)
+    default_code = fields.Char("SKU", index=True, copy=False, default=lambda self: self.get_next_sku())
     image_1920 = fields.Image(compute="_compute_image_1920", inverse="_inverse_image_1920", store=True)
 
     shopify_product_id = fields.Char(
@@ -71,9 +67,6 @@ class ProductTemplate(models.Model, LabelMixin):
         readonly=True,
         store=True,
     )
-
-    def is_condition_valid(self, shopify_condition: str) -> bool:
-        return shopify_condition in dict(self._fields["condition"].selection)
 
     def get_next_sku(self) -> str:
         sequence = self.env["ir.sequence"].search([("code", "=", "product.template.default_code")])
