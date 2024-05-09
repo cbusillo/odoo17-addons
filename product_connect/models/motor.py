@@ -31,6 +31,7 @@ class Motor(models.Model, LabelMixin):
     stroke = fields.Many2one("motor.stroke")
     configuration = fields.Many2one("motor.configuration")
     model = fields.Char()
+    sub_model = fields.Char()
     serial_number = fields.Char()
 
     @api.model
@@ -41,22 +42,28 @@ class Motor(models.Model, LabelMixin):
         ]
 
     year = fields.Selection(_get_years, string="Model Year")
+    hours = fields.Float(compute="_compute_hours")
+    shaft_length = fields.Char(compute="_compute_shaft_length")
     color = fields.Many2one("product.color", domain="[('applicable_tags.name', '=', 'Motors')]")
     cost = fields.Float()
 
     is_tag_readable = fields.Selection(constants.YES_NO_SELECTION, default=constants.YES)
     notes = fields.Text()
+    has_notes = fields.Boolean(compute="_compute_has_notes", store=True)
     images = fields.One2many("motor.image", "motor")
     icon = fields.Binary(compute="_compute_icon", store=True)
     parts = fields.One2many("motor.part", "motor")
+    missing_parts = fields.One2many("motor.part", "motor", domain=[("is_missing", "=", True)])
+    missing_parts_names = fields.Char(compute="_compute_missing_parts_names", store=True)
     tests = fields.One2many("motor.test", "motor")
     test_sections = fields.One2many("motor.test.section", "motor")
     basic_tests = fields.One2many("motor.test", "motor", domain=[("template.stage", "=", "basic")])
     extended_tests = fields.One2many("motor.test", "motor", domain=[("template.stage", "=", "extended")])
 
     compression = fields.One2many("motor.compression", "motor")
+    compression_formatted_html = fields.Html(compute="_compute_compression_formatted_html")
     hide_compression_page = fields.Boolean(compute="_compute_hide_compression_page", store=True)
-    products = fields.One2many("motor.product", "motor", ondelete="set null")
+    products = fields.One2many("motor.product", "motor")
 
     stage = fields.Selection(constants.MOTOR_STAGE_SELECTION, default="basic_info", required=True)
 
@@ -85,37 +92,70 @@ class Motor(models.Model, LabelMixin):
             # record._create_motor_products()
         return result
 
+    def _compute_compression_formatted_html(self) -> None:
+        for motor in self:
+            lines = [
+                f"Cylinder: {c.cylinder_number} Compression: {c.compression_psi} PSI" for c
+                in motor.compression
+            ]
+            motor.compression_formatted_html = "<br/>".join(lines)
+
+    def _compute_missing_parts_names(self) -> None:
+        for motor in self:
+            missing_parts_names = ", ".join(
+                part.name for part in motor.missing_parts if part.name
+            )
+            motor.missing_parts_names = missing_parts_names
+
+    def _compute_shaft_length(self) -> None:
+        for motor in self:
+            shaft_length = motor.tests.filtered(
+                lambda t: "shaft" in t.template.name.lower() and "length" in t.template.name.lower()
+            )
+            motor.shaft_length = shaft_length.selection_result if shaft_length else ""
+
+    def _compute_hours(self) -> None:
+        for motor in self:
+            hours = motor.tests.filtered(
+                lambda t: "engine" in t.template.name.lower() and "hours" in t.template.name.lower())
+            motor.hours = hours.numeric_result if hours else 0
+
+    @api.depends("notes")
+    def _compute_has_notes(self) -> None:
+        for motor in self:
+            motor.has_notes = bool(motor.notes)
+
     @api.depends("images")
     def _compute_icon(self) -> None:
-        for record in self:
-            record.icon = record.images[0].image_128 if record.images else False
+        for motor in self:
+            motor.icon = motor.images[0].image_128 if motor.images else False
 
     @api.depends("horsepower")
     def _compute_horsepower_formatted(self) -> None:
-        for record in self:
-            record.horsepower_formatted = record.get_horsepower_formatted()
+        for motor in self:
+            motor.horsepower_formatted = motor.get_horsepower_formatted()
 
     @api.depends(
         "motor_number", "manufacturer", "model", "year", "serial_number", "horsepower"
     )
     def _compute_display_name(self) -> None:
-        for record in self:
+        for motor in self:
             serial_number = (
-                f" - {record.serial_number}" if record.serial_number else None
+                f" - {motor.serial_number}" if motor.serial_number else None
             )
 
             name_parts = [
-                record.motor_number,
-                record.year,
-                record.manufacturer.name,
-                record.get_horsepower_formatted(),
-                record.model,
+                motor.motor_number,
+                motor.year,
+                motor.manufacturer.name,
+                motor.get_horsepower_formatted(),
+                motor.model,
                 serial_number,
             ]
             name = " ".join(part for part in name_parts if part)
 
             if name:
-                record.display_name = name
+                motor.display_name = name
 
     @api.depends("parts.is_missing", "parts.template.hide_compression_page")
     def _compute_hide_compression_page(self) -> None:

@@ -40,9 +40,15 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_tree_view"/>
         <field name="arch" type="xml">
-            <field name="default_code" position="after">
+            <xpath expr="//field[@name='default_code']" position="after">
                 <field name="bin"/>
-            </field>
+            </xpath>
+            <xpath expr="//field[@name='virtual_available']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='virtual_available']" position="after">
+                <field name="shopify_product_id"/>
+            </xpath>
         </field>
     </record>
 
@@ -158,7 +164,6 @@
                 <field name="height"/>
                 <field name="weight"/>
                 <field name="bin"/>
-
             </tree>
         </field>
     </record>
@@ -238,13 +243,13 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <!-- Menu item -->
-    <record id="menu_product_type" model="ir.ui.menu">
-        <field name="name">Product Types</field>
-        <field name="parent_id" ref="stock.menu_product_in_config_stock"/>
-        <field name="action" ref="action_product_type"/>
-        <field name="sequence" eval="20"/>
+
+    <record id="stock.product_template_action_product" model="ir.actions.act_window">
+        <field name="view_mode">tree,kanban,form</field>
     </record>
+
+
+    <!-- Menu item -->
 
 
     <menuitem id="menu_product_template_edit" name="Product Edit" action="action_product_template_tree_edit"

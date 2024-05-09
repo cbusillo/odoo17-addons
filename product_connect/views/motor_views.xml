@@ -5,19 +5,21 @@
         <field name="model">motor</field>
         <field name="arch" type="xml">
             <tree string="Motors List">
+                <field name="has_notes" widget="boolean_toggle" string="Notes"/>
                 <field name="motor_number" string="Motor"/>
                 <field name="technician" optional="hide"/>
-                <field name="create_date" optional="show"/>
+                <field name="create_date" optional="show" widget="date_only" readonly="1"/>
+                <field name="year"/>
                 <field name="manufacturer" string="Manu"/>
                 <field name="horsepower"/>
                 <field name="model"/>
+                <field name="serial_number" string="Serial" optional="hide"/>
                 <field name="stroke" optional="hide"/>
                 <field name="configuration" optional="hide"/>
                 <field name="color" optional="hide"/>
-                <field name="serial_number" string="Serial"/>
-                <field name="year"/>
                 <field name="color"/>
-                <field name="notes" widget="boolean_toggle" readonly="1"/>
+                <field name="hours" optional="hide" widget="integer"/>
+                <field name="shaft_length" optional="hide"/>
                 <field name="cost" widget="float_factor"/>
             </tree>
         </field>
@@ -51,9 +53,14 @@
                         </h1>
                     </div>
 
-                    <div class="oe_title" invisible="not notes">
-                        See Notes
+                    <div invisible="not notes">
+                        <i class="fa fa-warning text-danger"></i>
+                        <span class="h3 text-warning">&#160;See Notes</span>
                     </div>
+                    <group>
+                        <group><field name="create_date"/></group>
+                        <group><field name="write_date"/></group>
+                    </group>
 
                     <notebook>
                         <page id="basic_info" string="Basic Info">
@@ -65,6 +72,7 @@
                                 <field name="stroke" required="1" widget="resettable_selection_badge"/>
                                 <field name="configuration" required="1" widget="resettable_selection_badge"/>
                                 <field name="model"/>
+                                <field name="sub_model"/>
                                 <field name="serial_number"/>
                                 <field name="year" widget="resettable_selection_badge"/>
                                 <field name="color" widget="resettable_selection_badge" required="1"/>
@@ -165,62 +173,57 @@
 
                         <!-- Summary page-->
                         <page string="Summary" invisible="stage != 'finalization'">
+                            <group string="Notes">
+                                <field name="notes" readonly="1" string=""/>
+                            </group>
                             <group string="Basic Info">
-                                <field name="motor_number" readonly="1"/>
-                                <field name="manufacturer" readonly="1"/>
-                                <field name="horsepower" readonly="1"/>
-                                <field name="stroke" readonly="1"/>
-                                <field name="configuration" readonly="1"/>
-                                <field name="model" readonly="1"/>
-                                <field name="serial_number" readonly="1"/>
-                                <field name="year" readonly="1"/>
-                                <field name="color" readonly="1"/>
-                                <field name="cost" readonly="1"/>
-                                <field name="is_tag_readable" readonly="1"/>
+                                <group>
+                                    <field name="motor_number" readonly="1"/>
+                                    <field name="manufacturer" readonly="1" options="{'no_open': True}"/>
+                                    <field name="horsepower" readonly="1"/>
+                                    <field name="stroke" readonly="1" options="{'no_open': True}"/>
+                                    <field name="configuration" readonly="1" options="{'no_open': True}"/>
+                                    <field name="model" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="sub_model" readonly="1"/>
+                                    <field name="serial_number" readonly="1"/>
+                                    <field name="year" readonly="1"/>
+                                    <field name="color" readonly="1" options="{'no_open': True}"/>
+                                    <field name="cost" readonly="1"/>
+                                    <field name="is_tag_readable" readonly="1"/>
+                                </group>
                             </group>
 
                             <group string="Missing Parts">
-                                <field name="parts" mode="tree" readonly="1">
-                                    <tree>
-                                        <field name="is_missing"/>
+                                <field name="missing_parts_names" readonly="1" string="Parts"/>
+                            </group>
+
+                            <group string="Basic Testing">
+                                <field name="basic_tests" readonly="1" string="">
+                                    <tree decoration-danger="not computed_result or computed_result == 0">
                                         <field name="name"/>
+                                        <field name="result_type" string="Test Type"/>
+                                        <field name="computed_result" string="Test Result"/>
+                                        <field name="file_result" widget="pdf_viewer"/>
                                     </tree>
                                 </field>
                             </group>
 
                             <group string="Compression Testing">
-                                <field name="compression" mode="tree" readonly="1">
-                                    <tree>
-                                        <field name="cylinder_number"/>
-                                        <field name="compression_psi"/>
-                                    </tree>
-                                </field>
-                            </group>
+                                <group>
+                                    <field name="compression_formatted_html" readonly="1" string=""/>
+                                </group>
 
-                            <group string="Basic Testing">
-                                <field name="basic_tests" mode="tree" readonly="1">
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="result_type"/>
-                                        <field name="yes_no_result"/>
-                                        <field name="selection_result"/>
-                                        <field name="numeric_result"/>
-                                        <field name="text_result"/>
-                                        <field name="file_result" widget="binary"/>
-                                    </tree>
-                                </field>
                             </group>
 
                             <group string="Extended Testing">
-                                <field name="extended_tests" mode="tree" readonly="1">
-                                    <tree>
+                                <field name="extended_tests" readonly="1" string="">
+                                    <tree decoration-danger="not computed_result or computed_result == 0">
                                         <field name="name"/>
-                                        <field name="result_type"/>
-                                        <field name="yes_no_result"/>
-                                        <field name="selection_result"/>
-                                        <field name="numeric_result"/>
-                                        <field name="text_result"/>
-                                        <field name="file_result" widget="binary"/>
+                                        <field name="result_type" string="Test Type"/>
+                                        <field name="computed_result" string="Test Result"/>
+                                        <field name="file_result" widget="pdf_viewer"/>
                                     </tree>
                                 </field>
                             </group>

@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 from ..utils.constants import YES_NO_SELECTION
 
 
@@ -75,6 +75,9 @@ class MotorTestSelection(models.Model):
     value = fields.Char(required=True)
     templates = fields.Many2many("motor.test.template", ondelete="cascade")
 
+    def __str__(self) -> str:
+        return self.name if self.name else ""
+
 
 class MotorTest(models.Model):
     _name = "motor.test"
@@ -106,6 +109,7 @@ class MotorTest(models.Model):
     numeric_result = fields.Float()
     text_result = fields.Text()
     file_result = fields.Binary()
+    computed_result = fields.Char(compute="_compute_result", store=True)
     default_value = fields.Char(related="template.default_value")
     is_applicable = fields.Boolean(default=True)
 
@@ -117,3 +121,17 @@ class MotorTest(models.Model):
         "motor.test.template.condition",
         related="template.conditional_tests",
     )
+
+    @api.depends("yes_no_result", "numeric_result", "text_result", "selection_result", "file_result")
+    def _compute_result(self) -> None:
+        for test in self:
+            if test.result_type == "yes_no":
+                test.computed_result = dict(YES_NO_SELECTION).get(test.yes_no_result) or ""
+            elif test.result_type == "numeric":
+                test.computed_result = test.numeric_result or ""
+            elif test.result_type == "text":
+                test.computed_result = test.text_result
+            elif test.result_type == "selection":
+                test.computed_result = test.selection_result
+            elif test.result_type == "file":
+                test.computed_result = "File Uploaded" if test.file_result else ""
