@@ -32,7 +32,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
     _sql_constraints = [("default_code_uniq", "unique (default_code)", "SKU already exists !")]
 
     default_code = odoo.fields.Char(
-        string="SKU", required=True, copy=False, index=True,
+        string="SKU", required=True, copy=False, index=True, readonly=True,
         default=lambda self: self.env["product.template"].get_next_sku()
     )
     mpn = odoo.fields.Char(string="MPN", index=True)
