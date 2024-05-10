@@ -15,7 +15,7 @@
         <field name="binding_type">action</field>
         <field name="state">code</field>
         <field name="code">
-            action = records.print_bin_labels()
+            records.print_bin_labels()
         </field>
     </record>
 
@@ -27,7 +27,7 @@
         <field name="binding_type">action</field>
         <field name="state">code</field>
         <field name="code">
-            action = records.print_product_labels(print_quantity=True)
+            records.print_product_labels(print_quantity=True)
         </field>
     </record>
 
@@ -38,7 +38,7 @@
         <field name="binding_type">action</field>
         <field name="state">code</field>
         <field name="code">
-            action = records.print_product_labels(print_quantity=True, printer_job_type="product_label_picture")
+            records.print_product_labels(print_quantity=True, printer_job_type="product_label_picture")
         </field>
     </record>
 
@@ -49,28 +49,30 @@
         <field name="arch" type="xml">
             <tree class="product_import_tree_view" string="Product Import" editable="bottom" multi_edit="1"
                   open_form_view="True"
-                  decoration-danger="not name or not price or price == 0 or not cost or cost == 0">
+                  decoration-warning="not name or not price or price == 0 or not cost or cost == 0"
+                  decoration-danger="has_recent_messages">
                 <header>
-                    <button string="Import" type="object" name="import_to_products"/>
+                    <button string="Import" type="object" name="import_to_products" icon="fa-upload"/>
                 </header>
                 <field name="default_code"/>
-                <field name="condition"/>
-                <field name="manufacturer_barcode" string="Barcode"/>
+                <field name="condition" optional="show"/>
+                <field name="manufacturer_barcode" string="Barcode" optional="hide"/>
                 <field name="manufacturer" options="{'no_create': True}"/>
                 <field name="mpn" widget="search_mpn_online"/>
                 <field name="quantity" sum="Total Quantity"/>
                 <field name="bin"/>
-                <field name="lot_number"/>
+                <field name="lot_number" optional="hide"/>
                 <field name="name"/>
-                <field name="description"/>
-                <field name="product_type" options="{'no_create': True}"/>
-                <field name="weight"/>
-                <field name="price"/>
-                <field name="cost"/>
-                <field name="image_1_url"/>
-                <field name="images" widget="file_drop"/>
+                <field name="description" optional="show"/>
+                <field name="product_type" options="{'no_create': True}" optional="show"/>
+                <field name="weight" optional="show"/>
+                <field name="price" optional="show"/>
+                <field name="cost" optional="show"/>
+                <field name="image_1_url" optional="hide"/>
+                <field name="images" widget="file_drop" optional="show"/>
                 <field name="image_count" column_invisible="1"/>
                 <field name="default_code" readonly=""/>
+                <field name="has_recent_messages" column_invisible="1"/>
             </tree>
         </field>
     </record>
@@ -81,33 +83,56 @@
         <field name="model">product.import</field>
         <field name="arch" type="xml">
             <form string="Product Import">
-                <sheet>
-                    <group>
-                        <field name="default_code"/>
-                        <field name="condition"/>
-                        <field name="mpn"/>
-                        <field name="manufacturer" options="{'no_create': True}"/>
-                        <field name="quantity"/>
-                        <field name="bin"/>
-                    </group>
-                    <group>
-                        <field name="name"/>
-                        <field name="description"/>
-                        <field name="product_type" options="{'no_create': True}"/>
-                        <field name="weight"/>
-                        <field name="price"/>
-                        <field name="cost"/>
-                    </group>
-                    <group>
-                        <field name="image_1_url"/>
-                        <field name="images">
-                            <tree string="Images" editable="bottom">
-                                <field name="product"/>
-                                <field name="image_1920" widget="image_upload"/>
-                                <field name="index"/>
-                            </tree>
-                        </field>
-                    </group>
+                <div class="oe_chatter">
+                    <!--suppress XmlUnresolvedReference -->
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <!--suppress XmlUnresolvedReference -->
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+                <sheet name="product_import_form">
+                    <field name="icon" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label for="name" string="Product Name"></label>
+                        <h1>
+                            <div class="d-flex caution">
+                                <field class="text-break" name="name" options="{'line_breaks': False}"/>
+                            </div>
+                        </h1>
+                    </div>
+                    <notebook>
+                        <page string="Details">
+                            <group>
+                                <group>
+                                    <field name="default_code"/>
+                                    <field name="condition"/>
+                                    <field name="mpn"/>
+                                    <field name="manufacturer" options="{'no_create': True}"/>
+                                    <field name="quantity"/>
+                                    <field name="bin"/>
+                                </group>
+                                <group>
+                                    <field name="name"/>
+                                    <field name="description"/>
+                                    <field name="product_type" options="{'no_create': True}"/>
+                                    <field name="weight"/>
+                                    <field name="price"/>
+                                    <field name="cost"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Images">
+                            <group>
+                                <field name="image_1_url"/>
+                                <field name="images">
+                                    <tree string="Images" editable="bottom">
+                                        <field name="product"/>
+                                        <field name="image_1920" widget="image_upload"/>
+                                        <field name="index"/>
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
