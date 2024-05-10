@@ -69,6 +69,7 @@
                 <field name="cost"/>
                 <field name="image_1_url"/>
                 <field name="images" widget="file_drop"/>
+                <field name="image_count" column_invisible="1"/>
                 <field name="default_code" readonly=""/>
             </tree>
         </field>

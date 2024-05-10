@@ -19,7 +19,6 @@ class MotorImage(models.Model):
 
     motor = fields.Many2one("motor", ondelete="restrict")
     name = fields.Char()
-    image_data = fields.Binary()
 
 
 class MotorStroke(models.Model):

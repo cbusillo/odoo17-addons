@@ -49,6 +49,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
     cost = odoo.fields.Float()
     image_1_url = odoo.fields.Char(string="Image 1 URL")
     images = odoo.fields.One2many("product.import.image", "product")
+    image_count = odoo.fields.Integer(compute="_compute_image_count")
     condition = odoo.fields.Many2one("product.condition", index=True)
     export_to_shopify = odoo.fields.Binary()
 
@@ -58,6 +59,10 @@ class ProductImport(LabelMixin, odoo.models.Model):
             name = f"[{record.default_code}] {record.name or 'No Name Yet'}"
             result.append((record.id, name))
         return result
+
+    def _compute_image_count(self) -> None:
+        for motor in self:
+            motor.image_count = len([image for image in motor.images if image.image_1920])
 
     @odoo.api.onchange("bin", "mpn")
     def _format_fields_upper(self) -> None:
