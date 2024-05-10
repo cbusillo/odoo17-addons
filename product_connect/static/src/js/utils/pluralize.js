@@ -2,11 +2,11 @@
 function pluralizeWrapper() {
     // Rule storage - pluralize and singularize need to be run sequentially,
     // while other rules can be optimized using an object for instant lookups.
-    var pluralRules = [];
-    var singularRules = [];
-    var uncountables = {};
-    var irregularPlurals = {};
-    var irregularSingles = {};
+    let pluralRules = [];
+    let singularRules = [];
+    let uncountables = {};
+    let irregularPlurals = {};
+    let irregularSingles = {};
 
     /**
      * Sanitize a pluralization rule to a usable regular expression.
@@ -22,6 +22,7 @@ function pluralizeWrapper() {
         return rule;
     }
 
+    // noinspection GrazieInspection
     /**
      * Pass in a word token to produce a function that can replicate the case on
      * another word.
@@ -37,12 +38,12 @@ function pluralizeWrapper() {
         // Lower cased words. E.g. "hello".
         if (word === word.toLowerCase()) return token.toLowerCase();
 
-        // Upper cased words. E.g. "WHISKY".
+        // Upper-cased words. E.g. "WHISKY".
         if (word === word.toUpperCase()) return token.toUpperCase();
 
         // Title cased words. E.g. "Title".
         if (word[0] === word[0].toUpperCase()) {
-            return token.charAt(0).toUpperCase() + token.substr(1).toLowerCase();
+            return token.charAt(0).toUpperCase() + token.substring(1).toLowerCase();
         }
 
         // Lower cased words. E.g. "test".
@@ -71,7 +72,7 @@ function pluralizeWrapper() {
      */
     function replace(word, rule) {
         return word.replace(rule[0], function (match, index) {
-            var result = interpolate(rule[1], arguments);
+            let result = interpolate(rule[1], arguments);
 
             if (match === '') {
                 return restoreCase(word[index - 1], result);
@@ -95,11 +96,11 @@ function pluralizeWrapper() {
             return word;
         }
 
-        var len = rules.length;
+        let len = rules.length;
 
         // Iterate over the sanitization rules and use the first one to match.
         while (len--) {
-            var rule = rules[len];
+            let rule = rules[len];
 
             if (rule[0].test(word)) return replace(word, rule);
         }
@@ -118,7 +119,7 @@ function pluralizeWrapper() {
     function replaceWord(replaceMap, keepMap, rules) {
         return function (word) {
             // Get the correct token and case restoration functions.
-            var token = word.toLowerCase();
+            let token = word.toLowerCase();
 
             // Check against the keep object map.
             if (keepMap.hasOwnProperty(token)) {
@@ -138,9 +139,9 @@ function pluralizeWrapper() {
     /**
      * Check if a word is part of the map.
      */
-    function checkWord(replaceMap, keepMap, rules, bool) {
+    function checkWord(replaceMap, keepMap, rules) {
         return function (word) {
-            var token = word.toLowerCase();
+            let token = word.toLowerCase();
 
             if (keepMap.hasOwnProperty(token)) return true;
             if (replaceMap.hasOwnProperty(token)) return false;
@@ -158,7 +159,7 @@ function pluralizeWrapper() {
      * @return {string}
      */
     function pluralize(word, count, inclusive) {
-        var pluralized = count === 1
+        let pluralized = count === 1
             ? pluralize.singular(word) : pluralize.plural(word);
 
         return (inclusive ? count + ' ' : '') + pluralized;
@@ -349,7 +350,7 @@ function pluralizeWrapper() {
     [
         [/s$/i, ''],
         [/(ss)$/i, '$1'],
-        [/(wi|kni|(?:after|half|high|low|mid|non|night|[^\w]|^)li)ves$/i, '$1fe'],
+        [/(wi|kni|(?:after|half|high|low|mid|non|night|\W|^)li)ves$/i, '$1fe'],
         [/(ar|(?:wo|[ae])l|[eo][ao])ves$/i, '$1f'],
         [/ies$/i, 'y'],
         [/\b([pl]|zomb|(?:neck|cross)?t|coll|faer|food|gen|goon|group|lass|talk|goal|cut)ies$/i, '$1ie'],
