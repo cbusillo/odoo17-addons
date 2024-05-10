@@ -20,12 +20,15 @@ class Motor(models.Model, LabelMixin):
     active = fields.Boolean(default=True)
     motor_number = fields.Char()
     technician = fields.Many2one(
-        "res.users", string="Tech Name",
+        "res.users",
+        string="Tech Name",
         domain="['|', ('id', '=', technician), '&', ('is_technician', '=', True), ('active', '=', True)]",
         ondelete="restrict",
     )
     signature = fields.Binary()
-    manufacturer = fields.Many2one("product.manufacturer", domain="[('is_motor_manufacturer', '=', True)]")
+    manufacturer = fields.Many2one(
+        "product.manufacturer", domain="[('is_motor_manufacturer', '=', True)]"
+    )
     horsepower = fields.Float(digits=(3, 1), string="HP")
     horsepower_formatted = fields.Char(compute="_compute_horsepower_formatted")
     stroke = fields.Many2one("motor.stroke")
@@ -44,29 +47,47 @@ class Motor(models.Model, LabelMixin):
     year = fields.Selection(_get_years, string="Model Year")
     hours = fields.Float(compute="_compute_hours")
     shaft_length = fields.Char(compute="_compute_shaft_length")
-    color = fields.Many2one("product.color", domain="[('applicable_tags.name', '=', 'Motors')]")
+    color = fields.Many2one(
+        "product.color", domain="[('applicable_tags.name', '=', 'Motors')]"
+    )
     cost = fields.Float()
 
-    is_tag_readable = fields.Selection(constants.YES_NO_SELECTION, default=constants.YES)
+    is_tag_readable = fields.Selection(
+        constants.YES_NO_SELECTION, default=constants.YES
+    )
     notes = fields.Text()
     has_notes = fields.Boolean(compute="_compute_has_notes", store=True)
     images = fields.One2many("motor.image", "motor")
     image_count = fields.Integer(compute="_compute_image_count")
     icon = fields.Binary(compute="_compute_icon", store=True)
     parts = fields.One2many("motor.part", "motor")
-    missing_parts = fields.One2many("motor.part", "motor", domain=[("is_missing", "=", True)])
-    missing_parts_names = fields.Char(compute="_compute_missing_parts_names", store=True)
+    missing_parts = fields.One2many(
+        "motor.part", "motor", domain=[("is_missing", "=", True)]
+    )
+    missing_parts_names = fields.Char(
+        compute="_compute_missing_parts_names", store=True
+    )
     tests = fields.One2many("motor.test", "motor")
     test_sections = fields.One2many("motor.test.section", "motor")
-    basic_tests = fields.One2many("motor.test", "motor", domain=[("template.stage", "=", "basic")])
-    extended_tests = fields.One2many("motor.test", "motor", domain=[("template.stage", "=", "extended")])
+    basic_tests = fields.One2many(
+        "motor.test", "motor", domain=[("template.stage", "=", "basic")]
+    )
+    extended_tests = fields.One2many(
+        "motor.test", "motor", domain=[("template.stage", "=", "extended")]
+    )
 
     compression = fields.One2many("motor.compression", "motor")
-    compression_formatted_html = fields.Html(compute="_compute_compression_formatted_html")
-    hide_compression_page = fields.Boolean(compute="_compute_hide_compression_page", store=True)
+    compression_formatted_html = fields.Html(
+        compute="_compute_compression_formatted_html"
+    )
+    hide_compression_page = fields.Boolean(
+        compute="_compute_hide_compression_page", store=True
+    )
     products = fields.One2many("motor.product", "motor")
 
-    stage = fields.Selection(constants.MOTOR_STAGE_SELECTION, default="basic_info", required=True)
+    stage = fields.Selection(
+        constants.MOTOR_STAGE_SELECTION, default="basic_info", required=True
+    )
 
     @api.model_create_multi
     def create(self, vals_list: list[dict]) -> Self:
@@ -95,13 +116,15 @@ class Motor(models.Model, LabelMixin):
 
     def _compute_image_count(self) -> None:
         for motor in self:
-            motor.image_count = len([image for image in motor.images if image.image_1920])
+            motor.image_count = len(
+                [image for image in motor.images if image.image_1920]
+            )
 
     def _compute_compression_formatted_html(self) -> None:
         for motor in self:
             lines = [
-                f"Cylinder: {c.cylinder_number} Compression: {c.compression_psi} PSI" for c
-                in motor.compression
+                f"Cylinder: {c.cylinder_number} Compression: {c.compression_psi} PSI"
+                for c in motor.compression
             ]
             motor.compression_formatted_html = "<br/>".join(lines)
 
@@ -115,14 +138,17 @@ class Motor(models.Model, LabelMixin):
     def _compute_shaft_length(self) -> None:
         for motor in self:
             shaft_length = motor.tests.filtered(
-                lambda t: "shaft" in t.template.name.lower() and "length" in t.template.name.lower()
+                lambda t: "shaft" in t.template.name.lower()
+                and "length" in t.template.name.lower()
             )
             motor.shaft_length = shaft_length.selection_result if shaft_length else ""
 
     def _compute_hours(self) -> None:
         for motor in self:
             hours = motor.tests.filtered(
-                lambda t: "engine" in t.template.name.lower() and "hours" in t.template.name.lower())
+                lambda t: "engine" in t.template.name.lower()
+                and "hours" in t.template.name.lower()
+            )
             motor.hours = hours.numeric_result if hours else 0
 
     @api.depends("notes")
@@ -145,9 +171,7 @@ class Motor(models.Model, LabelMixin):
     )
     def _compute_display_name(self) -> None:
         for motor in self:
-            serial_number = (
-                f" - {motor.serial_number}" if motor.serial_number else None
-            )
+            serial_number = f" - {motor.serial_number}" if motor.serial_number else None
 
             name_parts = [
                 motor.motor_number,
@@ -200,7 +224,7 @@ class Motor(models.Model, LabelMixin):
     def _check_horsepower(self) -> None:
         for record in self:
             if not isinstance(record.horsepower, float) or (
-                    record.horsepower and not (0.0 <= record.horsepower <= 600.0)
+                record.horsepower and not (0.0 <= record.horsepower <= 600.0)
             ):
                 raise ValidationError(_("Horsepower must be between 1 and 600."))
 
@@ -240,33 +264,42 @@ class Motor(models.Model, LabelMixin):
         if part_vals:
             self.env["motor.part"].create(part_vals)
 
-    def _create_motor_products(self) -> None:
+    def create_motor_products(self) -> None:
         product_templates = self.env["motor.product.template"].search([])
-        current_product_ids = set(self.products.ids)  # Existing product IDs related to this motor
+        current_product_ids = set(
+            self.products.ids
+        )  # Existing product IDs related to this motor
 
         for product_template in product_templates:
             if product_template.stroke and self.stroke not in product_template.stroke:
                 continue
-            if product_template.configuration and self.configuration not in product_template.configuration:
+            if (
+                product_template.configuration
+                and self.configuration not in product_template.configuration
+            ):
                 continue
-            if product_template.manufacturers and self.manufacturer not in product_template.manufacturers:
+            if (
+                product_template.manufacturers
+                and self.manufacturer not in product_template.manufacturers
+            ):
                 continue
 
-            excluded_parts_ids = product_template.excluded_parts.mapped('id')
-            if set(self.parts.mapped('template.id')) & set(excluded_parts_ids):
+            excluded_parts_ids = product_template.excluded_parts.mapped("id")
+            if set(self.parts.mapped("template.id")) & set(excluded_parts_ids):
                 continue
 
-            excluded_tests_ids = product_template.excluded_tests.mapped('id')
-            if set(self.tests.mapped('template.id')) & set(excluded_tests_ids):
+            excluded_tests_ids = product_template.excluded_tests.mapped("id")
+            if set(self.tests.mapped("template.id")) & set(excluded_tests_ids):
                 continue
 
             product_data = {
-                'motor': self.id,
-                'template': product_template.id,
+                "motor": self.id,
+                "template": product_template.id,
             }
 
             existing_product = self.products.filtered(
-                lambda p: p.template == product_template)
+                lambda p: p.template == product_template
+            )
 
             if existing_product:
                 current_product_ids.discard(existing_product.id)
@@ -274,7 +307,7 @@ class Motor(models.Model, LabelMixin):
                 product_data["quantity"] = product_template.quantity or 1
                 product_data["bin"] = product_template.bin
                 product_data["weight"] = product_template.weight
-                self.env['motor.product'].create(product_data)
+                self.env["motor.product"].create(product_data)
 
         if current_product_ids:
             self.products.filtered(lambda p: p.id in current_product_ids).unlink()
@@ -294,7 +327,7 @@ class Motor(models.Model, LabelMixin):
         current_cylinders = [cylinder.cylinder_number for cylinder in self.compression]
 
         for cylinder in self.compression.filtered(
-                lambda x: x.cylinder_number > desired_cylinders
+            lambda x: x.cylinder_number > desired_cylinders
         ):
             self.compression -= cylinder
 
