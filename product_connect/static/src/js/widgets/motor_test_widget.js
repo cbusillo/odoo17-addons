@@ -49,7 +49,9 @@ export class MotorTestWidget extends Component {
 
         onWillUpdateProps((nextProps) => {
             if (nextProps.record !== this.props.record) {
-                this.loadMotorTests()
+                // this.conditionsById = {}
+                // this.selectionFieldDomains = {}
+                this.loadMotorTests(nextProps)
             }
         })
     }
@@ -61,8 +63,8 @@ export class MotorTestWidget extends Component {
         }
     }
 
-    async loadMotorTests() {
-        const { name, record } = this.props
+    async loadMotorTests(props = this.props) {
+        const { name, record } = props
         this.allTests = record.data[name].records
         const missingParts = record.data.parts.records.filter(
             (part) => part.data.missing,

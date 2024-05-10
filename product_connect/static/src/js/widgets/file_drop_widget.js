@@ -4,7 +4,9 @@ import { useService } from '@web/core/utils/hooks'
 import { registry } from '@web/core/registry'
 import { BinaryField, binaryField } from '@web/views/fields/binary/binary_field'
 
-import { resizeImage } from '@product_connect/js/utils/image_utils'
+import pluralize from '../utils/pluralize'
+
+import { resizeImage } from '../utils/image_utils'
 
 
 export class FileDropWidget extends BinaryField {
@@ -28,19 +30,17 @@ export class FileDropWidget extends BinaryField {
     }
 
     updateDropMessage(countToAdd = 0) {
-        const { count } = this.props.record.data[this.props.name]
-        const total = count + countToAdd
-
-        let message
-        if (total > 1) {
-            message = total + ' Images'
-        } else if (total === 1) {
-            message = '1 Image'
+        console.log('test')
+        const fieldCountName = pluralize(this.props.name, 1) + '_count'
+        let total
+        if (fieldCountName) {
+            total = this.props.record.data[fieldCountName]
         } else {
-            message = 'Drop...'
+            const { count } = this.props.record.data[this.props.name]
+            total = count + countToAdd
         }
 
-        this.state.message = message
+        this.state.message = pluralize('Image', total, true)
     }
 
     async getHighestIndex(productId) {

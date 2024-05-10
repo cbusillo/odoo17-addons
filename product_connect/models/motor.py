@@ -51,6 +51,7 @@ class Motor(models.Model, LabelMixin):
     notes = fields.Text()
     has_notes = fields.Boolean(compute="_compute_has_notes", store=True)
     images = fields.One2many("motor.image", "motor")
+    image_count = fields.Integer(compute="_compute_image_count")
     icon = fields.Binary(compute="_compute_icon", store=True)
     parts = fields.One2many("motor.part", "motor")
     missing_parts = fields.One2many("motor.part", "motor", domain=[("is_missing", "=", True)])
@@ -91,6 +92,10 @@ class Motor(models.Model, LabelMixin):
             record._update_stage()
             # record._create_motor_products()
         return result
+
+    def _compute_image_count(self) -> None:
+        for motor in self:
+            motor.image_count = len([image for image in motor.images if image.image_1920])
 
     def _compute_compression_formatted_html(self) -> None:
         for motor in self:

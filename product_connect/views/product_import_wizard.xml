@@ -32,7 +32,7 @@
                     <group>
                         <field name="barcode"/>
                         <field name="default_code"/>
-                        <field name="product" invisible="0"/>
+                        <field name="product"/>
                     </group>
                     <field name="images">
                         <tree editable="bottom">
