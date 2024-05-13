@@ -27,10 +27,10 @@ class LabelMixin(models.AbstractModel):
     BARCODE_SIZE = 8
 
     def _print_labels(
-            self,
-            labels: list[str] | bytes,
-            odoo_job_type: str,
-            job_name: str,
+        self,
+        labels: list[str] | bytes,
+        odoo_job_type: str,
+        job_name: str,
     ) -> None:
         label_data: str | bytes
         if isinstance(labels, list):
@@ -80,9 +80,7 @@ class LabelMixin(models.AbstractModel):
             job_name="Bin Label",
         )
 
-    def print_product_labels(
-            self, print_quantity: bool = False, printer_job_type: str = "product_label"
-    ) -> None:
+    def print_product_labels(self, print_quantity: bool = False, printer_job_type: str = "product_label") -> None:
         labels = []
         for record in self:
             if TYPE_CHECKING:
@@ -92,7 +90,7 @@ class LabelMixin(models.AbstractModel):
                 "MPN: ",
                 f"(SM){record.mpn}",
                 f"Bin: {record.bin or '       '}",
-                record.condition.title() if record.condition else "",
+                record.condition.name if record.condition else "",
             ]
             quantity = getattr(record, "quantity", 1) if print_quantity else 1
             label = self.generate_label_base64(
@@ -127,12 +125,12 @@ class LabelMixin(models.AbstractModel):
         return lines
 
     def generate_label_base64(
-            self,
-            text: list[str] | str,
-            bottom_text: str | list[str] | None = None,
-            barcode: str | None = None,
-            quantity: int = 1,
-            print_date: bool = True,
+        self,
+        text: list[str] | str,
+        bottom_text: str | list[str] | None = None,
+        barcode: str | None = None,
+        quantity: int = 1,
+        print_date: bool = True,
     ) -> str:
         if not isinstance(text, list):
             text = [text]
@@ -142,11 +140,7 @@ class LabelMixin(models.AbstractModel):
 
         label_width = int(203 * self.LABEL_SIZE["width"])
         column_width = int(label_width / 2)
-        label_text_size = (
-            self.LABEL_TEXT_SIZE["large"]
-            if text[0] == ""
-            else self.LABEL_TEXT_SIZE["medium"]
-        )
+        label_text_size = self.LABEL_TEXT_SIZE["large"] if text[0] == "" else self.LABEL_TEXT_SIZE["medium"]
 
         quantity = max(int(quantity), 1)
         label = ZPLDocument()
@@ -163,9 +157,7 @@ class LabelMixin(models.AbstractModel):
                 character_width=self.LABEL_TEXT_SIZE["small"],
             )
             label.add_field_block(text_justification="C", width=column_width)
-            label.add_field_origin(
-                x_pos=self.LABEL_CENTER_X, y_pos=current_origin_y, justification=2
-            )
+            label.add_field_origin(x_pos=self.LABEL_CENTER_X, y_pos=current_origin_y, justification=2)
             label.add_field_data(formatted_date)
             current_origin_y += self.LABEL_TEXT_SIZE["small"]
 
@@ -182,9 +174,7 @@ class LabelMixin(models.AbstractModel):
                 character_width=current_line_text_size,
             )
             label.add_field_block(text_justification="C", width=column_width)
-            label.add_field_origin(
-                x_pos=self.LABEL_CENTER_X, y_pos=current_origin_y, justification=2
-            )
+            label.add_field_origin(x_pos=self.LABEL_CENTER_X, y_pos=current_origin_y, justification=2)
             label.add_field_data(line)
             current_origin_y += label_text_size
 
@@ -202,9 +192,7 @@ class LabelMixin(models.AbstractModel):
                 current_origin_y += self.LABEL_TEXT_SIZE["small"]
 
         if barcode:
-            label.add_field_origin(
-                x_pos=self.LABEL_PADDING_X, y_pos=self.LABEL_PADDING_Y, justification=2
-            )
+            label.add_field_origin(x_pos=self.LABEL_PADDING_X, y_pos=self.LABEL_PADDING_Y, justification=2)
             # noinspection SpellCheckingInspection
             label.add_zpl_raw(f"^BQN,2,{self.BARCODE_SIZE}^FDQAH," + barcode + "^FS^XZ")
 
