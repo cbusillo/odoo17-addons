@@ -185,6 +185,8 @@ class Motor(models.Model, LabelMixin):
 
             if name:
                 motor.display_name = name
+            else:
+                motor.display_name = "New Motor"
 
     @api.depends("parts.is_missing", "parts.template.hide_compression_page")
     def _compute_hide_compression_page(self) -> None:
