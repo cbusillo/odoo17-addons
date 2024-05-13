@@ -17,7 +17,7 @@
                 record="props.record"
                 enableZoom="false"
                 previewImage="'image_' + state.size"
-                reload="true"
+                reload="false"
         />
 
       </t>
