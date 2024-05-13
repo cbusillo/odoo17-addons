@@ -49,18 +49,14 @@ export class MotorTestWidget extends Component {
 
         onWillUpdateProps((nextProps) => {
             if (nextProps.record !== this.props.record) {
-                // this.conditionsById = {}
-                // this.selectionFieldDomains = {}
                 this.loadMotorTests(nextProps)
             }
         })
     }
 
     async onFieldChanged() {
-        if (this.props.record.dirty) {
-            await this.props.record.save()
-            await this.loadMotorTests()
-        }
+        await this.props.record.save()
+        await this.loadMotorTests()
     }
 
     async loadMotorTests(props = this.props) {
