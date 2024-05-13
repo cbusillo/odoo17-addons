@@ -17,8 +17,8 @@ MOTOR_STAGE_SELECTION: list[tuple[str, str]] = [
 
 MOTOR_IMAGE_NAME_AND_ORDER: list[str] = [
     "Port Side",
-    "Starboard Side",
     "Port Mid Section",
+    "Starboard Side",
     "Starboard Midsection",
     "Data Label",
     "Powerhead - Port Side",
