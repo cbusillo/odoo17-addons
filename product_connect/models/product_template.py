@@ -73,20 +73,11 @@ class ProductTemplate(models.Model, LabelMixin):
         padding = sequence.padding
         max_sku = "9" * padding
         while (new_sku := self.env["ir.sequence"].next_by_code("product.template.default_code")) <= max_sku:
-            if not (self.env["motor.product"].search_count([("default_code", "=", new_sku)]) or
-                    self.env["product.template"].search_count([("default_code", "=", new_sku)]) or
-                    self.env["product.import"].search_count([("default_code", "=", new_sku)])):
-                return new_sku
-        raise ValidationError("SKU limit reached.")
-
-    def _generate_next_sku(self) -> str:
-        sequence = self.env["ir.sequence"].search([("code", "=", "product.import")])
-        padding = sequence.padding
-        max_sku = "9" * padding
-        while (
-                new_sku := self.env["ir.sequence"].next_by_code("product.import")
-        ) <= max_sku:
-            if not self.search([("default_code", "=", new_sku)]):
+            if not (
+                self.env["motor.product"].search_count([("default_code", "=", new_sku)])
+                or self.env["product.template"].search_count([("default_code", "=", new_sku)])
+                or self.env["product.import"].search_count([("default_code", "=", new_sku)])
+            ):
                 return new_sku
         raise ValidationError("SKU limit reached.")
 
@@ -111,9 +102,7 @@ class ProductTemplate(models.Model, LabelMixin):
     def _inverse_image_1920(self) -> None:
         for record in self:
             if record.product_template_image_ids:
-                record.product_template_image_ids[0].write(
-                    {"image_1920": record.image_1920}
-                )
+                record.product_template_image_ids[0].write({"image_1920": record.image_1920})
 
             elif record.image_1920:
                 self.env["product.image"].create(
