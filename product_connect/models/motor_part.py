@@ -17,14 +17,12 @@ class MotorPart(models.Model):
     _description = "Motor Parts"
     _order = "sequence, id"
 
-    motor = fields.Many2one(comodel_name="motor", required=True, ondelete="restrict")
+    motor = fields.Many2one(comodel_name="motor", required=True, ondelete="cascade")
     template = fields.Many2one(
         comodel_name="motor.part.template",
         ondelete="cascade",
     )
     name = fields.Char(related="template.name")
     sequence = fields.Integer(related="template.sequence", index=True, store=True)
-    hidden_tests = fields.Many2many(
-        "motor.test.template", related="template.hidden_tests", readonly=False
-    )
+    hidden_tests = fields.Many2many("motor.test.template", related="template.hidden_tests", readonly=False)
     is_missing = fields.Boolean(default=False)

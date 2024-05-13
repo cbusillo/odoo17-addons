@@ -13,7 +13,7 @@ class MotorCylinder(models.Model):
         )
     ]
 
-    motor = fields.Many2one("motor", ondelete="restrict")
+    motor = fields.Many2one("motor", ondelete="cascade")
     cylinder_number = fields.Integer()
     compression_psi = fields.Integer("Compression PSI")
 
@@ -23,7 +23,7 @@ class MotorImage(models.Model):
     _inherit = ["image.mixin"]
     _description = "Motor Images"
 
-    motor = fields.Many2one("motor", ondelete="restrict")
+    motor = fields.Many2one("motor", ondelete="cascade")
     name = fields.Char()
 
 

@@ -10,7 +10,7 @@ access_product_color,product.color,model_product_color,base.group_user,1,1,1,0
 access_product_color_tag,product.color.tag,model_product_color_tag,base.group_user,1,1,1,0
 access_product_condition,product.condition,model_product_condition,base.group_user,1,1,1,0
 
-access_motor,access_motor,model_motor,base.group_user,1,1,1,1
+access_motor,access_motor,model_motor,base.group_user,1,1,1,0
 access_motor_stroke,access_motor_stroke,model_motor_stroke,base.group_user,1,0,0,0
 access_motor_configuration,access_motor_configuration,model_motor_configuration,base.group_user,1,0,0,0
 
