@@ -32,6 +32,7 @@ class ProductCondition(models.Model):
     products_import = fields.One2many("product.import", "condition")
 
 
+# noinspection DuplicatedCode
 class ProductTemplate(models.Model, LabelMixin):
     _inherit = "product.template"
     _description = "Product"
