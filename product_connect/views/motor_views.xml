@@ -135,11 +135,10 @@
                         </page>
                         <page string="Compression Testing"
                               invisible="hide_compression_page or stage not in ['basic_testing', 'extended_testing', 'finalization']">
-                            <field name="compression">
+                            <field name="cylinders">
                                 <tree editable="bottom" delete="False" create="False">
                                     <field name="cylinder_number" readonly="1"/>
                                     <field name="compression_psi" string="PSI"/>
-                                    <field name="compression_image" string="Image" widget="binary"/>
                                 </tree>
                             </field>
                             <field name="hide_compression_page" invisible="1"/>

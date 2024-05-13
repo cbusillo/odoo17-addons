@@ -76,7 +76,8 @@ class Motor(models.Model, LabelMixin):
         "motor.test", "motor", domain=[("template.stage", "=", "extended")]
     )
 
-    compression = fields.One2many("motor.compression", "motor")
+    cylinders = fields.One2many("motor.cylinder", "motor")
+
     compression_formatted_html = fields.Html(
         compute="_compute_compression_formatted_html"
     )
@@ -109,6 +110,8 @@ class Motor(models.Model, LabelMixin):
         vals = self._sanitize_vals(vals)
 
         result = super().write(vals)
+        if "configuration" in vals:
+            self._compute_compression()
         for record in self.with_context(_stage_updating=True):
             record._update_stage()
             # record._create_motor_products()
@@ -124,7 +127,7 @@ class Motor(models.Model, LabelMixin):
         for motor in self:
             lines = [
                 f"Cylinder: {c.cylinder_number} Compression: {c.compression_psi} PSI"
-                for c in motor.compression
+                for c in motor.cylinders
             ]
             motor.compression_formatted_html = "<br/>".join(lines)
 
@@ -320,28 +323,31 @@ class Motor(models.Model, LabelMixin):
             return int(match.group())
         return 0
 
-    @api.onchange("configuration")
-    def _onchange_motor_configuration(self) -> None:
-        if not self.configuration:
-            return
+    def _compute_compression(self) -> None:
+        for motor in self:
 
-        desired_cylinders = self._get_cylinder_count()
-        current_cylinders = [cylinder.cylinder_number for cylinder in self.compression]
+            desired_cylinders = motor._get_cylinder_count()
+            current_cylinders = motor.cylinders.mapped("cylinder_number")
 
-        for cylinder in self.compression.filtered(
-            lambda x: x.cylinder_number > desired_cylinders
-        ):
-            self.compression -= cylinder
+            # Remove cylinders that exceed the new configuration
+            excessive_cylinders = motor.cylinders.filtered(
+                lambda x: x.cylinder_number > desired_cylinders
+            )
+            if excessive_cylinders:
+                excessive_cylinders.unlink()  # Directly deletes excess records from the database
 
-        for i in range(1, desired_cylinders + 1):
-            if i not in current_cylinders:
-                new_cylinder = self.compression.new(
-                    {
-                        "cylinder_number": i,
-                        "compression_psi": 0,
-                    }
-                )
-                self.compression += new_cylinder
+            # Add missing cylinders
+            existing_cylinder_numbers = set(current_cylinders)
+            for i in range(1, desired_cylinders + 1):
+                if i not in existing_cylinder_numbers:
+                    pass
+                    self.env["motor.cylinder"].create(
+                        {
+                            "motor": motor.id,
+                            "cylinder_number": i,
+                            "compression_psi": 0,
+                        }
+                    )
 
     def _create_default_images(self, motor_record: Self) -> None:
         image_names = constants.MOTOR_IMAGE_NAME_AND_ORDER

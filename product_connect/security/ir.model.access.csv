@@ -15,7 +15,7 @@ access_motor_stroke,access_motor_stroke,model_motor_stroke,base.group_user,1,0,0
 access_motor_configuration,access_motor_configuration,model_motor_configuration,base.group_user,1,0,0,0
 
 access_motor_image,access_motor_image,model_motor_image,base.group_user,1,1,1,1
-access_motor_compression,access_motor_compression,model_motor_compression,base.group_user,1,1,1,1
+access_motor_cylinder,access_motor_cylinder,model_motor_cylinder,base.group_user,1,1,1,1
 access_motor_test_template,access_motor_test_template,model_motor_test_template,base.group_user,1,1,1,1
 access_motor_part,access_motor_part,model_motor_part,base.group_user,1,1,1,1
 access_motor_part_template,access_motor_part_template,model_motor_part_template,base.group_user,1,1,1,1
