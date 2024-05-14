@@ -5,7 +5,7 @@ import re
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Generator, Literal, Self, TYPE_CHECKING
+from typing import Any, Generator, Self, TYPE_CHECKING
 from urllib.error import HTTPError
 from zoneinfo import ZoneInfo
 
@@ -279,7 +279,7 @@ class ShopifySync(models.AbstractModel):
                 logs=memory_handler.logs,
             )
             raise error
-        if status not in ["created", "updated"]:
+        if status == "no_sku":
             self.notify_channel_on_error(
                 f"Failed importing {shopify_product['title']} due to bad SKU in Shopify",
                 str(self.extract_id_from_gid(shopify_product["id"])),
@@ -454,10 +454,7 @@ class ShopifySync(models.AbstractModel):
             odoo_product.update_quantity(shopify_quantity)
 
     @api.model
-    def create_or_update_odoo_product(
-        self, shopify_product, existing_product=None
-    ) -> Literal["unchanged", "updated", "created"]:
-        status: Literal["unchanged", "updated", "created"]
+    def create_or_update_odoo_product(self, shopify_product, existing_product=None) -> str:
 
         shopify_product_data = self.parse_shopify_product_data(shopify_product)
 
@@ -466,10 +463,10 @@ class ShopifySync(models.AbstractModel):
         variant_edges = shopify_product.get("variants", {}).get("edges", [])
 
         if not re.match(sku_pattern, sku_value):
-            return "unchanged"
+            return "no_sku"
 
         if not variant_edges or not variant_edges[0].get("node"):
-            return "unchanged"
+            return "no_sku"
 
         odoo_product_data = self.map_shopify_to_odoo_product_data(shopify_product_data, existing_product)
         if existing_product:
