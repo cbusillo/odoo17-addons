@@ -225,13 +225,15 @@ class ShopifySync(models.AbstractModel):
 
     @staticmethod
     def extract_sku_bin_from_shopify_product(shopify_product: dict) -> tuple[str, str]:
-        product_variant = shopify_product.get("variants", {}).get("edges", [])[0].get("node", {})
-        sku_bin = [
-            value.strip()
-            for value in (product_variant.get("sku", "") or "").split(
-                " - " if " - " in product_variant.get("sku", "") else " ", 1
-            )
-        ]
+        variant_edges = shopify_product.get("variants", {}).get("edges", [])
+        if not variant_edges:
+            logger.warning("No variants found for product: %s", shopify_product["id"])
+            return "", ""
+        product_variant = variant_edges[0].get("node", {})
+        sku_field = product_variant.get("sku", "") or ""
+
+        sku_bin = [value.strip() if value else "" for value in sku_field.split(" - " if " - " in sku_field else " ", 1)]
+
         if len(sku_bin) == 0:
             logger.warning(
                 "Received unexpected SKU format from Shopify for product: %s",
