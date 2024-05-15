@@ -1,5 +1,5 @@
 /** @odoo-module **/
-import { onWillDestroy, useRef } from '@odoo/owl';
+import { useRef } from '@odoo/owl';
 import { CharField } from '@web/views/fields/char/char_field';
 import { registry } from '@web/core/registry';
 
@@ -11,9 +11,7 @@ class QRCodeWidget extends CharField {
         this.inputRef = useRef("input");
         this.videoContainerRef = useRef("videoContainer");
 
-        onWillDestroy(() => {
-            QrScanner.destroy();
-        })
+
     }
 
     async scanQRCode() {
@@ -43,9 +41,13 @@ class QRCodeWidget extends CharField {
             const qrScanner = new QrScanner(
                 videoElement,
                 result => {
+                    console.log('QR code detected:', result);
                     this.inputRef.el.value = result;
                     qrScanner.stop();
-                    this.videoContainerRef.el.innerHTML = ''; // Remove the video element when done
+                    this.videoContainerRef.el.innerHTML = '';
+                },
+                {
+                    returnDetailedScanResult: true
                 }
             );
 
