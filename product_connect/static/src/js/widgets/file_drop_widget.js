@@ -30,7 +30,6 @@ export class FileDropWidget extends BinaryField {
     }
 
     updateDropMessage(countToAdd = 0) {
-        console.log('test')
         const fieldCountName = pluralize(this.props.name, 1) + '_count'
         let total
         if (fieldCountName) {

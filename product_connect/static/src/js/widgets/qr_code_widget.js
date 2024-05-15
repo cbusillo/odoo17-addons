@@ -1,68 +1,91 @@
 /** @odoo-module **/
-import { useRef } from '@odoo/owl';
-import { CharField } from '@web/views/fields/char/char_field';
+import { onMounted, onWillUnmount, useState } from '@odoo/owl';
+import { ConfirmationDialog } from '@web/core/confirmation_dialog/confirmation_dialog';
+import { CharField, charField } from '@web/views/fields/char/char_field';
 import { registry } from '@web/core/registry';
 
-const QrScanner = window.QrScanner;
-
 class QRCodeWidget extends CharField {
-    setup() {
-        super.setup();
-        this.inputRef = useRef("input");
-        this.videoContainerRef = useRef("videoContainer");
-
-
+    static template = 'product_connect.QRCodeWidget';
+    static props = {
+        ...CharField.props,
     }
 
-    async scanQRCode() {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            console.error('Camera API is not supported in this browser.');
-            alert('Your browser does not support the Camera API. Please use a compatible browser.');
-            return;
-        }
+    setup() {
+        super.setup();
+        this.state = useState({
+            scanEnabled: true,
+            buttonLabel: 'Stop',
+        })
+
+        this.onScanSuccess = this.onScanSuccess.bind(this);
+        onMounted(() => {
+            // noinspection JSUnresolvedReference
+            this.htmlQrCode = new window.Html5Qrcode("reader");
+            this.startScanner();
+        })
+
+        onWillUnmount(() => {
+            this.htmlQrCode.stop();
+        })
+    }
+
+    onScanSuccess(decodedText) {
         try {
-            // Request camera access
-            console.log('Requesting camera access...');
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-            console.log('Camera access granted.');
-
-            // Create a video element to display the camera feed
-            const videoElement = document.createElement('video');
-            videoElement.srcObject = stream;
-            videoElement.setAttribute('playsinline', 'true'); // Required to tell iOS Safari we don't want fullscreen
-            videoElement.style.width = '100%';
-            videoElement.style.height = 'auto';
-
-            this.videoContainerRef.el.appendChild(videoElement);
-
-            await videoElement.play();
-            console.log('Video element playing.');
-
-            const qrScanner = new QrScanner(
-                videoElement,
-                result => {
-                    console.log('QR code detected:', result);
-                    this.inputRef.el.value = result;
-                    qrScanner.stop();
-                    this.videoContainerRef.el.innerHTML = '';
-                },
-                {
-                    returnDetailedScanResult: true
-                }
-            );
-
-            await qrScanner.start();
-            console.log('QR Scanner started.');
+            if (decodedText === this.state.barcode) {
+                return;
+            }
+            this.stopScanner()
+            this.props.record.update({ [this.props.name]: decodedText })
+                .catch((error) => {
+                    this.env.services.dialog.add(ConfirmationDialog, {
+                        title: 'Error',
+                        body: error.data.message,
+                        confirm: () => {
+                            this.startScanner();
+                        },
+                    });
+                });
         } catch (error) {
-            console.error('Error accessing camera or starting QR scanner', error);
+            console.error('An error occurred:', error)
         }
+    }
+
+    startScanner() {
+        const config = {
+            fps: 10,
+            qrbox: { width: 200, height: 200 },
+        };
+        this.htmlQrCode.start(
+            { facingMode: "environment" },
+            config,
+            this.onScanSuccess
+        );
+        this.state.buttonLabel = 'Stop'
+    }
+
+    stopScanner() {
+        this.htmlQrCode?.stop().catch((error) => {
+            console.error('Failed to stop scanner:', error);
+        });
+        this.state.buttonLabel = 'Scan'
+    }
+
+    toggleScan() {
+        if (this.state.scanEnabled) {
+            const currentState = this.htmlQrCode.getState();
+            // noinspection JSUnresolvedReference
+            if (currentState === Html5QrcodeScannerState.SCANNING) {
+                this.stopScanner()
+            }
+        } else {
+            this.startScanner()
+        }
+        this.state.scanEnabled = !this.state.scanEnabled;
     }
 }
 
-QRCodeWidget.template = 'product_connect.QRCodeWidget';
-
 export const qrCodeWidget = {
-    ...CharField,
+    ...charField,
     component: QRCodeWidget,
 };
 

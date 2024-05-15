@@ -15,14 +15,8 @@ class ProductImportWizard(models.TransientModel):
         total_price = sum(record.price * record.quantity for record in products)
 
         for product in products:
-            cost_proportion = (
-                (product.price * product.quantity) / total_price if total_price else 0
-            )
-            product.cost = (
-                (cost_proportion * self.total_cost) / product.quantity
-                if product.quantity
-                else 0
-            )
+            cost_proportion = (product.price * product.quantity) / total_price if total_price else 0
+            product.cost = (cost_proportion * self.total_cost) / product.quantity if product.quantity else 0
         return {
             "type": "ir.actions.act_window",
             "res_model": "product.import",
@@ -36,10 +30,8 @@ class ProductImportImageWizard(models.TransientModel):
     _description = "Product Import Photo Wizard"
 
     product = fields.Many2one("product.import")
-    barcode = fields.Char()
-    default_code = fields.Char(
-        string="SKU", related="product.default_code", readonly=True
-    )
+    barcode = fields.Char(size=20)
+    default_code = fields.Char(string="SKU", related="product.default_code", readonly=True)
     name = fields.Char(related="product.name", readonly=True)
     images = fields.One2many(related="product.images")
 
@@ -66,15 +58,11 @@ class ProductImportImageWizard(models.TransientModel):
         if not product:
             return
 
-        current_indexes = {
-            image.index for image in product.images if image.index is not None
-        }
+        current_indexes = {image.index for image in product.images if image.index is not None}
         max_index = 19
         missing_indexes = set(range(max_index + 1)) - current_indexes
 
-        new_images_data = [
-            {"product": product.id, "index": index} for index in missing_indexes
-        ]
+        new_images_data = [{"product": product.id, "index": index} for index in missing_indexes]
         self.images.create(new_images_data)
 
     @api.onchange("images")
@@ -106,9 +94,7 @@ class ProductImportImageWizard(models.TransientModel):
 
         current_product_id = self.product.id if self.product else None
         product = (
-            self.env["product.import"].search(
-                [("id", comparison, current_product_id)], order=order, limit=1
-            )
+            self.env["product.import"].search([("id", comparison, current_product_id)], order=order, limit=1)
             if current_product_id
             else self.env["product.import"].search([], order=order, limit=1)
         )
@@ -148,9 +134,7 @@ class ProductImportImageWizard(models.TransientModel):
         self._exit_product()
         if not barcode:
             return None
-        product = self.env["product.import"].search(
-            [("default_code", "=", barcode)], limit=1
-        )
+        product = self.env["product.import"].search([("default_code", "=", barcode)], limit=1)
         if not product:
             # noinspection PyProtectedMember
             raise UserError(_("No product found with the given barcode."))

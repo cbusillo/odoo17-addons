@@ -1,11 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <templates id="template" xml:space="preserve">
     <t t-name="product_connect.QRCodeWidget">
-        <div>
-            <input type="text" t-ref="input" t-att-value="props.value"/>
-            <button type="button" t-on-click.prevent="scanQRCode">Scan QR Code</button>
-        </div>
-        <div t-ref="videoContainer" style="position: relative; width: 100%; height: auto; margin-top: 10px;">
-            <!-- This is the small shape overlay on the video -->
-        </div>
+            <div class="d-flex flex-row">
+                <button type="button" class="text-nowrap" t-on-click.prevent="toggleScan">
+                    <t t-out="state.buttonLabel"/>
+                </button>
+                <t t-if="props.readonly">
+                    <span t-out="formattedValue"/>
+                </t>
+                <t t-else="">
+                    <input
+                            class="o_input"
+                            t-att-class="{'o_field_translate': isTranslatable}"
+                            t-att-id="props.id"
+                            t-att-type="props.isPassword ? 'password' : 'text'"
+                            t-att-autocomplete="props.autocomplete or (props.isPassword ? 'new-password' : 'off')"
+                            t-att-maxlength="maxLength > 0 and maxLength"
+                            t-att-placeholder="props.placeholder"
+                            t-ref="input"
+                            t-att-model="props.value"
+                            t-att-style="'max-width:' + maxLength + 'em;'"
+                    />
+                    <t t-if="isTranslatable">
+                        <TranslationButton
+                                fieldName="props.name"
+                                record="props.record"
+                        />
+                    </t>
+
+                </t>
+            </div>
+        <div id="reader" class="w-50"></div>
     </t>
 </templates>
