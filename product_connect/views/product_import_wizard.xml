@@ -30,7 +30,7 @@
             <form string="Product Image Wizard">
                 <sheet>
                     <group>
-                        <field name="barcode"/>
+                        <field name="barcode" widget="qr_scanner"/>
                         <field name="default_code"/>
                         <field name="product"/>
                     </group>

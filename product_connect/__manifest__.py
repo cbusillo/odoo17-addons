@@ -49,8 +49,11 @@
     ],
     "assets": {
         "web.assets_backend": [
+            "product_connect/static/src/js/external/qr-scanner.umd.min.js",
             "product_connect/static/src/scss/*",
-            "product_connect/static/src/js/*/*",
+            "product_connect/static/src/js/forms/*",
+            "product_connect/static/src/js/utils/*",
+            "product_connect/static/src/js/widgets/*",
             "product_connect/static/src/xml/*",
         ],
     },

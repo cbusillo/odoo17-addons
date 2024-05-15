@@ -1,0 +1,8 @@
+<templates id="template" xml:space="preserve">
+    <t t-name="product_connect.QRCodeWidget">
+        <div>
+            <input type="text" t-ref="input" t-att-value="props.value"/>
+            <button type="button" t-on-click.prevent="scanQRCode">Scan QR Code</button>
+        </div>
+    </t>
+</templates>
