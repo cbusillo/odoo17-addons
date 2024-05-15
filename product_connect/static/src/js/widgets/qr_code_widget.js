@@ -12,24 +12,31 @@ class QRCodeWidget extends CharField {
 
     async scanQRCode() {
         try {
-            // Get access to the camera
+            console.log('Requesting camera access...');
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            console.log('Camera access granted.');
 
-            // Create a video element to display the camera feed
             const videoElement = document.createElement('video');
             videoElement.srcObject = stream;
-            videoElement.setAttribute('playsinline', 'true'); // Required to tell iOS Safari we don't want fullscreen
-            videoElement.style.width = "100%"; // Ensure the video element is visible
-            videoElement.style.height = "auto"; // Ensure the video element is visible
+            videoElement.setAttribute('playsinline', 'true');
+            videoElement.style.position = 'absolute';
+            videoElement.style.top = '0';
+            videoElement.style.left = '0';
+            videoElement.style.width = '100vw';
+            videoElement.style.height = '100vh';
+            videoElement.style.zIndex = '1000'; // Ensure it is on top
+            videoElement.style.background = 'black';
 
             document.body.appendChild(videoElement);
-            await videoElement.play(); // Ensure the video is played
+            console.log('Video element added to DOM.');
 
-            // Initialize QrScanner with the video element
+            await videoElement.play();
+            console.log('Video element playing.');
+
             const qrScanner = new window.QrScanner(videoElement, result => this.onQRCodeScanned(result));
             qrScanner.start();
+            console.log('QR Scanner started.');
 
-            // Store the scanner and video element to stop them later
             this.qrScanner = qrScanner;
             this.videoElement = videoElement;
 
@@ -39,8 +46,8 @@ class QRCodeWidget extends CharField {
     }
 
     onQRCodeScanned(result) {
+        console.log('QR Code scanned:', result);
         this.inputRef.el.value = result;
-        // Stop the scanner and video when a code is scanned
         if (this.qrScanner) {
             this.qrScanner.stop();
         }
@@ -50,8 +57,6 @@ class QRCodeWidget extends CharField {
         }
     }
 }
-
-QRCodeWidget.template = 'product_connect.QRCodeWidget';
 
 export const qrCodeWidget = {
     ...CharField,
