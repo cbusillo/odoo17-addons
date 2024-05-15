@@ -4,5 +4,8 @@
             <input type="text" t-ref="input" t-att-value="props.value"/>
             <button type="button" t-on-click.prevent="scanQRCode">Scan QR Code</button>
         </div>
+        <div t-ref="videoContainer" style="position: relative; width: 100%; height: auto; margin-top: 10px;">
+            <!-- This is the small shape overlay on the video -->
+        </div>
     </t>
 </templates>
