@@ -20,6 +20,7 @@
                             t-ref="input"
                             t-att-model="props.value"
                             t-att-style="'max-width:' + maxLength + 'em;'"
+                            t-on-focusin="onInputFocus"
                     />
                     <t t-if="isTranslatable">
                         <TranslationButton
@@ -30,6 +31,6 @@
 
                 </t>
             </div>
-        <div id="reader" class="w-50"></div>
+        <div id="qrReader" class="w-50" t-ref="qrReader"></div>
     </t>
 </templates>
