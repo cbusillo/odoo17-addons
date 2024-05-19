@@ -24,18 +24,14 @@ class ProductImportImage(odoo.models.Model):
     ]
 
     index = odoo.fields.Integer(index=True, required=True)
-    product = odoo.fields.Many2one(
-        "product.import", ondelete="cascade", required=True, index=True
-    )
+    product = odoo.fields.Many2one("product.import", ondelete="cascade", required=True, index=True)
 
 
 class ProductImport(LabelMixin, odoo.models.Model):
     _name = "product.import"
     _description = "Product Import"
     _inherit = ["mail.thread"]
-    _sql_constraints = [
-        ("default_code_uniq", "unique (default_code)", "SKU already exists !")
-    ]
+    _sql_constraints = [("default_code_uniq", "unique (default_code)", "SKU already exists !")]
 
     default_code = odoo.fields.Char(
         string="SKU",
@@ -47,10 +43,8 @@ class ProductImport(LabelMixin, odoo.models.Model):
     )
     mpn = odoo.fields.Char(string="MPN", index=True)
     manufacturer = odoo.fields.Many2one("product.manufacturer", index=True)
-    manufacturer_barcode = odoo.fields.Char(index=True)
     quantity = odoo.fields.Integer()
     bin = odoo.fields.Char(index=True)
-    lot_number = odoo.fields.Char(index=True)
     name = odoo.fields.Char(index=True)
     description = odoo.fields.Char()
     product_type = odoo.fields.Many2one("product.type", index=True)
@@ -64,13 +58,9 @@ class ProductImport(LabelMixin, odoo.models.Model):
     condition = odoo.fields.Many2one(
         "product.condition",
         index=True,
-        default=lambda self: self.env.ref(
-            "product_connect.product_condition_used", raise_if_not_found=False
-        ),
+        default=lambda self: self.env.ref("product_connect.product_condition_used", raise_if_not_found=False),
     )
-    has_recent_messages = odoo.fields.Boolean(
-        compute="_compute_has_recent_messages", store=True
-    )
+    has_recent_messages = odoo.fields.Boolean(compute="_compute_has_recent_messages", store=True)
 
     def name_get(self) -> list[tuple[int, str]]:
         result = []
@@ -83,8 +73,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
     def _compute_has_recent_messages(self) -> None:
         for product in self:
             recent_messages = product.message_ids.filtered(
-                lambda m: odoo.fields.Datetime.now() - m.create_date
-                < timedelta(minutes=30)
+                lambda m: odoo.fields.Datetime.now() - m.create_date < timedelta(minutes=30)
             )
             product.has_recent_messages = bool(recent_messages)
 
@@ -95,9 +84,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
 
     def _compute_image_count(self) -> None:
         for motor in self:
-            motor.image_count = len(
-                [image for image in motor.images if image.image_1920]
-            )
+            motor.image_count = len([image for image in motor.images if image.image_1920])
 
     @odoo.api.onchange("bin", "mpn")
     def _format_fields_upper(self) -> None:
@@ -111,21 +98,14 @@ class ProductImport(LabelMixin, odoo.models.Model):
             existing_products = self.products_from_mpn_condition_new()
             if existing_products:
                 existing_products_display = [
-                    f"{product['default_code']} - {product['bin']}"
-                    for product in existing_products
+                    f"{product['default_code']} - {product['bin']}" for product in existing_products
                 ]
-                raise UserError(
-                    f"A product with the same MPN already exists.  Its SKU is {existing_products_display}"
-                )
+                raise UserError(f"A product with the same MPN already exists.  Its SKU is {existing_products_display}")
 
-    def _products_from_existing_records(
-        self, field_name: str, field_value: str
-    ) -> list[dict[str, str]]:
+    def _products_from_existing_records(self, field_name: str, field_value: str) -> list[dict[str, str]]:
         is_new_record = isinstance(self.id, odoo.models.NewId)
         if is_new_record:
-            product_imports = self.env["product.import"].search(
-                [(field_name, "=", field_value)]
-            )
+            product_imports = self.env["product.import"].search([(field_name, "=", field_value)])
         else:
             product_imports = self.env["product.import"].search(
                 [
@@ -133,9 +113,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
                     ("id", "!=", self.id),
                 ]
             )
-        product_templates = self.env["product.template"].search(
-            [(field_name, "=", field_value)]
-        )
+        product_templates = self.env["product.template"].search([(field_name, "=", field_value)])
 
         existing_products = {}
         for product in product_imports:
@@ -159,11 +137,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
     def products_from_mpn_condition_new(self) -> list[dict[str, str]] | None:
         if self.mpn and self.condition.code == "new":
             existing_products = self._products_from_existing_records("mpn", self.mpn)
-            existing_new_products = [
-                product
-                for product in existing_products
-                if product["condition"] == "new"
-            ]
+            existing_new_products = [product for product in existing_products if product["condition"] == "new"]
             if existing_new_products:
                 return existing_new_products
         return None
@@ -183,9 +157,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
                 image_base64 = base64.b64encode(response.content)
                 return image_base64
             except IOError:
-                _logger.error(
-                    "The binary data could not be decoded as an image. URL: %s", url
-                )
+                _logger.error("The binary data could not be decoded as an image. URL: %s", url)
 
         except requests.exceptions.Timeout:
             _logger.error(
@@ -204,8 +176,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
 
     def import_to_products(self) -> dict[str, str]:
         missing_data_records = self.filtered(
-            lambda current_record: not current_record.default_code
-            or not current_record.name
+            lambda current_record: not current_record.default_code or not current_record.name
         )
         if missing_data_records:
             message = f"Missing data for records.  Please fill in all required fields for SKUs {' '.join([p.default_code for p in missing_data_records])} ."
@@ -223,22 +194,17 @@ class ProductImport(LabelMixin, odoo.models.Model):
             existing_products = record.products_from_mpn_condition_new()
             if existing_products:
                 existing_products_display = [
-                    f"{product['default_code']} - {product['bin']}"
-                    for product in existing_products
+                    f"{product['default_code']} - {product['bin']}" for product in existing_products
                 ]
                 raise UserError(
                     f"A product with the same MPN already exists.  Its SKU is/are {existing_products_display}"
                 )
-            product = self.env["product.product"].search(
-                [("default_code", "=", record.default_code)], limit=1
-            )
+            product = self.env["product.product"].search([("default_code", "=", record.default_code)], limit=1)
             image_from_url_data = None
             if record.image_1_url:
                 image_from_url_data = record.get_image_from_url(record.image_1_url)
                 if not image_from_url_data:
-                    message = (
-                        f"Error getting image from URL for SKU: {record.default_code}"
-                    )
+                    message = f"Error getting image from URL for SKU: {record.default_code}"
                     _logger.warning(message)
                     record.message_post(
                         body=message,
@@ -260,16 +226,11 @@ class ProductImport(LabelMixin, odoo.models.Model):
                 "part_type": record.product_type.id or product.part_type.id,
                 "weight": record.weight if record.weight > 0 else product.weight,
                 "list_price": record.price if record.price > 0 else product.list_price,
-                "standard_price": (
-                    record.cost if record.cost > 0 else product.standard_price
-                ),
+                "standard_price": (record.cost if record.cost > 0 else product.standard_price),
                 "condition": record.condition.id or product.condition.id,
                 "detailed_type": "product",
                 "is_published": True,
                 "shopify_next_export": True,
-                "manufacturer_barcode": record.manufacturer_barcode
-                or product.manufacturer_barcode,
-                "lot_number": record.lot_number or product.lot_number,
             }
             if product:
                 product.write(product_data)
@@ -278,9 +239,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
             if record.quantity > 0:
                 product.update_quantity(record.quantity)
 
-            current_images = self.env["product.image"].search(
-                [("product_tmpl_id", "=", product.product_tmpl_id.id)]
-            )
+            current_images = self.env["product.image"].search([("product_tmpl_id", "=", product.product_tmpl_id.id)])
 
             current_index = 1
             for image in current_images:

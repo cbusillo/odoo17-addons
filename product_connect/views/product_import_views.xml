@@ -56,12 +56,10 @@
                 </header>
                 <field name="default_code"/>
                 <field name="condition" optional="show"/>
-                <field name="manufacturer_barcode" string="Barcode" optional="hide"/>
                 <field name="manufacturer" options="{'no_create': True}"/>
                 <field name="mpn" widget="search_mpn_online"/>
                 <field name="quantity" sum="Total Quantity"/>
                 <field name="bin"/>
-                <field name="lot_number" optional="hide"/>
                 <field name="name"/>
                 <field name="description" optional="show"/>
                 <field name="product_type" options="{'no_create': True}" optional="show"/>

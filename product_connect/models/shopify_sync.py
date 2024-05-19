@@ -560,12 +560,16 @@ class ShopifySync(models.AbstractModel):
     def prepare_odoo_product_image_data_for_export(base_url, odoo_product) -> list[dict[str, str]]:
         """Construct image data for each Odoo product."""
         media_list = []
-        for odoo_image in sorted(
-            odoo_product.product_tmpl_id.product_template_image_ids,
-            key=lambda image: image.name,
+        for index, odoo_image in enumerate(
+            sorted(
+                odoo_product.product_tmpl_id.product_template_image_ids,
+                key=lambda image: image.name,
+            ),
+            start=1,
         ):
             image_data = {
                 "altText": odoo_product.name,
+                "position": index,
                 "src": base_url + "/web/image/product.image/" + str(odoo_image.id) + "/image_1920",
             }
             media_list.append(image_data)

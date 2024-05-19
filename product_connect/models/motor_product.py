@@ -12,9 +12,7 @@ class MotorProductTemplate(models.Model):
 
     stroke = fields.Many2many("motor.stroke")
     configuration = fields.Many2many("motor.configuration")
-    manufacturers = fields.Many2many(
-        "product.manufacturer", domain=[("is_motor_manufacturer", "=", True)]
-    )
+    manufacturers = fields.Many2many("product.manufacturer", domain=[("is_motor_manufacturer", "=", True)])
     excluded_parts = fields.Many2many("motor.part.template")
     excluded_tests = fields.Many2many("motor.test.template")
     is_quantity_listing = fields.Boolean(default=False)
@@ -27,7 +25,7 @@ class MotorProductTemplate(models.Model):
     quantity = fields.Integer()
     bin = fields.Char()
     weight = fields.Float()
-    sequence = fields.Integer(default=10)
+    sequence = fields.Integer(default=10, index=True)
 
 
 class MotorProductImage(models.Model):
@@ -35,7 +33,7 @@ class MotorProductImage(models.Model):
     _inherit = ["image.mixin"]
     _description = "Motor Product Images"
 
-    name = fields.Char()
+    index = fields.Integer(index=True, required=True)
     product = fields.Many2one("motor.product", ondelete="restrict")
 
 
@@ -50,29 +48,27 @@ class MotorProduct(models.Model):
         copy=False,
         readonly=True,
         default=lambda self: self.env["product.template"].get_next_sku(),
+        string="SKU",
     )
     motor = fields.Many2one("motor", required=True, ondelete="restrict", readonly=True)
     active = fields.Boolean(default=True)
     images = fields.One2many("motor.product.image", "product")
+    image_count = fields.Integer(compute="_compute_image_count")
     icon = fields.Binary(compute="_compute_icon", store=True)
-    template = fields.Many2one(
-        "motor.product.template", required=True, ondelete="restrict", readonly=True
-    )
+    template = fields.Many2one("motor.product.template", required=True, ondelete="restrict", readonly=True)
     computed_name = fields.Char(compute="_compute_name", store=True)
     name = fields.Char()
+    description = fields.Text()
     mpn = fields.Char()
     product_type = fields.Many2one(related="template.product_type", store=True)
     quantity = fields.Integer()
     bin = fields.Char()
     weight = fields.Float()
     price = fields.Float()
+    cost = fields.Float()
     sequence = fields.Integer(related="template.sequence", index=True, store=True)
-    excluded_parts = fields.Many2many(
-        "motor.part.template", related="template.excluded_parts"
-    )
-    excluded_tests = fields.Many2many(
-        "motor.test.template", related="template.excluded_tests"
-    )
+    excluded_parts = fields.Many2many("motor.part.template", related="template.excluded_parts")
+    excluded_tests = fields.Many2many("motor.test.template", related="template.excluded_tests")
 
     is_listable = fields.Boolean(default=True)
 
@@ -82,12 +78,14 @@ class MotorProduct(models.Model):
             vals["default_code"] = self.env["product.template"].get_next_sku()
         return super().create(vals_list)
 
+    def _compute_image_count(self) -> None:
+        for product in self:
+            product.image_count = len([image for image in product.images if image.image_1920])
+
     @api.depends("name", "computed_name", "default_code")
     def _compute_display_name(self) -> None:
         for record in self:
-            record.display_name = (
-                f"{record.default_code} - {record.name or record.computed_name}"
-            )
+            record.display_name = f"{record.default_code} - {record.name or record.computed_name}"
 
     @api.depends("images.image_1920")
     def _compute_icon(self) -> None:
@@ -110,11 +108,7 @@ class MotorProduct(models.Model):
             name_parts = [
                 record.motor.year if record.template.include_year_in_name else None,
                 record.motor.manufacturer.name if record.motor.manufacturer else None,
-                (
-                    record.motor.get_horsepower_formatted()
-                    if record.template.include_hp_in_name
-                    else None
-                ),
+                (record.motor.get_horsepower_formatted() if record.template.include_hp_in_name else None),
                 record.template.name,
                 record.mpn if record.template.include_model_in_name else None,
                 "OEM" if record.template.include_oem_in_name else None,

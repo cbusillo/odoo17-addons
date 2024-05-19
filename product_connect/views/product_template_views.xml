@@ -48,6 +48,7 @@
             </xpath>
             <xpath expr="//field[@name='virtual_available']" position="after">
                 <field name="shopify_product_id"/>
+                <field name="create_date" optional="hide"/>
             </xpath>
         </field>
     </record>
@@ -64,9 +65,7 @@
                 <field name="manufacturer"/>
                 <field name="part_type"/>
                 <field name="mpn"/>
-                <field name="manufacturer_barcode"/>
                 <field name="bin"/>
-                <field name="lot_number"/>
                 <field name="shopify_product_id"/>
             </field>
             <xpath expr="//group[@name='group_lots_and_weight']/div[@name='weight']" position="after">
@@ -99,13 +98,12 @@
             <xpath expr="//field[@name='name']" position="attributes">
                 <attribute name="filter_domain">
                     [
-                        '|', '|', '|', '|', '|',
+                        '|', '|', '|', '|',
                         ('name', 'ilike', self),
                         ('mpn', 'ilike', self),
                         ('bin', 'ilike', self),
                         ('description_sale', 'ilike', self),
                         ('default_code', 'ilike', self),
-                        ('manufacturer_barcode', 'ilike', self)
                     ]
                 </attribute>
             </xpath>
@@ -124,8 +122,6 @@
                 <field name="manufacturer"/>
                 <field name="part_type"/>
                 <field name="mpn"/>
-                <field name="manufacturer_barcode"/>
-                <field name="lot_number"/>
                 <field name="shopify_product_id"/>
             </tree>
         </field>

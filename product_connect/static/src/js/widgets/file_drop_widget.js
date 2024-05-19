@@ -30,7 +30,6 @@ export class FileDropWidget extends BinaryField {
     }
 
     updateDropMessage(countToAdd = 0) {
-        console.log('test')
         const fieldCountName = pluralize(this.props.name, 1) + '_count'
         let total
         if (fieldCountName) {
@@ -84,7 +83,7 @@ export class FileDropWidget extends BinaryField {
                     type: 'info',
                 })
                 await this.batchUpload(recordsToSend)
-                this.props.record.load()
+                await this.props.record.load()
                 this.notification.add(`${recordsToSend.length} Image(s) uploaded successfully`, {
                     type: 'success',
                 })
@@ -111,9 +110,8 @@ export class FileDropWidget extends BinaryField {
             const batch = records.slice(i, i + batchSize);
 
             const uploadPromise = this.orm.create(this.imageModelName, batch)
-                .then((createResult) => {
+                .then(() => {
                     activePromises.delete(uploadPromise);
-                    this.updateDropMessage(createResult.length);
                 })
                 .catch((error) => {
                     activePromises.delete(uploadPromise);

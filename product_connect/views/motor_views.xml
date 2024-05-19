@@ -35,6 +35,9 @@
                     <button name="print_motor_labels" type="object" class="btn btn-primary btn-lg">
                         <i class="fa fa-print"/>&#160;Print Motor Labels
                     </button>
+                    <button name="create_motor_products" type="object" class="btn btn-primary btn-lg">
+                        <i class="fa fa-ship"/>&#160;Create Motor Products
+                    </button>
                 </header>
                 <field name="stage" invisible="1"/>
                 <sheet>
@@ -228,22 +231,7 @@
                             </group>
                         </page>
                         <page string="Products" invisible="stage != 'finalization'">
-                            <field name="products">
-                                <tree editable="bottom" open_form_view="1">
-                                    <field name="is_listable" widget="boolean_toggle"/>
-                                    <field name="default_code"/>
-                                    <button name="reset_name" type="object" icon="fa-refresh"
-                                            class="sc_refresh_button_row"
-                                            title="Refresh"/>
-                                    <field name="name" width="20px"/>
-                                    <field name="mpn" width="20px"/>
-                                    <field name="product_type" width="20px"/>
-                                    <field name="quantity"/>
-                                    <field name="bin" width="20px"/>
-                                    <field name="weight"/>
-                                    <field name="price"/>
-                                </tree>
-                            </field>
+                            <field name="products"/>
                         </page>
                         <page string="Finalization" invisible="stage != 'finalization'">
                             <!-- Add fields relevant for the finalization stage here -->
@@ -258,24 +246,37 @@
         </field>
     </record>
 
+    <record id="view_motor_product_search" model="ir.ui.view">
+        <field name="name">motor.product.search</field>
+        <field name="model">motor.product</field>
+        <field name="arch" type="xml">
+            <search string="Search Motor Products">
+                <filter name="group_by_motor" string="Motor" context="{'group_by': 'motor'}"/>
+            </search>
+        </field>
+    </record>
+
     <record id="view_motor_product_tree" model="ir.ui.view">
         <field name="name">motor.product.tree</field>
         <field name="model">motor.product</field>
         <field name="arch" type="xml">
-            <tree string="Motor Products" default_group_by="motor">
+            <tree string="Motor Products" editable="bottom" open_form_view="1">
                 <field name="computed_name" column_invisible="1"/>
                 <field name="is_listable" widget="boolean_toggle"/>
                 <field name="default_code" width="20px"/>
+                <field name="mpn" width="20px"/>
+                <field name="quantity"/>
+                <field name="bin" width="20px"/>
                 <button name="reset_name" type="object" icon="fa-refresh" class="sc_refresh_button_row"
                         title="Reset Name" invisible="computed_name == name"/>
                 <field name="name" decoration-warning="computed_name != name"/>
-                <field name="mpn" width="20px"/>
-                <field name="bin" width="20px"/>
-                <field name="price"/>
-                <field name="template"/>
+                <field name="description" optional="hide"/>
                 <field name="product_type"/>
-                <field name="quantity"/>
                 <field name="weight"/>
+                <field name="price"/>
+                <field name="cost"/>
+                <field name="images" widget="file_drop" optional="show"/>
+                <field name="image_count" column_invisible="1"/>
             </tree>
         </field>
     </record>
@@ -311,6 +312,7 @@
                                     <field name="mpn"/>
                                     <field name="bin"/>
                                     <field name="price"/>
+                                    <field name="cost"/>
                                 </group>
                                 <group>
                                     <field name="template"/>
@@ -324,11 +326,13 @@
                                     <field name="is_listable" widget="boolean_toggle"/>
                                 </group>
                             </group>
+                            <group>
+                                <field name="description"/>
+                            </group>
                         </page>
                         <page string="Images">
                             <field name="images">
                                 <tree editable="bottom" delete="False">
-                                    <field name="name"/>
                                     <field name="image_256" widget="image" column_invisible="1"/>
                                     <field name="image_1920" widget="image_upload"/>
                                 </tree>
@@ -414,6 +418,7 @@
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">motor.product</field>
         <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_motor_product_search"/>
     </record>
 
     <record id="server_action_motor_print_labels" model="ir.actions.server">

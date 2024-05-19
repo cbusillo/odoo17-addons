@@ -8,7 +8,7 @@ class MotorTestSection(models.Model):
     _order = "sequence, id"
 
     name = fields.Char(required=True)
-    sequence = fields.Integer(default=10)
+    sequence = fields.Integer(default=10, index=True)
     templates = fields.One2many("motor.test.template", "section")
     tests = fields.One2many("motor.test", "section")
     motor = fields.Many2one("motor", ondelete="restrict")
@@ -49,7 +49,7 @@ class MotorTestTemplate(models.Model):
         required=True,
     )
     section = fields.Many2one("motor.test.section")
-    sequence = fields.Integer(default=10)
+    sequence = fields.Integer(default=10, index=True)
 
 
 class MotorTestTemplateCondition(models.Model):

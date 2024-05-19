@@ -3,7 +3,6 @@ import re
 from odoo.exceptions import ValidationError
 
 from odoo import _, api, fields, models
-from ..mixins.label import LabelMixin
 
 
 class ProductType(models.Model):
@@ -32,10 +31,11 @@ class ProductCondition(models.Model):
     products_import = fields.One2many("product.import", "condition")
 
 
-# noinspection DuplicatedCode
-class ProductTemplate(models.Model, LabelMixin):
-    _inherit = "product.template"
+class ProductTemplate(models.Model):
+    _name = "product.template"
+    _inherit = ["product.template", "label.mixin"]
     _description = "Product"
+    _order = "create_date desc"
     _sql_constraints = [
         ("default_code_uniq", "unique(default_code)", "SKU must be unique."),
     ]
@@ -43,6 +43,7 @@ class ProductTemplate(models.Model, LabelMixin):
     length = fields.Integer()
     width = fields.Integer()
     height = fields.Integer()
+    create_date = fields.Datetime(index=True)
 
     @api.constrains("length", "width", "height")
     def check_dimension_values(self) -> None:
@@ -54,9 +55,7 @@ class ProductTemplate(models.Model, LabelMixin):
 
     bin = fields.Char(index=True)
     mpn = fields.Char(string="MPN", index=True)
-    lot_number = fields.Char(index=True)
     manufacturer = fields.Many2one("product.manufacturer", index=True)
-    manufacturer_barcode = fields.Char(index=True)
     part_type = fields.Many2one("product.type", index=True)
     condition = fields.Many2one("product.condition", index=True)
     default_code = fields.Char("SKU", index=True, copy=False, default=lambda self: self.get_next_sku())
@@ -79,6 +78,15 @@ class ProductTemplate(models.Model, LabelMixin):
                 or self.env["product.template"].search_count([("default_code", "=", new_sku)])
                 or self.env["product.import"].search_count([("default_code", "=", new_sku)])
             ):
+                return new_sku
+        raise ValidationError("SKU limit reached.")
+
+    def _generate_next_sku(self) -> str:
+        sequence = self.env["ir.sequence"].search([("code", "=", "product.import")])
+        padding = sequence.padding
+        max_sku = "9" * padding
+        while (new_sku := self.env["ir.sequence"].next_by_code("product.import")) <= max_sku:
+            if not self.search([("default_code", "=", new_sku)]):
                 return new_sku
         raise ValidationError("SKU limit reached.")
 

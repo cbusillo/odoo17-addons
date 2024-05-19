@@ -14,7 +14,7 @@ class MotorCylinder(models.Model):
     ]
 
     motor = fields.Many2one("motor", ondelete="cascade")
-    cylinder_number = fields.Integer()
+    cylinder_number = fields.Integer(index=True)
     compression_psi = fields.Integer("Compression PSI")
 
 
@@ -34,7 +34,7 @@ class MotorStroke(models.Model):
 
     name = fields.Char(required=True)
     code = fields.Char(required=True, index=True, readonly=True)
-    sequence = fields.Integer(default=10)
+    sequence = fields.Integer(default=10, index=True)
 
 
 class MotorConfiguration(models.Model):
@@ -44,4 +44,4 @@ class MotorConfiguration(models.Model):
 
     name = fields.Char(required=True)
     code = fields.Char(required=True, index=True, readonly=True)
-    sequence = fields.Integer(default=10)
+    sequence = fields.Integer(default=10, index=True)

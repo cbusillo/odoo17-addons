@@ -9,7 +9,7 @@ class MotorPartTemplate(models.Model):
     name = fields.Char(required=True)
     hidden_tests = fields.Many2many("motor.test.template", string="Hidden Tests")
     hide_compression_page = fields.Boolean()
-    sequence = fields.Integer(default=10)
+    sequence = fields.Integer(default=10, index=True)
 
 
 class MotorPart(models.Model):
