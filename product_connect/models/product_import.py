@@ -75,6 +75,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
         for product in self:
             recent_messages = product.message_ids.filtered(
                 lambda m: odoo.fields.Datetime.now() - m.create_date < timedelta(minutes=30)
+                and "Import Error" in m.subject
             )
             product.has_recent_messages = bool(recent_messages)
 
