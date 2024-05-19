@@ -59,6 +59,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
         "product.condition",
         index=True,
         default=lambda self: self.env.ref("product_connect.product_condition_used", raise_if_not_found=False),
+        required=True,
     )
     has_recent_messages = odoo.fields.Boolean(compute="_compute_has_recent_messages", store=True)
 
