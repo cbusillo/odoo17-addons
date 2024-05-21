@@ -194,7 +194,7 @@ class LabelMixin(models.AbstractModel):
         if barcode:
             label.add_field_origin(x_pos=self.LABEL_PADDING_X, y_pos=self.LABEL_PADDING_Y, justification=2)
             # noinspection SpellCheckingInspection
-            label.add_zpl_raw(f"^BQN,2,{self.BARCODE_SIZE}^FDQAH," + barcode + "^FS^XZ")
+            label.add_zpl_raw(f"^BQN,2,{self.BARCODE_SIZE}^FDQAH" + barcode + "^FS^XZ")
 
         zpl_text_with_quantity = label.zpl_text * quantity
 
