@@ -59,7 +59,7 @@ class MotorProduct(models.Model):
     computed_name = fields.Char(compute="_compute_name", store=True)
     name = fields.Char()
     description = fields.Text()
-    mpn = fields.Char()
+    mpn = fields.Char(string="MPN")
     product_type = fields.Many2one(related="template.product_type", store=True)
     quantity = fields.Integer()
     bin = fields.Char()
