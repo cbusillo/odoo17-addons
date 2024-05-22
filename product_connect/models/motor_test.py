@@ -73,6 +73,7 @@ class MotorTestSelection(models.Model):
 
     name = fields.Char(required=True)
     value = fields.Char(required=True)
+    display_value = fields.Char()
     templates = fields.Many2many("motor.test.template", ondelete="cascade")
 
     def __str__(self) -> str:
