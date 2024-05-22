@@ -85,10 +85,13 @@ class LabelMixin(models.AbstractModel):
         for record in self:
             if TYPE_CHECKING:
                 assert isinstance(record, (ProductImport, ProductTemplate))
+            mpn = record.mpn.strip() if record.mpn else ""
+            if "," in mpn:
+                mpn = mpn.split(",")[0].strip()
             label_data = [
                 f"SKU: {record.default_code}",
                 "MPN: ",
-                f"(SM){record.mpn}",
+                f"(SM){mpn}",
                 f"Bin: {record.bin or '       '}",
                 record.condition.name if record.condition else "",
             ]
