@@ -1,8 +1,9 @@
 import base64
 from typing import Any
 
-from odoo import _, fields, models
 from odoo.exceptions import UserError
+
+from odoo import _, fields, models
 
 
 class ProductLabelLayout(models.TransientModel):
@@ -27,23 +28,17 @@ class ProductLabelLayout(models.TransientModel):
         if "bin" in self.print_format:
             xml_id = "product_connect.report_product_template_label_2x1_bin_noprice"
 
-            product_records = (
-                self.product_ids if self.product_ids else self.product_tmpl_ids
-            )
+            product_records = self.product_ids if self.product_ids else self.product_tmpl_ids
             bins = set()
             for product_record in product_records:
                 if product_record.bin not in bins:
                     bins.add(product_record.bin)
-                    products_data.append(
-                        {"bin": product_record.bin, "current_date": fields.Date.today()}
-                    )
+                    products_data.append({"bin": product_record.bin, "current_date": fields.Date.today()})
 
         elif self.print_format == "2x1":
             xml_id = "product_connect.report_product_template_label_2x1_noprice"
 
-            product_records = (
-                self.product_ids if self.product_ids else self.product_tmpl_ids
-            )
+            product_records = self.product_ids if self.product_ids else self.product_tmpl_ids
 
             for product_record in product_records:
                 products_data.append(
@@ -51,20 +46,10 @@ class ProductLabelLayout(models.TransientModel):
                         "current_date": fields.Date.today(),
                         "default_code": product_record.default_code,
                         "name": product_record.name,
-                        "mpn": (
-                            product_record.mpn.split(",")[0]
-                            if product_record.mpn
-                            else ""
-                        ),
+                        "mpn": (product_record.mpn.split(",")[0] if product_record.mpn else ""),
                         "bin": product_record.bin,
-                        "condition": (
-                            product_record.condition.title()
-                            if product_record.condition
-                            else ""
-                        ),
-                        "quantity": data["quantity_by_product"].get(
-                            product_record.id, 1
-                        ),
+                        "condition": (product_record.condition.name if product_record.condition else ""),
+                        "quantity": data["quantity_by_product"].get(product_record.id, 1),
                     }
                 )
         data.update({"products_data": products_data})
@@ -78,9 +63,7 @@ class ProductLabelLayout(models.TransientModel):
         self.ensure_one()
         xml_id, data = self._prepare_report_data()
         if not xml_id:
-            raise UserError(
-                _("Unable to find report template for %s format", self.print_format)
-            )
+            raise UserError(_("Unable to find report template for %s format", self.print_format))
         report = self.env.ref(xml_id)
         report_pdf_content, content_type = report._render_qweb_pdf(xml_id, data=data)
         report_pdf = base64.b64encode(report_pdf_content).decode()
