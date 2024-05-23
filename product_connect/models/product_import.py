@@ -8,8 +8,6 @@ import requests
 from PIL import Image
 from odoo.exceptions import UserError
 
-from ..mixins.label import LabelMixin
-
 _logger = logging.getLogger(__name__)
 
 
@@ -27,10 +25,10 @@ class ProductImportImage(odoo.models.Model):
     product = odoo.fields.Many2one("product.import", ondelete="cascade", required=True, index=True)
 
 
-class ProductImport(LabelMixin, odoo.models.Model):
+class ProductImport(odoo.models.Model):
     _name = "product.import"
     _description = "Product Import"
-    _inherit = ["mail.thread"]
+    _inherit = ["mail.thread", "label.mixin"]
     _sql_constraints = [("default_code_uniq", "unique (default_code)", "SKU already exists !")]
 
     default_code = odoo.fields.Char(
@@ -75,6 +73,7 @@ class ProductImport(LabelMixin, odoo.models.Model):
         for product in self:
             recent_messages = product.message_ids.filtered(
                 lambda m: odoo.fields.Datetime.now() - m.create_date < timedelta(minutes=30)
+                and m.subject
                 and "Import Error" in m.subject
             )
             product.has_recent_messages = bool(recent_messages)
