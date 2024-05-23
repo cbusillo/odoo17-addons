@@ -5,19 +5,17 @@ import re
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Generator, Self, TYPE_CHECKING
+from typing import Any, Generator, Self
 from urllib.error import HTTPError
 from zoneinfo import ZoneInfo
 
+import odoo
 import requests
 import shopify  # type: ignore
 from dateutil.parser import parse
 from requests.exceptions import RequestException
 
 from odoo import api, fields, models
-
-if TYPE_CHECKING:
-    from ..models.product_product import ProductProduct
 
 shopify_original_execute_function = shopify.GraphQL.execute
 MAX_RETRIES = 5
@@ -387,7 +385,9 @@ class ShopifySync(models.AbstractModel):
             "product_type": product.get("productType") or "",
         }
 
-    def map_shopify_to_odoo_product_data(self, shopify_product_data, odoo_product: "ProductProduct") -> dict[str, Any]:
+    def map_shopify_to_odoo_product_data(
+        self, shopify_product_data, odoo_product: "odoo.model.product_product"
+    ) -> dict[str, Any]:
         metafields_data = shopify_product_data["metafields"]
 
         odoo_product_data = {
@@ -560,16 +560,12 @@ class ShopifySync(models.AbstractModel):
     def prepare_odoo_product_image_data_for_export(base_url, odoo_product) -> list[dict[str, str]]:
         """Construct image data for each Odoo product."""
         media_list = []
-        for index, odoo_image in enumerate(
-            sorted(
-                odoo_product.product_tmpl_id.product_template_image_ids,
-                key=lambda image: image.name,
-            ),
-            start=1,
+        for odoo_image in sorted(
+            odoo_product.product_tmpl_id.product_template_image_ids,
+            key=lambda image: image.name,
         ):
             image_data = {
                 "altText": odoo_product.name,
-                "position": index,
                 "src": base_url + "/web/image/product.image/" + str(odoo_image.id) + "/image_1920",
             }
             media_list.append(image_data)
