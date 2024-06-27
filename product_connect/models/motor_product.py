@@ -60,6 +60,7 @@ class MotorProduct(models.Model):
     name = fields.Char()
     description = fields.Text()
     mpn = fields.Char(string="MPN")
+    first_mpn = fields.Char(compute="_compute_first_mpn", store=True)
     product_type = fields.Many2one(related="template.product_type", store=True)
     quantity = fields.Integer()
     bin = fields.Char()
@@ -77,6 +78,11 @@ class MotorProduct(models.Model):
         for vals in vals_list:
             vals["default_code"] = self.env["product.template"].get_next_sku()
         return super().create(vals_list)
+
+    @api.depends("mpn")
+    def _compute_first_mpn(self) -> None:
+        for product in self:
+            product.first_mpn = product.mpn.split(",")[0].strip() if product.mpn else ""
 
     def _compute_image_count(self) -> None:
         for product in self:
