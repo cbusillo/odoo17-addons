@@ -110,7 +110,7 @@ class MotorProduct(models.Model):
                 record.motor.manufacturer.name if record.motor.manufacturer else None,
                 (record.motor.get_horsepower_formatted() if record.template.include_hp_in_name else None),
                 record.template.name,
-                record.mpn.split(",")[0].strip() if record.template.include_model_in_name else None,
+                record.first_mpn if record.template.include_model_in_name else None,
                 "OEM" if record.template.include_oem_in_name else None,
             ]
             new_computed_name = " ".join(part for part in name_parts if part)
