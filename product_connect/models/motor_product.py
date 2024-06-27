@@ -56,6 +56,7 @@ class MotorProduct(models.Model):
     name = fields.Char()
     description = fields.Text()
     mpn = fields.Char(string="MPN")
+    first_mpn = fields.Char(compute="_compute_first_mpn", store=True)
     product_type = fields.Many2one(related="template.product_type", store=True)
     quantity = fields.Integer()
     bin = fields.Char()
@@ -73,6 +74,11 @@ class MotorProduct(models.Model):
         for vals in vals_list:
             vals["default_code"] = self.env["product.template"].get_next_sku()
         return super().create(vals_list)
+
+    @api.depends("mpn")
+    def _compute_first_mpn(self) -> None:
+        for product in self:
+            product.first_mpn = product.mpn.split(",")[0].strip() if product.mpn else ""
 
     def _compute_image_count(self) -> None:
         for product in self:
@@ -106,7 +112,7 @@ class MotorProduct(models.Model):
                 record.motor.manufacturer.name if record.motor.manufacturer else None,
                 (record.motor.get_horsepower_formatted() if record.template.include_hp_in_name else None),
                 record.template.name,
-                record.mpn if record.template.include_model_in_name else None,
+                record.first_mpn if record.template.include_model_in_name else None,
                 "OEM" if record.template.include_oem_in_name else None,
             ]
             new_computed_name = " ".join(part for part in name_parts if part)

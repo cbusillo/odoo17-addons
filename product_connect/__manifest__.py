@@ -26,6 +26,7 @@
         "data/motor_product_template_data.xml",
         "data/product_condition_data.xml",
         "data/res_config_data.xml",
+        "report/motor_product_reports.xml",
         "report/motor_reports.xml",
         "report/product_reports.xml",
         "views/motor_views.xml",  # motor_views needs to be loaded first (menu parent)
