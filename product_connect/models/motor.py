@@ -4,9 +4,9 @@ from io import BytesIO
 from typing import Any, Self
 
 import qrcode  # type: ignore
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
-from odoo import _, api, fields, models
 from ..mixins.label import LabelMixin
 from ..utils import constants
 
