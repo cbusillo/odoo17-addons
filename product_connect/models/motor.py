@@ -266,7 +266,7 @@ class Motor(models.Model, LabelMixin):
                 product_data["quantity"] = product_template.quantity or 1
                 product_data["bin"] = product_template.bin
                 product_data["weight"] = product_template.weight
-                self.env["motor.product"].create(product_data)
+                self.env["motor.product"].create([product_data])
 
         if current_product_ids:
             self.products.filtered(lambda p: p.id in current_product_ids).unlink()
