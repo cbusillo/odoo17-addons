@@ -19,6 +19,7 @@ class Motor(models.Model, LabelMixin):
     # Basic Info
     active = fields.Boolean(default=True)
     motor_number = fields.Char()
+    location = fields.Char()
     technician = fields.Many2one(
         "res.users",
         string="Tech Name",
@@ -198,6 +199,15 @@ class Motor(models.Model, LabelMixin):
                 record.horsepower and not (0.0 <= record.horsepower <= 600.0)
             ):
                 raise ValidationError(_("Horsepower must be between 1 and 600."))
+
+    @api.constrains("location")
+    def _check_unique_location(self) -> None:
+        for record in self:
+            if record.location:
+                existing_motor = self.search([("location", "=", record.location), ("id", "!=", record.id)], limit=1)
+                if existing_motor:
+                    raise ValidationError(
+                        _(f"Motor {existing_motor.motor_number} with location '{record.location}' already exists."))
 
     @staticmethod
     def _sanitize_vals(vals: dict[str, Any]) -> dict[str, Any]:

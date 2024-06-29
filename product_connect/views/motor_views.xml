@@ -7,6 +7,7 @@
             <tree string="Motors List">
                 <field name="has_notes" widget="boolean_toggle" string="Notes"/>
                 <field name="motor_number" string="Motor"/>
+                <field name="location" optional="show"/>
                 <field name="technician" optional="hide"/>
                 <field name="create_date" optional="show" widget="date_only" readonly="1"/>
                 <field name="year"/>
@@ -69,6 +70,7 @@
                         <page id="basic_info" string="Basic Info">
                             <group>
                                 <field name="motor_number" readonly="1"/>
+                                <field name="location"/>
                                 <field name="technician" widget="resettable_selection_badge" required="1"/>
                                 <field name="manufacturer" widget="resettable_selection_badge" required="1"/>
                                 <field name="horsepower"/>
@@ -181,6 +183,7 @@
                             <group string="Basic Info">
                                 <group>
                                     <field name="motor_number" readonly="1"/>
+                                    <field name="location" readonly="1"/>
                                     <field name="manufacturer" readonly="1" options="{'no_open': True}"/>
                                     <field name="horsepower" readonly="1"/>
                                     <field name="stroke" readonly="1" options="{'no_open': True}"/>
@@ -367,6 +370,9 @@
                                     <field name="motor_number"/>
                                 </div>
                                 <div style="margin-bottom: 5px;">
+                                    <field name="location"/>
+                                </div>
+                                <div style="margin-bottom: 5px;">
                                     <field name="manufacturer"/>
                                 </div>
                                 <div style="margin-bottom: 5px;">
@@ -394,7 +400,10 @@
         <field name="model">motor</field>
         <field name="arch" type="xml">
             <search>
-                <field name="motor_number" string="Motor Number"/>
+                <field name="motor_number" string="Search Motors"
+                       filter_domain="['|', '|', '|', '|', '|', ('motor_number', '=ilike', self), ('location', '=ilike', self), ('manufacturer', 'ilike', self), ('model', 'ilike', self), ('serial_number', 'ilike', self), ('year', 'ilike', self)]"/>
+                <field name="motor_number" filter_domain="[('motor_number', '=ilike', self)]"/>
+                <field name="location" filter_domain="[('location', '=ilike', self)]"/>
                 <field name="manufacturer"/>
                 <field name="model"/>
                 <field name="serial_number"/>
