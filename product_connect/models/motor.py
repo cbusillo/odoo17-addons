@@ -73,7 +73,7 @@ class Motor(models.Model, LabelMixin):
 
         records = super().create(vals_list)
         for record in records:
-            record.motor_number = f"M-{record.id}"
+            record.motor_number = f"M-{str(record.id).zfill(6)}"
             record._create_default_images(record)
             record._compute_compression()
             record._create_motor_parts()
