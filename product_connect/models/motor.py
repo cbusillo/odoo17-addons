@@ -73,6 +73,8 @@ class Motor(models.Model, LabelMixin):
 
         records = super().create(vals_list)
         for record in records:
+            if record.id > 999999:
+                raise ValidationError(_("Motor number cannot exceed 999999."))
             record.motor_number = f"M-{str(record.id).zfill(6)}"
             record._create_default_images(record)
             record._compute_compression()
