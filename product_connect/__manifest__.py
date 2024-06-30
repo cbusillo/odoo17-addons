@@ -18,6 +18,12 @@
     ],
     "description": "Module to scrape websites for model data.",
     "data": [
+        "data/motor_test_section_data.xml",  # motor data order is important (relations)
+        "data/motor_test_selection_data.xml",
+        "data/motor_test_template_data.xml",
+        "data/motor_part_template_data.xml",
+        "data/motor_stat_data.xml",
+        "data/product_condition_data.xml",
         "data/res_config_data.xml",
         "report/motor_product_reports.xml",
         "report/motor_reports.xml",
