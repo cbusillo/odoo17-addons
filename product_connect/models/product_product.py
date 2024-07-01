@@ -32,8 +32,6 @@ class ProductProduct(NotificationManagerMixin, models.Model):
             )
 
             if not quant:
-                quant = self.env["stock.quant"].create(
-                    {"product_id": product.id, "location_id": stock_location.id}
-                )
+                quant = self.env["stock.quant"].create({"product_id": product.id, "location_id": stock_location.id})
 
             quant.with_context(inventory_mode=True).write({"quantity": float(quantity)})
