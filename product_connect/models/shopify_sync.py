@@ -13,9 +13,8 @@ import odoo
 import requests
 import shopify  # type: ignore
 from dateutil.parser import parse
-from requests.exceptions import RequestException
-
 from odoo import api, fields, models
+from requests.exceptions import RequestException
 
 shopify_original_execute_function = shopify.GraphQL.execute
 MAX_RETRIES = 5
@@ -40,8 +39,6 @@ logging.getLogger().addHandler(memory_handler)
 
 def apply_rate_limit_patch_to_shopify_execute() -> None:
     class ThrottledError(Exception):
-        """Exception raised when Shopify returns a throttled response."""
-
         pass
 
     def parse_and_raise_error(error_data: dict[str, Any]) -> None:
@@ -104,12 +101,10 @@ UTC = ZoneInfo("UTC")
 
 
 def parse_to_utc(date_str: str) -> datetime:
-    """Parse a date string and return it in UTC timezone."""
     return parse(date_str).astimezone(UTC)
 
 
 def current_utc_time() -> datetime:
-    """Return the current time in UTC timezone."""
     return datetime.now(UTC)
 
 
