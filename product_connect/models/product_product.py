@@ -18,7 +18,7 @@ class ProductProduct(NotificationManagerMixin, models.Model):
         if not self.env.ref(stock_location_ref, raise_if_not_found=False):
             self.notify_channel_on_error("Stock Location Not Found", stock_location_ref)
         stock_location = self.env.ref(stock_location_ref)
-        if not stock_location:
+        if not stock_location.id:
             return
 
         for product in self:
