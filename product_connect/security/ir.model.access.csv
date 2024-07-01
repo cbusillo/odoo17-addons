@@ -28,3 +28,5 @@ access_product_import_image_wizard,access_product_import_image_wizard,model_prod
 access_motor_product,access_motor_product,model_motor_product,base.group_user,1,1,1,1
 access_motor_product_template,access_motor_product_template,model_motor_product_template,base.group_user,1,1,1,1
 access_motor_product_image,access_motor_product_image,model_motor_product_image,base.group_user,1,1,1,1
+
+access_notification_history,access.notification.history,model_notification_history,base.group_user,1,1,1,1
