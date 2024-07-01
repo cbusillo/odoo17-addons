@@ -95,14 +95,6 @@ mutation CreateProduct($input: ProductInput!) {
     productCreate(input: $input) {
         product {
             id
-            metafields(first: 15, namespace: "custom") {
-                edges {
-                    node {
-                        id
-                        key
-                    }
-                }
-            }
         }
         userErrors {
             field
@@ -115,14 +107,6 @@ mutation UpdateProduct($input: ProductInput!) {
     productUpdate(input: $input) {
         product {
             id
-            metafields(first: 15, namespace: "custom") {
-                edges {
-                    node {
-                        id
-                        key
-                    }
-                }
-            }
         }
         userErrors {
             field
