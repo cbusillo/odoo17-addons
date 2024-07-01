@@ -1,5 +1,4 @@
 from odoo import fields, models
-
 from ..mixins.notification_manager import NotificationManagerMixin
 
 
@@ -9,6 +8,8 @@ class ProductProduct(NotificationManagerMixin, models.Model):
 
     shopify_product_id = fields.Char(copy=False)
     shopify_variant_id = fields.Char(copy=False)
+    shopify_condition_id = fields.Char(copy=False)
+    shopify_ebay_category_id = fields.Char(copy=False)
     shopify_last_exported = fields.Datetime(string="Last Exported Time")
     shopify_next_export = fields.Boolean(string="Export Next Sync?")
     shopify_created_at = fields.Datetime()

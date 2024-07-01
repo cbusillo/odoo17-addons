@@ -353,7 +353,7 @@ class ShopifySync(models.AbstractModel):
 
     def parse_shopify_product_data(self, product) -> dict[str, Any]:
         product_variant = product.get("variants", {}).get("edges", [])[0].get("node", {})
-        metafields = product.get("metafields", {}).get("edges", [])
+        product_metafields = product.get("metafields", {}).get("edges", [])
         sku, bin_location = self.extract_sku_bin_from_shopify_product(product)
         quantity = int(product.get("totalInventory", 0))
 
@@ -363,7 +363,7 @@ class ShopifySync(models.AbstractModel):
             "sku": sku,
             "bin": bin_location,
             "quantity": quantity,
-            "metafields": metafields,
+            "metafields": product_metafields,
             "title": product.get("title") or "",
             "description_html": product.get("descriptionHtml") or "",
             "created_at": product.get("createdAt") or "",
@@ -379,25 +379,6 @@ class ShopifySync(models.AbstractModel):
             "vendor": product.get("vendor") or "",
             "product_type": product.get("productType") or "",
         }
-
-    def process_metafields(self, metafields_data: dict, odoo_product_data: dict) -> dict:
-        for metafield_data in metafields_data:
-            metafield = metafield_data.get("node", {})
-            key = metafield.get("key")
-            value = metafield.get("value")
-
-            if key == "condition":
-                odoo_product_data["condition"] = self.find_product_condition(value)
-            elif key == "ebay_category_id":
-                odoo_product_data["part_type"] = self.find_or_add_product_type(
-                    odoo_product_data.get("product_type", ""), value
-                )
-
-        return odoo_product_data
-
-    def find_product_condition(self, condition_code: str) -> int | bool:
-        condition = self.env["product.condition"].search([("code", "=", condition_code)], limit=1)
-        return condition.id if condition else False
 
     def map_shopify_to_odoo_product_data(
         self, shopify_product_data, odoo_product: "odoo.model.product_product"
@@ -428,10 +409,27 @@ class ShopifySync(models.AbstractModel):
             "is_published": shopify_product_data["status"].lower() == "active",
         }
 
-        odoo_product_data = self.process_metafields(metafields_data, odoo_product_data)
-        if "condition" not in odoo_product_data:
-            odoo_product_data["condition"] = odoo_product.condition.id
+        shopify_condition = ""
+        for metafield_data in metafields_data:
+            metafield = metafield_data.get("node", {})
+            if metafield.get("key") == "condition":
+                shopify_condition = metafield.get("value")
+                odoo_product_data["shopify_condition_id"] = self.extract_id_from_gid(metafield.get("id"))
+            if metafield.get("key") == "ebay_category_id":
+                odoo_product_data["shopify_ebay_category_id"] = self.extract_id_from_gid(metafield.get("id"))
+                part_type = self.find_or_add_product_type(
+                    shopify_product_data["product_type"],
+                    metafield.get("value"),
+                )
+                if part_type:
+                    odoo_product_data["part_type"] = part_type.id
 
+        if shopify_condition and (
+            odoo_condition := self.env["product.condition"].search([("code", "=", shopify_condition)], limit=1)
+        ):
+            odoo_product_data["condition"] = odoo_condition.id
+        elif odoo_product:
+            odoo_product_data["condition"] = odoo_product.condition.code
         return odoo_product_data
 
     def import_product_images_from_shopify(self, shopify_product, odoo_product) -> None:
@@ -610,24 +608,6 @@ class ShopifySync(models.AbstractModel):
         current_export_start_time = current_utc_time()
         return current_export_start_time
 
-    @staticmethod
-    def generate_metafields(odoo_product: "odoo.model.product_product") -> list[dict[str, str]]:
-        metafields = [
-            {
-                "namespace": "custom",
-                "key": "condition",
-                "value": odoo_product.condition.code or "",
-                "type": "single_line_text_field",
-            },
-            {
-                "namespace": "custom",
-                "key": "ebay_category_id",
-                "value": str(odoo_product.part_type.ebay_category_id) or "",
-                "type": "number_integer",
-            },
-        ]
-        return metafields
-
     @api.model
     def export_to_shopify(self) -> None:
         logger.debug("Starting export to Shopify...")
@@ -672,7 +652,31 @@ class ShopifySync(models.AbstractModel):
                     }
                 ]
 
-            metafields = self.generate_metafields(odoo_product)
+            condition_metafield = {"value": odoo_product.condition.code or ""}
+            if odoo_product.shopify_condition_id:
+                condition_metafield["id"] = self.convert_to_shopify_gid("Metafield", odoo_product.shopify_condition_id)
+            else:
+                condition_metafield.update(
+                    {
+                        "key": "condition",
+                        "type": "single_line_text_field",
+                        "namespace": "custom",
+                    }
+                )
+
+            ebay_category_id_metafield = {"value": str(odoo_product.part_type.ebay_category_id) or ""}
+            if odoo_product.shopify_ebay_category_id:
+                ebay_category_id_metafield["id"] = self.convert_to_shopify_gid(
+                    "Metafield", odoo_product.shopify_ebay_category_id
+                )
+            else:
+                ebay_category_id_metafield.update(
+                    {
+                        "key": "ebay_category_id",
+                        "type": "number_integer",
+                        "namespace": "custom",
+                    }
+                )
 
             try:
                 shopify_product_data = {
@@ -682,7 +686,7 @@ class ShopifySync(models.AbstractModel):
                     "productType": (odoo_product.part_type.name if odoo_product.part_type else None),
                     "status": "ACTIVE" if odoo_product.qty_available > 0 else "DRAFT",
                     "variants": [variant_data],
-                    "metafields": metafields,
+                    "metafields": [condition_metafield, ebay_category_id_metafield],
                 }
 
                 if odoo_product.shopify_product_id:
@@ -730,12 +734,25 @@ class ShopifySync(models.AbstractModel):
                 variables=publications_data,
                 operation_name="UpdatePublications",
             )
+            shopify_metafields = shopify_product.get("metafields", {}).get("edges", [])
+            shopify_ebay_category_id = None
+            shopify_condition_id = None
+            for metafield in shopify_metafields:
+                if metafield.get("node", {}).get("key") == "condition":
+                    shopify_condition_id = self.extract_id_from_gid(metafield.get("node", {}).get("id"))
+                elif metafield.get("node", {}).get("key") == "ebay_category_id":
+                    shopify_ebay_category_id = self.extract_id_from_gid(metafield.get("node", {}).get("id"))
+
+            if not shopify_ebay_category_id or not shopify_condition_id:
+                raise ValueError("Failed to set eBay category ID or condition ID for product")
 
             odoo_product.write(
                 {
                     "shopify_last_exported": fields.Datetime.now(),
                     "shopify_product_id": self.extract_id_from_gid(shopify_product.get("id")),
                     "shopify_next_export": False,
+                    "shopify_ebay_category_id": shopify_ebay_category_id,
+                    "shopify_condition_id": shopify_condition_id,
                 }
             )
             total_count += 1
