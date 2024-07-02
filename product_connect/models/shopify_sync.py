@@ -735,16 +735,13 @@ class ShopifySync(models.AbstractModel):
                 operation_name="UpdatePublications",
             )
             shopify_metafields = shopify_product.get("metafields", {}).get("edges", [])
-            shopify_ebay_category_id = None
-            shopify_condition_id = None
+            shopify_ebay_category_id = ""
+            shopify_condition_id = ""
             for metafield in shopify_metafields:
                 if metafield.get("node", {}).get("key") == "condition":
-                    shopify_condition_id = self.extract_id_from_gid(metafield.get("node", {}).get("id"))
+                    shopify_condition_id = str(self.extract_id_from_gid(metafield.get("node", {}).get("id")))
                 elif metafield.get("node", {}).get("key") == "ebay_category_id":
-                    shopify_ebay_category_id = self.extract_id_from_gid(metafield.get("node", {}).get("id"))
-
-            if not shopify_ebay_category_id or not shopify_condition_id:
-                raise ValueError("Failed to set eBay category ID or condition ID for product")
+                    shopify_ebay_category_id = str(self.extract_id_from_gid(metafield.get("node", {}).get("id")))
 
             odoo_product.write(
                 {
