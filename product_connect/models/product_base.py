@@ -51,6 +51,7 @@ class ProductBase(models.AbstractModel):
     ]
 
     name = fields.Char(index=True)
+    motor = fields.Many2one("motor", ondelete="restrict", readonly=True)
     default_code = fields.Char(
         "SKU", index=True, copy=False, required=True, readonly=True, default=lambda self: self.get_next_sku()
     )
@@ -81,6 +82,7 @@ class ProductBase(models.AbstractModel):
 
     active = fields.Boolean(default=True)
     has_recent_messages = fields.Boolean(compute="_compute_has_recent_messages", store=True)
+    is_listable = fields.Boolean(default=True)
 
     @api.constrains("default_code")
     def _check_sku(self) -> None:

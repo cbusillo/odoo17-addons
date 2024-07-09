@@ -41,7 +41,6 @@ class MotorProduct(models.Model):
     _description = "Motor Product"
     _order = "sequence, id"
 
-    motor = fields.Many2one("motor", required=True, ondelete="restrict", readonly=True)
     images = fields.One2many("motor.product.image", "product")
 
     template = fields.Many2one("motor.product.template", required=True, ondelete="restrict", readonly=True)
@@ -50,8 +49,6 @@ class MotorProduct(models.Model):
     sequence = fields.Integer(related="template.sequence", index=True, store=True)
     excluded_parts = fields.Many2many("motor.part.template", related="template.excluded_parts")
     excluded_tests = fields.Many2many("motor.test.template", related="template.excluded_tests")
-
-    is_listable = fields.Boolean(default=True)
 
     @api.depends("name", "computed_name", "default_code")
     def _compute_display_name(self) -> None:
