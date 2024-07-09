@@ -397,5 +397,5 @@ class Motor(models.Model, LabelMixin):
         for product in products:
             cost_proportion = (product.list_price * product.qty_available) / total_price if total_price else 0
             product.standard_price = (
-                (cost_proportion * product.list_price) / product.qty_available if product.qty_available else 0
+                (cost_proportion * self.cost) / product.qty_available if product.qty_available else 0
             )
