@@ -200,6 +200,7 @@ class ProductBase(models.AbstractModel):
             or not current.standard_price
             or not current.list_price
             or not current.qty_available
+            or len(current.images) == 0
         )
         if missing_data_products:
             message = f"Missing data for product(s).  Please fill in all required fields for SKUs {' '.join([p.default_code for p in missing_data_products])} ."
@@ -275,6 +276,7 @@ class ProductBase(models.AbstractModel):
                     }
                 )
                 current_index += 1
+                image.unlink()
             product.unlink()
         return {
             "type": "ir.actions.act_window",
