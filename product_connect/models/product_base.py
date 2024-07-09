@@ -219,10 +219,10 @@ class ProductBase(models.AbstractModel):
                 )
 
         for product in self.filtered(lambda current: current.is_listable) - missing_data_products:
-            existing_products = product.products_from_mpn_condition_new()
-            if existing_products:
+            existing_products_with_mpn = product.products_from_mpn_condition_new()
+            if existing_products_with_mpn:
                 existing_products_display = [
-                    f"{product['default_code']} - {product['bin']}" for product in existing_products
+                    f"{product['default_code']} - {product['bin']}" for product in existing_products_with_mpn
                 ]
                 raise UserError(
                     f"A product with the same MPN already exists.  Its SKU is/are {existing_products_display}"
@@ -230,41 +230,33 @@ class ProductBase(models.AbstractModel):
             existing_product = self.env["product.product"].search(
                 [("default_code", "=", product.default_code)], limit=1
             )
-
-            product_data = {
-                "default_code": product.default_code or existing_product.default_code,
-                "mpn": product.mpn or existing_product.mpn,
-                "manufacturer": product.manufacturer.id or existing_product.manufacturer.id,
-                "bin": product.bin or existing_product.bin,
-                "name": product.name or existing_product.name,
-                "description_sale": product.description or existing_product.description_sale,
-                "part_type": product.part_type.id or existing_product.part_type.id,
-                "weight": product.weight if product.weight > 0 else existing_product.weight,
-                "list_price": product.list_price if product.list_price > 0 else existing_product.list_price,
-                "standard_price": (
-                    product.standard_price if product.standard_price > 0 else existing_product.standard_price
-                ),
-                "condition": product.condition.id or existing_product.condition.id,
-                "detailed_type": "product",
-                "is_published": True,
-                "shopify_next_export": True,
-                "motor": product.motor.id or existing_product.motor.id,
-            }
             if existing_product:
-                existing_product.write(product_data)
-            else:
-                existing_product = self.env["product.product"].create(product_data)
-            if product.qty_available > 0:
-                existing_product.update_quantity(product.qty_available)
+                raise UserError(
+                    f"A product with the same SKU already exists.  Its SKU is {existing_product.default_code}"
+                )
 
-            current_images = self.env["product.image"].search(
-                [("product_tmpl_id", "=", existing_product.product_tmpl_id.id)]
+            new_product = self.env["product.product"].create(
+                {
+                    "default_code": product.default_code or existing_product.default_code,
+                    "mpn": product.mpn or existing_product.mpn,
+                    "manufacturer": product.manufacturer.id or existing_product.manufacturer.id,
+                    "bin": product.bin or existing_product.bin,
+                    "name": product.name or existing_product.name,
+                    "description_sale": product.description or existing_product.description_sale,
+                    "part_type": product.part_type.id or existing_product.part_type.id,
+                    "weight": product.weight if product.weight > 0 else existing_product.weight,
+                    "list_price": product.list_price if product.list_price > 0 else existing_product.list_price,
+                    "standard_price": (
+                        product.standard_price if product.standard_price > 0 else existing_product.standard_price
+                    ),
+                    "condition": product.condition.id or existing_product.condition.id,
+                    "detailed_type": "product",
+                    "is_published": True,
+                    "shopify_next_export": True,
+                    "motor": product.motor.id or existing_product.motor.id,
+                }
             )
-
-            current_index = 1
-            for image in current_images:
-                if int(image.name or 0) > current_index:
-                    current_index = int(image.name or 1)
+            new_product.update_quantity(product.qty_available)
 
             sorted_images = product.images.sorted(key=lambda r: r.index)
 
@@ -276,12 +268,12 @@ class ProductBase(models.AbstractModel):
                     {
                         "image_1920": image.image_1920,
                         "product_tmpl_id": existing_product.product_tmpl_id.id,
-                        "name": current_index,
+                        "name": image.index,
                     }
                 )
-                current_index += 1
                 image.unlink()
             product.unlink()
+
         return {
             "type": "ir.actions.act_window",
             "view_mode": self._context.get("view_mode", "tree,form"),
