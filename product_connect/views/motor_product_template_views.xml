@@ -26,36 +26,35 @@
                 <sheet>
                     <group>
                         <group string="Basic Information">
-                            <field name="name" string="Name"/>
-                            <field name="product_type" string="Product Type"/>
+                            <field name="name"/>
                             <field name="part_type"/>
                             <field name="qty_available" string="Quantity"/>
-                            <field name="bin" string="Bin"/>
-                            <field name="weight" string="Weight"/>
+                            <field name="bin"/>
+                            <field name="weight"/>
                         </group>
                         <group string="Additional Options">
-                            <field name="stroke" string="Stroke" widget="many2many_tags"/>
-                            <field name="is_quantity_listing" string="Is Quantity Listing" widget="boolean_toggle"/>
-                            <field name="include_year_in_name" string="Include Year in Name" widget="boolean_toggle"/>
-                            <field name="include_hp_in_name" string="Include HP in Name" widget="boolean_toggle"/>
-                            <field name="include_model_in_name" string="Include Model in Name" widget="boolean_toggle"/>
-                            <field name="include_oem_in_name" string="Include OEM in Name" widget="boolean_toggle"/>
+                            <field name="stroke" widget="many2many_tags"/>
+                            <field name="is_quantity_listing" widget="boolean_toggle"/>
+                            <field name="include_year_in_name" widget="boolean_toggle"/>
+                            <field name="include_hp_in_name" widget="boolean_toggle"/>
+                            <field name="include_model_in_name" widget="boolean_toggle"/>
+                            <field name="include_oem_in_name" widget="boolean_toggle"/>
                         </group>
                         <group string="Manufacturer and Configuration" colspan="2">
                             <group>
-                                <field name="manufacturers" string="Manufacturers" widget="many2many_checkboxes"/>
+                                <field name="manufacturers" widget="many2many_checkboxes"/>
                             </group>
                             <group>
-                                <field name="configuration" string="Configuration" widget="many2many_checkboxes"/>
+                                <field name="configuration" widget="many2many_checkboxes"/>
                             </group>
                         </group>
 
                         <group string="Exclusions" colspan="2">
-                            <field name="excluded_parts" string="Excluded Parts"/>
-                            <field name="excluded_tests" string="Excluded Tests"/>
+                            <field name="excluded_parts"/>
+                            <field name="excluded_tests"/>
                         </group>
                         <group string="Miscellaneous">
-                            <field name="sequence" string="Sequence"/>
+                            <field name="sequence"/>
                         </group>
                     </group>
                 </sheet>
