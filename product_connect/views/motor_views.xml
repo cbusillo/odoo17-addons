@@ -36,9 +36,6 @@
                     <button name="print_motor_labels" type="object" class="btn btn-primary btn-lg">
                         <i class="fa fa-print"/>&#160;Print Motor Labels
                     </button>
-                    <button name="create_motor_products" type="object" class="btn btn-primary btn-lg">
-                        <i class="fa fa-ship"/>&#160;Create Motor Products
-                    </button>
                 </header>
                 <field name="stage" invisible="1"/>
                 <sheet>
@@ -239,6 +236,9 @@
                             </group>
                         </page>
                         <page string="Products" invisible="stage != 'finalization'">
+                            <button name="create_motor_products" type="object" class="btn btn-primary btn-lg">
+                                <i class="fa fa-ship"/>&#160;Create Motor Products
+                            </button>
                             <button name="apply_cost" type="object" class="btn btn-primary btn-lg m-2">
                                 <i class="fa fa-dollar"/>&#160;Apply Cost
                             </button>
