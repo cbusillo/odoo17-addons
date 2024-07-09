@@ -281,7 +281,7 @@ class Motor(models.Model, LabelMixin):
                 product_data["qty_available"] = product_template.qty_available or 1
                 product_data["bin"] = product_template.bin
                 product_data["weight"] = product_template.weight
-                self.env["motor.product"].create([product_data])
+                self.products.create([product_data])
 
         if current_product_ids:
             self.products.filtered(lambda p: p.id in current_product_ids).unlink()
@@ -306,8 +306,7 @@ class Motor(models.Model, LabelMixin):
             existing_cylinder_numbers = set(current_cylinders)
             for i in range(1, desired_cylinders + 1):
                 if i not in existing_cylinder_numbers:
-                    pass
-                    self.env["motor.cylinder"].create(
+                    self.cylinders.create(
                         {
                             "motor": motor.id,
                             "cylinder_number": i,
@@ -318,7 +317,7 @@ class Motor(models.Model, LabelMixin):
     def _create_default_images(self, motor: Self) -> None:
         image_names = constants.MOTOR_IMAGE_NAME_AND_ORDER
         for name in image_names:
-            self.env["motor.image"].create(
+            self.images.create(
                 {
                     "motor": motor.id,
                     "name": name,
