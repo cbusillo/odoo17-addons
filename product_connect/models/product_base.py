@@ -50,7 +50,7 @@ class ProductBase(models.AbstractModel):
         ("default_code_uniq", "unique(default_code)", "SKU must be unique."),
     ]
 
-    name = fields.Char(required=True, index=True)
+    name = fields.Char(index=True)
     default_code = fields.Char(
         "SKU", index=True, copy=False, required=True, readonly=True, default=lambda self: self.get_next_sku()
     )
