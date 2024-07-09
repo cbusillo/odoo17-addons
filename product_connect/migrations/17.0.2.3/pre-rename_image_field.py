@@ -1,8 +1,7 @@
 import logging
 
-from odoo.upgrade import util
-
 from odoo import fields
+from odoo.upgrade import util
 
 _logger = logging.getLogger(__name__)
 
@@ -12,6 +11,7 @@ def migrate(cr, _version) -> None:
     env = util.env(cr)
 
     model_motor_image = env["motor.image"]
+    # noinspection PyUnresolvedReferences
     if "image_data" not in model_motor_image._fields:
         _logger.info("Adding image_data field to motor.image model")
         # noinspection PyProtectedMember
@@ -22,9 +22,7 @@ def migrate(cr, _version) -> None:
 
     for record in records:
         if record.image_data and not record.image_1920:
-            _logger.info(
-                "Migrating image_data to image_1920 for record ID: %d", record.id
-            )
+            _logger.info("Migrating image_data to image_1920 for record ID: %d", record.id)
             record.image_1920 = record.image_data
             record.image_data = False
 
