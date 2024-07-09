@@ -1,5 +1,6 @@
 import base64
 import re
+import shutil
 import tempfile
 import zipfile
 from datetime import datetime
@@ -356,13 +357,13 @@ class Motor(models.Model, LabelMixin):
 
     def download_zip_of_images(self) -> dict[str, str]:
         temp_path = Path(tempfile.mkdtemp())
-        zip_path = temp_path / f"{self.motor_number}-{datetime.now()}.zip"
+        zip_path = temp_path / f"{self.motor_number} {datetime.now().strftime('%Y-%m-%d %H-%M')}.zip"
         with zipfile.ZipFile(zip_path, "w") as zip_file:
             for motor in self:
                 for image in motor.images:
                     if not image.image_1920:
                         continue
-                    filename = f"{motor.motor_number}_{image.name}.jpg"
+                    filename = f"{motor.motor_number} {image.name}.jpg"
                     file_path = temp_path / filename
                     with open(file_path, "wb") as image_file:
                         image_file.write(base64.b64decode(image.image_1920))
@@ -382,6 +383,7 @@ class Motor(models.Model, LabelMixin):
         )
 
         download_url = f"/web/binary/download_single?attachment_id={attachment.id}"
+        shutil.rmtree(temp_path)
 
         return {
             "type": "ir.actions.act_url",
