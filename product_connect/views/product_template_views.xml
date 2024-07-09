@@ -138,7 +138,8 @@
         <field name="model">product.template</field>
         <field name="priority" eval="20"/>
         <field name="arch" type="xml">
-            <tree string="Product" editable="bottom" multi_edit="1" delete="False" create="False" open_form_view="1">
+            <tree string="Product" editable="bottom" multi_edit="1" delete="False" create="False" open_form_view="1"
+                  decoration-warning="not (length and height and width and weight and bin)">
                 <field name="name" readonly="1"/>
                 <field name="default_code" readonly="1"/>
                 <field name="qty_available" string="Quantity" readonly="1" widget="float" options="{'digits': [3,0]}"/>
