@@ -39,7 +39,7 @@ class MotorProduct(models.Model):
     _name = "motor.product"
     _inherit = ["product.base"]
     _description = "Motor Product"
-    _order = "sequence, id"
+    _order = "sequence, part_type_name, id"
 
     images = fields.One2many("motor.product.image", "product")
 

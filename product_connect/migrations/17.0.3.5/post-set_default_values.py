@@ -18,4 +18,13 @@ def migrate(cr, version) -> None:
             product.condition = env.ref("product_connect.product_condition_used")
 
         product.part_type_name = product.part_type.name
+
+    product_imports = env["product.import"].search([])
+    for product in product_imports:
+        product.part_type_name = product.part_type.name
+
+    product_templates = env["product.template"].search([])
+    for product in product_templates:
+        product.part_type_name = product.part_type.name
+
     _logger.info("Post-migration: set default values for manufacturer and condition")
