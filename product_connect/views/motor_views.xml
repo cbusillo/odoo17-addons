@@ -88,6 +88,11 @@
                         </page>
                         <page string="Images"
                               invisible="stage not in ['images', 'parts', 'basic_testing', 'extended_testing', 'finalization']">
+                            <header>
+                                <button name="download_zip_of_images" type="object" class="btn btn-primary">
+                                    <i class="fa fa-download"/>&#160;Download Images
+                                </button>
+                            </header>
                             <field name="images" class="motor_image_adder">
                                 <tree editable="bottom" delete="False">
                                     <field name="name"/>

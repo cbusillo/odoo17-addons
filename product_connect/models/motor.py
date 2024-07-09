@@ -1,6 +1,10 @@
 import base64
 import re
+import tempfile
+import zipfile
+from datetime import datetime
 from io import BytesIO
+from pathlib import Path
 from typing import Any, Self
 
 import qrcode  # type: ignore
@@ -208,7 +212,8 @@ class Motor(models.Model, LabelMixin):
             existing_motor = self.search([("location", "=", record.location), ("id", "!=", record.id)], limit=1)
             if existing_motor:
                 raise ValidationError(
-                    _(f"Motor {existing_motor.motor_number} with location '{record.location}' already exists."))
+                    _(f"Motor {existing_motor.motor_number} with location '{record.location}' already exists.")
+                )
 
     @staticmethod
     def _sanitize_vals(vals: dict[str, Any]) -> dict[str, Any]:
@@ -352,3 +357,38 @@ class Motor(models.Model, LabelMixin):
                 self.stage = stage
             else:
                 break
+
+    def download_zip_of_images(self) -> dict[str, str]:
+        temp_path = Path(tempfile.mkdtemp())
+        zip_path = temp_path / f"images-{datetime.now()}.zip"
+        with zipfile.ZipFile(zip_path, "w") as zip_file:
+            for motor in self:
+                for image in motor.images:
+                    if not image.image_1920:
+                        continue
+                    filename = f"{motor.motor_number}_{image.name}.jpg"
+                    file_path = temp_path / filename
+                    with open(file_path, "wb") as image_file:
+                        image_file.write(base64.b64decode(image.image_1920))
+                    zip_file.write(file_path, filename)
+                    file_path.unlink()
+
+        with open(zip_path, "rb") as zip_file:
+            zip_data = base64.b64encode(zip_file.read())
+
+        attachment = self.env["ir.attachment"].create(
+            {
+                "name": zip_path.name,
+                "datas": zip_data,
+                "type": "binary",
+                "mimetype": "application/zip",
+            }
+        )
+
+        download_url = f"/web/binary/download_single?attachment_id={attachment.id}"
+
+        return {
+            "type": "ir.actions.act_url",
+            "url": download_url,
+            "target": "self",
+        }

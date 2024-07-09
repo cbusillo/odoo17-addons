@@ -1,3 +1,3 @@
-from . import models, wizards
+from . import controllers, models, wizards
 
-__all__ = ['models', 'wizards']
+__all__ = ["controllers", "models", "wizards"]
