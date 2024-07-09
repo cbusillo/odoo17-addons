@@ -9,7 +9,7 @@ from typing import Any, Self
 
 import qrcode  # type: ignore
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 from ..mixins.label import LabelMixin
 from ..utils import constants
@@ -399,3 +399,12 @@ class Motor(models.Model, LabelMixin):
             product.standard_price = (
                 (cost_proportion * self.cost) / product.qty_available if product.qty_available else 0
             )
+
+    def import_to_products(self) -> None:
+        products_to_import = self.products.filtered(
+            lambda p: p.is_listable and p.qty_available > 0 and p.list_price and p.standard_price
+        )
+        if not products_to_import:
+            raise UserError(_("No products to import."))
+
+        products_to_import.import_to_products()
