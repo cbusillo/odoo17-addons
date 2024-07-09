@@ -84,11 +84,11 @@
                         <table class="pick-list-table">
                             <thead>
                                 <tr>
-                                    <th>Pulled</th>
+                                    <th>Qty Listing</th>
                                     <th>Quantity</th>
                                     <th>MPN</th>
                                     <th>Name</th>
-                                    <th>Qty Listing</th>
+                                    <th>Pulled</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -101,13 +101,13 @@
                                         <t t-set="current_motor" t-value="product.motor"/>
                                     </t>
                                     <tr>
-                                        <td><div class="checkbox"></div></td>
-                                        <td><span t-field="product.quantity"/></td>
-                                        <td><span t-field="product.first_mpn"/></td>
-                                        <td><span t-field="product.template.name"/></td>
                                         <td>
                                             <t t-if="product.template.is_quantity_listing">Yes</t>
                                         </td>
+                                        <td><span t-field="product.quantity"/></td>
+                                        <td><span t-field="product.first_mpn"/></td>
+                                        <td><span t-field="product.template.name"/></td>
+                                        <td><div class="checkbox"></div></td>
                                     </tr>
                                 </t>
                             </tbody>
