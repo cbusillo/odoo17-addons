@@ -44,6 +44,7 @@ class MotorProduct(models.Model):
     images = fields.One2many("motor.product.image", "product")
 
     template = fields.Many2one("motor.product.template", required=True, ondelete="restrict", readonly=True)
+    part_type = fields.Many2one(related="template.product_type")
     computed_name = fields.Char(compute="_compute_name", store=True)
 
     sequence = fields.Integer(related="template.sequence", index=True, store=True)
