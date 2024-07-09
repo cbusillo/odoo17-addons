@@ -17,4 +17,5 @@ def migrate(cr, version) -> None:
         if not product.condition:
             product.condition = env.ref("product_connect.product_condition_used")
 
+        product.part_type_name = product.part_type.name
     _logger.info("Post-migration: set default values for manufacturer and condition")

@@ -17,5 +17,6 @@ def migrate(cr, version) -> None:
     util.rename_field(cr, "motor.product", "price", "list_price")
     util.rename_field(cr, "motor.product", "cost", "standard_price")
     util.rename_field(cr, "motor.product", "product_type", "part_type")
+    util.rename_field(cr, "motor.product.template", "product_type", "part_type")
 
     _logger.info("Pre-migration: Renamed product fields")

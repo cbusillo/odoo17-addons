@@ -10,9 +10,9 @@ _logger = logging.getLogger(__name__)
 
 class ProductType(models.Model):
     _name = "product.type"
-    _description = "Product Type"
+    _description = "Part Type"
     _sql_constraints = [
-        ("name_uniq", "unique (name)", "Product Type name already exists !"),
+        ("name_uniq", "unique (name)", "Part Type name already exists !"),
     ]
 
     name = fields.Char(required=True, index=True)

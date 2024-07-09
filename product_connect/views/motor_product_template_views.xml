@@ -7,7 +7,7 @@
             <tree string="Motor Products" editable="bottom" open_form_view="1">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
-                <field name="product_type"/>
+                <field name="part_type"/>
                 <field name="manufacturers" widget="many2many_tags"/>
                 <field name="configuration" widget="many2many_tags"/>
                 <field name="stroke" widget="many2many_tags"/>
@@ -28,6 +28,7 @@
                         <group string="Basic Information">
                             <field name="name" string="Name"/>
                             <field name="product_type" string="Product Type"/>
+                            <field name="part_type"/>
                             <field name="qty_available" string="Quantity"/>
                             <field name="bin" string="Bin"/>
                             <field name="weight" string="Weight"/>

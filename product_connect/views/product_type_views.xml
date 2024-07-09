@@ -4,7 +4,7 @@
         <field name="name">product.type.tree.view</field>
         <field name="model">product.type</field>
         <field name="arch" type="xml">
-            <tree string="Product Type" editable="bottom" open_form_view="1">
+            <tree string="Part Type" editable="bottom" open_form_view="1">
                 <field name="name"/>
                 <field name="ebay_category_id" widget="char"/>
                 <field name="products"/>
@@ -16,12 +16,12 @@
 
     <!-- Action -->
     <record id="action_product_type" model="ir.actions.act_window">
-        <field name="name">Product Types</field>
+        <field name="name">Part Types</field>
         <field name="res_model">product.type</field>
         <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Menu item -->
-    <menuitem id="menu_action_product_type" name="Product Types" parent="stock.menu_product_in_config_stock"
+    <menuitem id="menu_action_product_type" name="Part Types" parent="stock.menu_product_in_config_stock"
               action="action_product_type"/>
 </odoo>

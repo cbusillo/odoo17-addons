@@ -19,7 +19,7 @@ class MotorProductTemplate(models.Model):
     include_model_in_name = fields.Boolean(default=True)
     include_oem_in_name = fields.Boolean(default=True)
 
-    product_type = fields.Many2one("product.type", index=True)
+    part_type = fields.Many2one("product.type", index=True)
     qty_available = fields.Float()
     bin = fields.Char()
     weight = fields.Float()
@@ -44,7 +44,7 @@ class MotorProduct(models.Model):
     images = fields.One2many("motor.product.image", "product")
 
     template = fields.Many2one("motor.product.template", required=True, ondelete="restrict", readonly=True)
-    part_type = fields.Many2one(related="template.product_type")
+    part_type = fields.Many2one(related="template.part_type", store=True)
     computed_name = fields.Char(compute="_compute_name", store=True)
 
     sequence = fields.Integer(related="template.sequence", index=True, store=True)
