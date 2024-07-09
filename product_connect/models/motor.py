@@ -269,21 +269,22 @@ class Motor(models.Model, LabelMixin):
             if set(self.tests.mapped("template.id")) & set(excluded_tests_ids):
                 continue
 
-            product_data = {
-                "motor": self.id,
-                "template": product_template.id,
-            }
-
             existing_product = self.products.filtered(lambda p: p.template == product_template)
 
             if existing_product:
                 current_product_ids.discard(existing_product.id)
             else:
-                product_data["qty_available"] = product_template.qty_available or 1
-                product_data["bin"] = product_template.bin
-                product_data["weight"] = product_template.weight
-                product_data["condition"] = self.env.ref("product_connect.product_condition_used").id
-                self.products.create([product_data])
+                condition_id = self.env.ref("product_connect.product_condition_used").id
+                self.products.create(
+                    {
+                        "motor": self.id,
+                        "template": product_template.id,
+                        "qty_available": product_template.qty_available or 1,
+                        "bin": product_template.bin,
+                        "weight": product_template.weight,
+                        "condition": condition_id,
+                    }
+                )
 
         if current_product_ids:
             self.products.filtered(lambda p: p.id in current_product_ids).unlink()
