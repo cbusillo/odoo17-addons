@@ -281,6 +281,7 @@ class Motor(models.Model, LabelMixin):
                 product_data["qty_available"] = product_template.qty_available or 1
                 product_data["bin"] = product_template.bin
                 product_data["weight"] = product_template.weight
+                product_data["condition"] = self.env.ref("product_connect.product_condition_used").id
                 self.products.create([product_data])
 
         if current_product_ids:
