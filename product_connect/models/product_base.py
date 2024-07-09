@@ -73,7 +73,7 @@ class ProductBase(models.AbstractModel):
     weight = fields.Float()
 
     bin = fields.Char(index=True)
-    qty_available = fields.Float()
+    qty_available = fields.Float(string="Quantity")
 
     list_price = fields.Float(string="Price")
     standard_price = fields.Float(string="Cost")

@@ -50,14 +50,17 @@
                 <field name="condition" optional="show"/>
                 <field name="manufacturer" options="{'no_create': True}"/>
                 <field name="mpn" widget="search_mpn_online"/>
-                <field name="qty_available" sum="Total Quantity"/>
+                <field name="qty_available" sum="Total Quantity" widget="integer"/>
                 <field name="bin"/>
                 <field name="name"/>
                 <field name="description" optional="show"/>
                 <field name="part_type" options="{'no_create': True}" optional="show"/>
-                <field name="weight" optional="show"/>
-                <field name="list_price" optional="show"/>
-                <field name="standard_price" optional="show"/>
+                <field name="weight" optional="show" width="3" widget="integer"/>
+                <field name="length" string="L" optional="show" width="2"/>
+                <field name="width" string="W" optional="show" width="2"/>
+                <field name="height" string="H" optional="show" width="2"/>
+                <field name="list_price" optional="show" width="7"/>
+                <field name="standard_price" optional="show" width="7"/>
                 <field name="images" widget="file_drop" optional="show"/>
                 <field name="image_count" column_invisible="1"/>
                 <field name="default_code" readonly=""/>
@@ -96,16 +99,20 @@
                                     <field name="condition"/>
                                     <field name="mpn"/>
                                     <field name="manufacturer" options="{'no_create': True}"/>
-                                    <field name="qty_available"/>
+                                    <field name="qty_available" widget="integer"/>
                                     <field name="bin"/>
+                                    <field name="list_price"/>
+                                    <field name="standard_price"/>
                                 </group>
                                 <group>
                                     <field name="name"/>
                                     <field name="description"/>
                                     <field name="part_type" options="{'no_create': True}"/>
-                                    <field name="weight"/>
-                                    <field name="list_price"/>
-                                    <field name="standard_price"/>
+                                    <field name="weight" widget="integer"/>
+                                    <field name="length"/>
+                                    <field name="width"/>
+                                    <field name="height"/>
+
                                 </group>
                             </group>
                         </page>

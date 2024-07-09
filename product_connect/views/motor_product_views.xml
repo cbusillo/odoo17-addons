@@ -23,16 +23,19 @@
                 <field name="is_listable" widget="boolean_toggle"/>
                 <field name="default_code" width="20px"/>
                 <field name="mpn" width="20px"/>
-                <field name="qty_available"/>
+                <field name="qty_available" widget="integer"/>
                 <field name="bin" width="20px"/>
                 <button name="reset_name" type="object" icon="fa-refresh" class="sc_refresh_button_row"
                         title="Reset Name" invisible="computed_name == name"/>
                 <field name="name" decoration-warning="computed_name != name"/>
                 <field name="description" optional="show" width="20px"/>
                 <field name="part_type"/>
-                <field name="weight"/>
-                <field name="list_price"/>
-                <field name="standard_price"/>
+                <field name="weight" optional="show" width="3" widget="integer"/>
+                <field name="length" string="L" optional="show" width="2"/>
+                <field name="width" string="W" optional="show" width="2"/>
+                <field name="height" string="H" optional="show" width="2"/>
+                <field name="list_price" optional="show" width="7"/>
+                <field name="standard_price" optional="show" width="7"/>
                 <field name="images" widget="file_drop" optional="show"/>
                 <field name="image_count" column_invisible="1"/>
                 <field name="has_recent_messages" column_invisible="1"/>
@@ -83,9 +86,11 @@
                                     <field name="template"/>
                                     <field name="part_type"/>
                                     <field name="default_code"/>
-                                    <field name="qty_available"/>
-                                    <field name="weight"/>
-                                    <field name="sequence"/>
+                                    <field name="qty_available" widget="integer"/>
+                                    <field name="weight" widget="integer"/>
+                                    <field name="length"/>
+                                    <field name="width"/>
+                                    <field name="height"/>
                                 </group>
                                 <group>
                                     <field name="is_listable" widget="boolean_toggle"/>
