@@ -356,7 +356,7 @@ class Motor(models.Model, LabelMixin):
 
     def download_zip_of_images(self) -> dict[str, str]:
         temp_path = Path(tempfile.mkdtemp())
-        zip_path = temp_path / f"images-{datetime.now()}.zip"
+        zip_path = temp_path / f"{self.motor_number}-{datetime.now()}.zip"
         with zipfile.ZipFile(zip_path, "w") as zip_file:
             for motor in self:
                 for image in motor.images:
