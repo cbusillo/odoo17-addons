@@ -19,7 +19,7 @@
         <field name="binding_type">action</field>
         <field name="state">code</field>
         <field name="code">
-            action = records.print_product_labels()
+            action = records.print_product_labels(print_quantity=True)
         </field>
     </record>
 
@@ -30,7 +30,7 @@
         <field name="binding_type">action</field>
         <field name="state">code</field>
         <field name="code">
-            action = records.print_product_labels(printer_job_type="product_label_picture")
+            action = records.print_product_labels(print_quantity=True, printer_job_type="product_label_picture")
         </field>
     </record>
 
