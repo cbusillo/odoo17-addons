@@ -22,6 +22,7 @@
                 <field name="computed_name" column_invisible="1"/>
                 <field name="is_listable" widget="boolean_toggle"/>
                 <field name="default_code" width="20px"/>
+                <field name="manufacturer" options="{'no_create': True}"/>
                 <field name="mpn" width="20px"/>
                 <field name="qty_available" widget="integer"/>
                 <field name="bin" width="20px"/>
@@ -76,11 +77,13 @@
                             <group>
                                 <group>
                                     <field name="motor"/>
+                                    <field name="manufacturer" options="{'no_create': True}"/>
                                     <field name="computed_name"/>
                                     <field name="mpn"/>
                                     <field name="bin"/>
                                     <field name="list_price"/>
                                     <field name="standard_price"/>
+                                    <field name="condition"/>
                                 </group>
                                 <group>
                                     <field name="template"/>

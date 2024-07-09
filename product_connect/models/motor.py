@@ -283,6 +283,7 @@ class Motor(models.Model, LabelMixin):
                         "bin": product_template.bin,
                         "weight": product_template.weight,
                         "condition": condition_id,
+                        "manufacturer": self.manufacturer.id,
                     }
                 )
 

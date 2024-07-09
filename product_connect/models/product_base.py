@@ -195,11 +195,14 @@ class ProductBase(models.AbstractModel):
             raise UserError("This method is not available for Odoo base products.")
 
         missing_data_products = self.filtered(
-            lambda current: not current.default_code
-            or not current.name
-            or not current.standard_price
-            or not current.list_price
-            or not current.qty_available
+            lambda current: not (
+                current.default_code
+                and current.name
+                and current.standard_price
+                and current.list_price
+                and current.qty_available
+                and current.manufacturer
+            )
             or len(current.images) == 0
         )
         if missing_data_products:
