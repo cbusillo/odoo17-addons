@@ -1,9 +1,8 @@
 import base64
 from typing import Any
 
-from odoo.exceptions import UserError
-
 from odoo import _, fields, models
+from odoo.exceptions import UserError
 
 
 class ProductLabelLayout(models.TransientModel):
@@ -49,7 +48,7 @@ class ProductLabelLayout(models.TransientModel):
                         "mpn": (product_record.mpn.split(",")[0] if product_record.mpn else ""),
                         "bin": product_record.bin,
                         "condition": (product_record.condition.name if product_record.condition else ""),
-                        "quantity": data["quantity_by_product"].get(product_record.id, 1),
+                        "qty_available": data["quantity_by_product"].get(product_record.id, 1),
                     }
                 )
         data.update({"products_data": products_data})

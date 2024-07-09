@@ -28,7 +28,7 @@
                         <group string="Basic Information">
                             <field name="name" string="Name"/>
                             <field name="product_type" string="Product Type"/>
-                            <field name="quantity" string="Quantity"/>
+                            <field name="qty_available" string="Quantity"/>
                             <field name="bin" string="Bin"/>
                             <field name="weight" string="Weight"/>
                         </group>

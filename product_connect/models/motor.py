@@ -208,7 +208,8 @@ class Motor(models.Model, LabelMixin):
             existing_motor = self.search([("location", "=", record.location), ("id", "!=", record.id)], limit=1)
             if existing_motor:
                 raise ValidationError(
-                    _(f"Motor {existing_motor.motor_number} with location '{record.location}' already exists."))
+                    _(f"Motor {existing_motor.motor_number} with location '{record.location}' already exists.")
+                )
 
     @staticmethod
     def _sanitize_vals(vals: dict[str, Any]) -> dict[str, Any]:
@@ -276,7 +277,7 @@ class Motor(models.Model, LabelMixin):
             if existing_product:
                 current_product_ids.discard(existing_product.id)
             else:
-                product_data["quantity"] = product_template.quantity or 1
+                product_data["qty_available"] = product_template.qty_available or 1
                 product_data["bin"] = product_template.bin
                 product_data["weight"] = product_template.weight
                 self.env["motor.product"].create([product_data])

@@ -104,7 +104,7 @@
                                         <td>
                                             <t t-if="product.template.is_quantity_listing">Yes</t>
                                         </td>
-                                        <td><span t-field="product.quantity"/></td>
+                                        <td><span t-field="product.qty_available"/></td>
                                         <td><span t-field="product.first_mpn"/></td>
                                         <td><span t-field="product.template.name"/></td>
                                         <td><div class="checkbox"></div></td>

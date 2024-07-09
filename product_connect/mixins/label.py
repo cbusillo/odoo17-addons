@@ -3,13 +3,11 @@ import datetime
 import logging
 from typing import TYPE_CHECKING
 
+from odoo import models
 from simple_zpl2 import ZPLDocument  # type: ignore
 
-from odoo import models
-
 if TYPE_CHECKING:
-    from ..models.product_import import ProductImport
-    from ..models.product_template import ProductTemplate
+    from ..models.product_base import ProductBase
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +60,7 @@ class LabelMixin(models.AbstractModel):
 
     def print_bin_labels(self) -> None:
         if TYPE_CHECKING:
-            assert isinstance(self, (ProductImport, ProductTemplate))
+            assert isinstance(self, ProductBase)
         unique_bins = [
             bin_location
             for bin_location in set(self.mapped("bin"))
@@ -84,7 +82,7 @@ class LabelMixin(models.AbstractModel):
         labels = []
         for record in self:
             if TYPE_CHECKING:
-                assert isinstance(record, (ProductImport, ProductTemplate))
+                assert isinstance(record, ProductBase)
             mpn = record.mpn.strip() if record.mpn else ""
             if "," in mpn:
                 mpn = mpn.split(",")[0].strip()
@@ -95,7 +93,7 @@ class LabelMixin(models.AbstractModel):
                 f"Bin: {record.bin or '       '}",
                 record.condition.name if record.condition else "",
             ]
-            quantity = getattr(record, "quantity", 1) if print_quantity else 1
+            quantity = getattr(record, "qty_available", 1) if print_quantity else 1
             label = self.generate_label_base64(
                 label_data,
                 bottom_text=self.wrap_text(record.name, 50),

@@ -40,8 +40,8 @@
         <field name="model">product.import</field>
         <field name="arch" type="xml">
             <tree class="product_import_tree_view" string="Product Import" editable="bottom" multi_edit="1"
-                  open_form_view="True"
-                  decoration-warning="not name or not price or price == 0 or not cost or cost == 0"
+                  open_form_view="1"
+                  decoration-warning="not name or not list_price or list_price == 0 or not standard_price or standard_price == 0"
                   decoration-danger="has_recent_messages">
                 <header>
                     <button string="Import" type="object" name="import_to_products" icon="fa-upload"/>
@@ -50,15 +50,14 @@
                 <field name="condition" optional="show"/>
                 <field name="manufacturer" options="{'no_create': True}"/>
                 <field name="mpn" widget="search_mpn_online"/>
-                <field name="quantity" sum="Total Quantity"/>
+                <field name="qty_available" sum="Total Quantity"/>
                 <field name="bin"/>
                 <field name="name"/>
                 <field name="description" optional="show"/>
-                <field name="product_type" options="{'no_create': True}" optional="show"/>
+                <field name="part_type" options="{'no_create': True}" optional="show"/>
                 <field name="weight" optional="show"/>
-                <field name="price" optional="show"/>
-                <field name="cost" optional="show"/>
-                <field name="image_1_url" optional="hide"/>
+                <field name="list_price" optional="show"/>
+                <field name="standard_price" optional="show"/>
                 <field name="images" widget="file_drop" optional="show"/>
                 <field name="image_count" column_invisible="1"/>
                 <field name="default_code" readonly=""/>
@@ -97,22 +96,21 @@
                                     <field name="condition"/>
                                     <field name="mpn"/>
                                     <field name="manufacturer" options="{'no_create': True}"/>
-                                    <field name="quantity"/>
+                                    <field name="qty_available"/>
                                     <field name="bin"/>
                                 </group>
                                 <group>
                                     <field name="name"/>
                                     <field name="description"/>
-                                    <field name="product_type" options="{'no_create': True}"/>
+                                    <field name="part_type" options="{'no_create': True}"/>
                                     <field name="weight"/>
-                                    <field name="price"/>
-                                    <field name="cost"/>
+                                    <field name="list_price"/>
+                                    <field name="standard_price"/>
                                 </group>
                             </group>
                         </page>
                         <page string="Images">
                             <group>
-                                <field name="image_1_url"/>
                                 <field name="images">
                                     <tree string="Images" editable="bottom">
                                         <field name="product"/>

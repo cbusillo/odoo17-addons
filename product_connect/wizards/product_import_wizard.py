@@ -1,7 +1,6 @@
 import odoo
-from odoo.exceptions import UserError
-
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 
 class ProductImportWizard(models.TransientModel):
@@ -12,11 +11,13 @@ class ProductImportWizard(models.TransientModel):
 
     def apply_cost(self) -> dict[str, str]:
         products = self.env["product.import"].search([])
-        total_price = sum(record.price * record.quantity for record in products)
+        total_price = sum(record.list_price * record.qty_available for record in products)
 
         for product in products:
-            cost_proportion = (product.price * product.quantity) / total_price if total_price else 0
-            product.cost = (cost_proportion * self.total_cost) / product.quantity if product.quantity else 0
+            cost_proportion = (product.list_price * product.qty_available) / total_price if total_price else 0
+            product.standard_price = (
+                (cost_proportion * self.total_cost) / product.qty_available if product.qty_available else 0
+            )
         return {
             "type": "ir.actions.act_window",
             "res_model": "product.import",

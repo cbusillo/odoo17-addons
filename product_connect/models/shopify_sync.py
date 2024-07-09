@@ -362,7 +362,7 @@ class ShopifySync(models.AbstractModel):
             "variant_id": self.extract_id_from_gid(product_variant.get("id")),
             "sku": sku,
             "bin": bin_location,
-            "quantity": quantity,
+            "qty_available": quantity,
             "metafields": product_metafields,
             "title": product.get("title") or "",
             "description_html": product.get("descriptionHtml") or "",
@@ -377,7 +377,7 @@ class ShopifySync(models.AbstractModel):
             "weight": float(product_variant.get("weight") or 0.0),
             "status": product.get("status") or "",
             "vendor": product.get("vendor") or "",
-            "product_type": product.get("productType") or "",
+            "part_type": product.get("productType") or "",
         }
 
     def map_shopify_to_odoo_product_data(
