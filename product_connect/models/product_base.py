@@ -191,8 +191,15 @@ class ProductBase(models.AbstractModel):
         return None
 
     def import_to_products(self) -> dict[str, str]:
+        if self._name in ["product.template", "product.product"]:
+            raise UserError("This method is not available for Odoo base products.")
+
         missing_data_products = self.filtered(
-            lambda current_product: not current_product.default_code or not current_product.name
+            lambda current: not current.default_code
+            or not current.name
+            or not current.standard_price
+            or not current.list_price
+            or not current.qty_available
         )
         if missing_data_products:
             message = f"Missing data for product(s).  Please fill in all required fields for SKUs {' '.join([p.default_code for p in missing_data_products])} ."
@@ -206,7 +213,7 @@ class ProductBase(models.AbstractModel):
                     partner_ids=[self.env.user.partner_id.id],
                 )
 
-        for product in self - missing_data_products:
+        for product in self.filtered(lambda current: current.is_listable) - missing_data_products:
             existing_products = product.products_from_mpn_condition_new()
             if existing_products:
                 existing_products_display = [
