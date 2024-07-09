@@ -80,24 +80,24 @@ class LabelMixin(models.AbstractModel):
 
     def print_product_labels(self, print_quantity: bool = False, printer_job_type: str = "product_label") -> None:
         labels = []
-        for record in self:
+        for product in self:
             if TYPE_CHECKING:
-                assert isinstance(record, ProductBase)
-            mpn = record.mpn.strip() if record.mpn else ""
+                assert isinstance(product, ProductBase)
+            mpn = product.mpn.strip() if product.mpn else ""
             if "," in mpn:
                 mpn = mpn.split(",")[0].strip()
             label_data = [
-                f"SKU: {record.default_code}",
+                f"SKU: {product.default_code}",
                 "MPN: ",
                 f"(SM){mpn}",
-                f"Bin: {record.bin or '       '}",
-                record.condition.name if record.condition else "",
+                f"Bin: {product.bin or '       '}",
+                product.condition.name if product.condition else "",
             ]
-            quantity = getattr(record, "qty_available", 1) if print_quantity else 1
+            quantity = getattr(product, "qty_available", 1) if print_quantity else 1
             label = self.generate_label_base64(
                 label_data,
-                bottom_text=self.wrap_text(record.name, 50),
-                barcode=record.default_code,
+                bottom_text=self.wrap_text(product.name, 50),
+                barcode=product.default_code,
                 quantity=quantity,
             )
             labels.append(label)

@@ -27,28 +27,28 @@ class ProductLabelLayout(models.TransientModel):
         if "bin" in self.print_format:
             xml_id = "product_connect.report_product_template_label_2x1_bin_noprice"
 
-            product_records = self.product_ids if self.product_ids else self.product_tmpl_ids
+            products = self.product_ids if self.product_ids else self.product_tmpl_ids
             bins = set()
-            for product_record in product_records:
-                if product_record.bin not in bins:
-                    bins.add(product_record.bin)
-                    products_data.append({"bin": product_record.bin, "current_date": fields.Date.today()})
+            for product in products:
+                if product.bin not in bins:
+                    bins.add(product.bin)
+                    products_data.append({"bin": product.bin, "current_date": fields.Date.today()})
 
         elif self.print_format == "2x1":
             xml_id = "product_connect.report_product_template_label_2x1_noprice"
 
-            product_records = self.product_ids if self.product_ids else self.product_tmpl_ids
+            products = self.product_ids if self.product_ids else self.product_tmpl_ids
 
-            for product_record in product_records:
+            for product in products:
                 products_data.append(
                     {
                         "current_date": fields.Date.today(),
-                        "default_code": product_record.default_code,
-                        "name": product_record.name,
-                        "mpn": (product_record.mpn.split(",")[0] if product_record.mpn else ""),
-                        "bin": product_record.bin,
-                        "condition": (product_record.condition.name if product_record.condition else ""),
-                        "qty_available": data["quantity_by_product"].get(product_record.id, 1),
+                        "default_code": product.default_code,
+                        "name": product.name,
+                        "mpn": (product.mpn.split(",")[0] if product.mpn else ""),
+                        "bin": product.bin,
+                        "condition": (product.condition.name if product.condition else ""),
+                        "qty_available": data["quantity_by_product"].get(product.id, 1),
                     }
                 )
         data.update({"products_data": products_data})
