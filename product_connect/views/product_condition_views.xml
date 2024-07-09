@@ -8,7 +8,8 @@
                 <field name="code"/>
                 <field name="ebay_condition_id" widget="char"/>
                 <field name="products"/>
-                <field name="products_import"/>
+                <field name="motor_products"/>
+                <field name="products_import" optional="show"/>
             </tree>
         </field>
     </record>

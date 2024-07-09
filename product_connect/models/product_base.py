@@ -243,6 +243,7 @@ class ProductBase(models.AbstractModel):
                 "detailed_type": "product",
                 "is_published": True,
                 "shopify_next_export": True,
+                "motor": product.motor.id or existing_product.motor.id,
             }
             if existing_product:
                 existing_product.write(product_data)
