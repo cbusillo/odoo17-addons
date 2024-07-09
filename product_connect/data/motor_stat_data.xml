@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data>
+    <data noupdate="1">
         <record id="config_s1" model="motor.configuration">
             <field name="name">Single 1</field>
             <field name="code">s1</field>
@@ -54,7 +54,7 @@
             <field name="code">v12</field>
         </record>
     </data>
-    <data>
+    <data noupdate="1">
         <!-- Motor Stroke Data -->
         <record id="stroke_2" model="motor.stroke">
             <field name="name">2 Stroke</field>

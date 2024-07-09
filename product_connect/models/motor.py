@@ -4,9 +4,9 @@ from io import BytesIO
 from typing import Any, Self
 
 import qrcode  # type: ignore
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
-from odoo import _, api, fields, models
 from ..mixins.label import LabelMixin
 from ..utils import constants
 
@@ -19,6 +19,7 @@ class Motor(models.Model, LabelMixin):
     # Basic Info
     active = fields.Boolean(default=True)
     motor_number = fields.Char()
+    location = fields.Char()
     technician = fields.Many2one(
         "res.users",
         string="Tech Name",
@@ -73,7 +74,9 @@ class Motor(models.Model, LabelMixin):
 
         records = super().create(vals_list)
         for record in records:
-            record.motor_number = f"M-{record.id}"
+            if record.id > 999999:
+                raise ValidationError(_("Motor number cannot exceed 999999."))
+            record.motor_number = f"M-{str(record.id).zfill(6)}"
             record._create_default_images(record)
             record._compute_compression()
             record._create_motor_parts()
@@ -197,6 +200,16 @@ class Motor(models.Model, LabelMixin):
             ):
                 raise ValidationError(_("Horsepower must be between 1 and 600."))
 
+    @api.constrains("location")
+    def _check_unique_location(self) -> None:
+        for record in self:
+            if not record.location:
+                continue
+            existing_motor = self.search([("location", "=", record.location), ("id", "!=", record.id)], limit=1)
+            if existing_motor:
+                raise ValidationError(
+                    _(f"Motor {existing_motor.motor_number} with location '{record.location}' already exists."))
+
     @staticmethod
     def _sanitize_vals(vals: dict[str, Any]) -> dict[str, Any]:
         if "year" in vals and vals["year"]:
@@ -266,7 +279,7 @@ class Motor(models.Model, LabelMixin):
                 product_data["quantity"] = product_template.quantity or 1
                 product_data["bin"] = product_template.bin
                 product_data["weight"] = product_template.weight
-                self.env["motor.product"].create(product_data)
+                self.env["motor.product"].create([product_data])
 
         if current_product_ids:
             self.products.filtered(lambda p: p.id in current_product_ids).unlink()

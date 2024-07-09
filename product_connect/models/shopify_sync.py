@@ -13,9 +13,8 @@ import odoo
 import requests
 import shopify  # type: ignore
 from dateutil.parser import parse
-from requests.exceptions import RequestException
-
 from odoo import api, fields, models
+from requests.exceptions import RequestException
 
 shopify_original_execute_function = shopify.GraphQL.execute
 MAX_RETRIES = 5
@@ -40,8 +39,6 @@ logging.getLogger().addHandler(memory_handler)
 
 def apply_rate_limit_patch_to_shopify_execute() -> None:
     class ThrottledError(Exception):
-        """Exception raised when Shopify returns a throttled response."""
-
         pass
 
     def parse_and_raise_error(error_data: dict[str, Any]) -> None:
@@ -104,12 +101,10 @@ UTC = ZoneInfo("UTC")
 
 
 def parse_to_utc(date_str: str) -> datetime:
-    """Parse a date string and return it in UTC timezone."""
     return parse(date_str).astimezone(UTC)
 
 
 def current_utc_time() -> datetime:
-    """Return the current time in UTC timezone."""
     return datetime.now(UTC)
 
 
@@ -739,12 +734,22 @@ class ShopifySync(models.AbstractModel):
                 variables=publications_data,
                 operation_name="UpdatePublications",
             )
+            shopify_metafields = shopify_product.get("metafields", {}).get("edges", [])
+            shopify_ebay_category_id = ""
+            shopify_condition_id = ""
+            for metafield in shopify_metafields:
+                if metafield.get("node", {}).get("key") == "condition":
+                    shopify_condition_id = str(self.extract_id_from_gid(metafield.get("node", {}).get("id")))
+                elif metafield.get("node", {}).get("key") == "ebay_category_id":
+                    shopify_ebay_category_id = str(self.extract_id_from_gid(metafield.get("node", {}).get("id")))
 
             odoo_product.write(
                 {
                     "shopify_last_exported": fields.Datetime.now(),
                     "shopify_product_id": self.extract_id_from_gid(shopify_product.get("id")),
                     "shopify_next_export": False,
+                    "shopify_ebay_category_id": shopify_ebay_category_id,
+                    "shopify_condition_id": shopify_condition_id,
                 }
             )
             total_count += 1

@@ -1,5 +1,5 @@
 <odoo>
-    <data noupdate="1">
+    <data noupdate="0">
         <record id="import_time_last" model="ir.config_parameter">
             <field name="key">shopify.last_import_time</field>
             <field name="value">2000-01-01T00:00:00Z</field>
