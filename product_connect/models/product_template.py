@@ -16,24 +16,24 @@ class ProductTemplate(models.Model):
 
     @api.depends("product_template_image_ids")
     def _compute_image_1920(self) -> None:
-        for record in self:
-            default_code = record.default_code  # Save the current default_code
-            if record.product_template_image_ids:
-                record.image_1920 = record.product_template_image_ids[0].image_1920
+        for product in self:
+            default_code = product.default_code  # Save the current default_code
+            if product.product_template_image_ids:
+                product.image_1920 = product.product_template_image_ids[0].image_1920
             else:
-                record.image_1920 = False
-            record.default_code = default_code
+                product.image_1920 = False
+            product.default_code = default_code
 
     def _inverse_image_1920(self) -> None:
-        for record in self:
-            if record.product_template_image_ids:
-                record.product_template_image_ids[0].write({"image_1920": record.image_1920})
+        for product in self:
+            if product.product_template_image_ids:
+                product.product_template_image_ids[0].write({"image_1920": product.image_1920})
 
-            elif record.image_1920:
+            elif product.image_1920:
                 self.env["product.image"].create(
                     {
-                        "product_tmpl_id": record.id,
-                        "image_1920": record.image_1920,
-                        "name": f"{record.name}_image",
+                        "product_tmpl_id": product.id,
+                        "image_1920": product.image_1920,
+                        "name": f"{product.name}_image",
                     }
                 )

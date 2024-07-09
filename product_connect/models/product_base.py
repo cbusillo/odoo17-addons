@@ -84,10 +84,10 @@ class ProductBase(models.AbstractModel):
 
     @api.constrains("default_code")
     def _check_sku(self) -> None:
-        for record in self:
-            if not record.default_code:
+        for product in self:
+            if not product.default_code:
                 continue
-            if not re.match(r"^\d{4,8}$", str(record.default_code)):
+            if not re.match(r"^\d{4,8}$", str(product.default_code)):
                 raise ValidationError(_("SKU must be 4-8 digits."))
 
     def get_next_sku(self) -> str:
@@ -105,16 +105,16 @@ class ProductBase(models.AbstractModel):
 
     @api.constrains("length", "width", "height")
     def _check_dimension_values(self) -> None:
-        for record in self:
-            fields_to_check = [record.length, record.width, record.height]
+        for product in self:
+            fields_to_check = [product.length, product.width, product.height]
             for field_value in fields_to_check:
                 if field_value and len(str(abs(field_value))) > 2:
                     raise ValidationError("Dimensions cannot exceed 2 digits.")
 
     @api.depends("images.image_1920")
     def _compute_icon(self) -> None:
-        for record in self:
-            record.icon = record.images[0].image_128 if record.images else None
+        for product in self:
+            product.icon = product.images[0].image_128 if product.images else None
 
     @api.depends("mpn")
     def _compute_first_mpn(self) -> None:
@@ -137,20 +137,20 @@ class ProductBase(models.AbstractModel):
 
     def name_get(self) -> list[tuple[int, str]]:
         result = []
-        for record in self:
-            name = f"[{record.default_code}] {record.name or 'No Name Yet'}"
-            result.append((record.id, name))
+        for product in self:
+            name = f"[{product.default_code}] {product.name or 'No Name Yet'}"
+            result.append((product.id, name))
         return result
 
     @api.onchange("bin", "mpn")
     def _onchange_format_fields_upper(self) -> None:
-        for record in self:
-            record.mpn = record.mpn.upper() if record.mpn else False
-            record.bin = record.bin.upper() if record.bin else False
+        for product in self:
+            product.mpn = product.mpn.upper() if product.mpn else False
+            product.bin = product.bin.upper() if product.bin else False
 
-    def _products_from_existing_records(self, field_name: str, field_value: str) -> list[dict[str, str]]:
-        is_new_record = isinstance(self.id, models.NewId)
-        if is_new_record:
+    def _products_from_existing_products(self, field_name: str, field_value: str) -> list[dict[str, str]]:
+        is_new_product = isinstance(self.id, models.NewId)
+        if is_new_product:
             product_imports = self.search([(field_name, "=", field_value)])
         else:
             product_imports = self.search(
@@ -182,21 +182,21 @@ class ProductBase(models.AbstractModel):
 
     def products_from_mpn_condition_new(self) -> list[dict[str, str]] | None:
         if self.mpn and self.condition.code == "new":
-            existing_products = self._products_from_existing_records("mpn", self.first_mpn)
+            existing_products = self._products_from_existing_products("mpn", self.first_mpn)
             existing_new_products = [product for product in existing_products if product["condition"] == "new"]
             if existing_new_products:
                 return existing_new_products
         return None
 
     def import_to_products(self) -> dict[str, str]:
-        missing_data_records = self.filtered(
-            lambda current_record: not current_record.default_code or not current_record.name
+        missing_data_products = self.filtered(
+            lambda current_product: not current_product.default_code or not current_product.name
         )
-        if missing_data_records:
-            message = f"Missing data for records.  Please fill in all required fields for SKUs {' '.join([p.default_code for p in missing_data_records])} ."
+        if missing_data_products:
+            message = f"Missing data for product(s).  Please fill in all required fields for SKUs {' '.join([p.default_code for p in missing_data_products])} ."
             _logger.warning(message)
-            for record in missing_data_records:
-                record.message_post(
+            for product in missing_data_products:
+                product.message_post(
                     body=message,
                     subject="Import Error (Missing Data)",
                     message_type="notification",
@@ -204,8 +204,8 @@ class ProductBase(models.AbstractModel):
                     partner_ids=[self.env.user.partner_id.id],
                 )
 
-        for record in self - missing_data_records:
-            existing_products = record.products_from_mpn_condition_new()
+        for product in self - missing_data_products:
+            existing_products = product.products_from_mpn_condition_new()
             if existing_products:
                 existing_products_display = [
                     f"{product['default_code']} - {product['bin']}" for product in existing_products
@@ -213,39 +213,45 @@ class ProductBase(models.AbstractModel):
                 raise UserError(
                     f"A product with the same MPN already exists.  Its SKU is/are {existing_products_display}"
                 )
-            product = self.env["product.product"].search([("default_code", "=", record.default_code)], limit=1)
+            existing_product = self.env["product.product"].search(
+                [("default_code", "=", product.default_code)], limit=1
+            )
 
             product_data = {
-                "default_code": record.default_code or product.default_code,
-                "mpn": record.mpn or product.mpn,
-                "manufacturer": record.manufacturer.id or product.manufacturer.id,
-                "bin": record.bin or product.bin,
-                "name": record.name or product.name,
-                "description_sale": record.description or product.description_sale,
-                "part_type": record.part_type.id or product.part_type.id,
-                "weight": record.weight if record.weight > 0 else product.weight,
-                "list_price": record.list_price if record.list_price > 0 else product.list_price,
-                "standard_price": (record.standard_price if record.standard_price > 0 else product.standard_price),
-                "condition": record.condition.id or product.condition.id,
+                "default_code": product.default_code or existing_product.default_code,
+                "mpn": product.mpn or existing_product.mpn,
+                "manufacturer": product.manufacturer.id or existing_product.manufacturer.id,
+                "bin": product.bin or existing_product.bin,
+                "name": product.name or existing_product.name,
+                "description_sale": product.description or existing_product.description_sale,
+                "part_type": product.part_type.id or existing_product.part_type.id,
+                "weight": product.weight if product.weight > 0 else existing_product.weight,
+                "list_price": product.list_price if product.list_price > 0 else existing_product.list_price,
+                "standard_price": (
+                    product.standard_price if product.standard_price > 0 else existing_product.standard_price
+                ),
+                "condition": product.condition.id or existing_product.condition.id,
                 "detailed_type": "product",
                 "is_published": True,
                 "shopify_next_export": True,
             }
-            if product:
-                product.write(product_data)
+            if existing_product:
+                existing_product.write(product_data)
             else:
-                product = self.env["product.product"].create(product_data)
-            if record.qty_available > 0:
-                product.update_quantity(record.qty_available)
+                existing_product = self.env["product.product"].create(product_data)
+            if product.qty_available > 0:
+                existing_product.update_quantity(product.qty_available)
 
-            current_images = self.env["product.image"].search([("product_tmpl_id", "=", product.product_tmpl_id.id)])
+            current_images = self.env["product.image"].search(
+                [("product_tmpl_id", "=", existing_product.product_tmpl_id.id)]
+            )
 
             current_index = 1
             for image in current_images:
                 if int(image.name or 0) > current_index:
                     current_index = int(image.name or 1)
 
-            sorted_images = record.images.sorted(key=lambda r: r.index)
+            sorted_images = product.images.sorted(key=lambda r: r.index)
 
             for image in sorted_images:
                 if not image.image_1920:
@@ -254,12 +260,12 @@ class ProductBase(models.AbstractModel):
                 self.env["product.image"].create(
                     {
                         "image_1920": image.image_1920,
-                        "product_tmpl_id": product.product_tmpl_id.id,
+                        "product_tmpl_id": existing_product.product_tmpl_id.id,
                         "name": current_index,
                     }
                 )
                 current_index += 1
-            record.unlink()
+            product.unlink()
         return {
             "type": "ir.actions.act_window",
             "view_mode": self._context.get("view_mode", "tree,form"),

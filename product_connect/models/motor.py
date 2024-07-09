@@ -76,17 +76,17 @@ class Motor(models.Model, LabelMixin):
     def create(self, vals_list: list[dict]) -> Self:
         vals_list = [self._sanitize_vals(vals) for vals in vals_list]
 
-        records = super().create(vals_list)
-        for record in records:
-            if record.id > 999999:
+        motors = super().create(vals_list)
+        for motor in motors:
+            if motor.id > 999999:
                 raise ValidationError(_("Motor number cannot exceed 999999."))
-            record.motor_number = f"M-{str(record.id).zfill(6)}"
-            record._create_default_images(record)
-            record._compute_compression()
-            record._create_motor_parts()
-            record._create_motor_tests()
+            motor.motor_number = f"M-{str(motor.id).zfill(6)}"
+            motor._create_default_images(motor)
+            motor._compute_compression()
+            motor._create_motor_parts()
+            motor._create_motor_tests()
 
-        return records
+        return motors
 
     def write(self, vals) -> Self:
         if self.env.context.get("_stage_updating"):
@@ -96,9 +96,8 @@ class Motor(models.Model, LabelMixin):
         result = super().write(vals)
         if "configuration" in vals:
             self._compute_compression()
-        for record in self.with_context(_stage_updating=True):
-            record._update_stage()
-            # record._create_motor_products()
+        for motor in self.with_context(_stage_updating=True):
+            motor._update_stage()
         return result
 
     def _compute_image_count(self) -> None:
@@ -198,21 +197,19 @@ class Motor(models.Model, LabelMixin):
 
     @api.constrains("horsepower")
     def _check_horsepower(self) -> None:
-        for record in self:
-            if not isinstance(record.horsepower, float) or (
-                record.horsepower and not (0.0 <= record.horsepower <= 600.0)
-            ):
+        for motor in self:
+            if not isinstance(motor.horsepower, float) or (motor.horsepower and not (0.0 <= motor.horsepower <= 600.0)):
                 raise ValidationError(_("Horsepower must be between 1 and 600."))
 
     @api.constrains("location")
     def _check_unique_location(self) -> None:
-        for record in self:
-            if not record.location:
+        for motor in self:
+            if not motor.location:
                 continue
-            existing_motor = self.search([("location", "=", record.location), ("id", "!=", record.id)], limit=1)
+            existing_motor = self.search([("location", "=", motor.location), ("id", "!=", motor.id)], limit=1)
             if existing_motor:
                 raise ValidationError(
-                    _(f"Motor {existing_motor.motor_number} with location '{record.location}' already exists.")
+                    _(f"Motor {existing_motor.motor_number} with location '{motor.location}' already exists.")
                 )
 
     @staticmethod
@@ -301,10 +298,9 @@ class Motor(models.Model, LabelMixin):
             desired_cylinders = motor._get_cylinder_count()
             current_cylinders = motor.cylinders.mapped("cylinder_number")
 
-            # Remove cylinders that exceed the new configuration
             excessive_cylinders = motor.cylinders.filtered(lambda x: x.cylinder_number > desired_cylinders)
             if excessive_cylinders:
-                excessive_cylinders.unlink()  # Directly deletes excess records from the database
+                excessive_cylinders.unlink()
 
             # Add missing cylinders
             existing_cylinder_numbers = set(current_cylinders)
@@ -319,12 +315,12 @@ class Motor(models.Model, LabelMixin):
                         }
                     )
 
-    def _create_default_images(self, motor_record: Self) -> None:
+    def _create_default_images(self, motor: Self) -> None:
         image_names = constants.MOTOR_IMAGE_NAME_AND_ORDER
         for name in image_names:
             self.env["motor.image"].create(
                 {
-                    "motor": motor_record.id,
+                    "motor": motor.id,
                     "name": name,
                 }
             )

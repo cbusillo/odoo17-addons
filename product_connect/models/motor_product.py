@@ -55,8 +55,8 @@ class MotorProduct(models.Model):
 
     @api.depends("name", "computed_name", "default_code")
     def _compute_display_name(self) -> None:
-        for record in self:
-            record.display_name = f"{record.default_code} - {record.name or record.computed_name}"
+        for product in self:
+            product.display_name = f"{product.default_code} - {product.name or product.computed_name}"
 
     @api.depends(
         "motor.manufacturer.name",
@@ -70,20 +70,20 @@ class MotorProduct(models.Model):
         "template.include_oem_in_name",
     )
     def _compute_name(self) -> None:
-        for record in self:
+        for product in self:
             name_parts = [
-                record.motor.year if record.template.include_year_in_name else None,
-                record.motor.manufacturer.name if record.motor.manufacturer else None,
-                (record.motor.get_horsepower_formatted() if record.template.include_hp_in_name else None),
-                record.template.name,
-                record.first_mpn if record.template.include_model_in_name else None,
-                "OEM" if record.template.include_oem_in_name else None,
+                product.motor.year if product.template.include_year_in_name else None,
+                product.motor.manufacturer.name if product.motor.manufacturer else None,
+                (product.motor.get_horsepower_formatted() if product.template.include_hp_in_name else None),
+                product.template.name,
+                product.first_mpn if product.template.include_model_in_name else None,
+                "OEM" if product.template.include_oem_in_name else None,
             ]
             new_computed_name = " ".join(part for part in name_parts if part)
-            if not record.name or record.name == record.computed_name:
-                record.name = new_computed_name
-            record.computed_name = new_computed_name
+            if not product.name or product.name == product.computed_name:
+                product.name = new_computed_name
+            product.computed_name = new_computed_name
 
     def reset_name(self) -> None:
-        for record in self:
-            record.name = record.computed_name
+        for product in self:
+            product.name = product.computed_name
