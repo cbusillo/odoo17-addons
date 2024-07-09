@@ -387,3 +387,14 @@ class Motor(models.Model, LabelMixin):
             "url": download_url,
             "target": "self",
         }
+
+    def apply_cost(self) -> None:
+        products = self.products.filtered(lambda p: p.is_listable and p.qty_available > 0)
+
+        total_price = sum(record.list_price * record.qty_available for record in products)
+
+        for product in products:
+            cost_proportion = (product.list_price * product.qty_available) / total_price if total_price else 0
+            product.standard_price = (
+                (cost_proportion * product.list_price) / product.qty_available if product.qty_available else 0
+            )

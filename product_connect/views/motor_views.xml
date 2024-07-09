@@ -239,6 +239,9 @@
                             </group>
                         </page>
                         <page string="Products" invisible="stage != 'finalization'">
+                            <button name="apply_cost" type="object" class="btn btn-primary btn-lg m-2">
+                                <i class="fa fa-dollar"/>&#160;Apply Cost
+                            </button>
                             <field name="products"/>
                         </page>
                         <page string="Finalization" invisible="stage != 'finalization'">
