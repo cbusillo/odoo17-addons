@@ -93,7 +93,8 @@
                             </thead>
                             <tbody>
                                 <t t-set="current_motor" t-value="False"/>
-                                <t t-foreach="docs.sorted(key=lambda p: p.motor.id)" t-as="product">
+                                <t t-foreach="docs.filtered(lambda p: p.is_listable).sorted(key=lambda p: p.motor.id)"
+                                   t-as="product">
                                     <t t-if="product.motor != current_motor">
                                         <tr class="motor-header">
                                             <td colspan="5"><span t-field="product.motor.display_name"/></td>
