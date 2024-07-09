@@ -18,6 +18,7 @@ def migrate(cr, version) -> None:
             product.condition = env.ref("product_connect.product_condition_used")
 
         product.part_type_name = product.part_type.name
+        product._compute_name()
 
     product_imports = env["product.import"].search([])
     for product in product_imports:

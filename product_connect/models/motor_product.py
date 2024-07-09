@@ -73,9 +73,11 @@ class MotorProduct(models.Model):
                 product.motor.year if product.template.include_year_in_name else None,
                 product.motor.manufacturer.name if product.motor.manufacturer else None,
                 (product.motor.get_horsepower_formatted() if product.template.include_hp_in_name else None),
+                product.motor.stroke.name,
                 product.template.name,
                 product.first_mpn if product.template.include_model_in_name else None,
                 "OEM" if product.template.include_oem_in_name else None,
+                "Outboard",
             ]
             new_computed_name = " ".join(part for part in name_parts if part)
             if not product.name or product.name == product.computed_name:
@@ -84,4 +86,5 @@ class MotorProduct(models.Model):
 
     def reset_name(self) -> None:
         for product in self:
-            product.name = product.computed_name
+            product.name = ""
+            product._compute_name()
