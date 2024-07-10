@@ -65,7 +65,7 @@ class ProductBase(models.AbstractModel):
     first_mpn = fields.Char(compute="_compute_first_mpn", store=True)
     manufacturer = fields.Many2one("product.manufacturer", index=True)
     part_type = fields.Many2one("product.type", index=True)
-    part_type_name = fields.Char(related="part_type.name", store=True, index=True)
+    part_type_name = fields.Char(related="part_type.name", store=True, index=True, string="Part Type Name")
     condition = fields.Many2one("product.condition", index=True)
 
     length = fields.Integer()
