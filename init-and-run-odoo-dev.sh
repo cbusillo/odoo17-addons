@@ -139,20 +139,20 @@ EOF
 start_odoo() {
     if [ $# -eq 0 ]; then
         echo "Starting Odoo in normal mode..."
-        eval exec "$ODOO_RUN"
+        $ODOO_RUN
     else
-        echo "Executing command: $ODOO_RUN" "$@"
-        eval exec "$ODOO_RUN" "$@"
+        echo "Executing command: $ODOO_RUN $*"
+        $ODOO_RUN "$@"
     fi
 }
 
 start_odoo_debug() {
     if [ $# -eq 0 ]; then
         echo "Starting Odoo in debug mode..."
-        exec "$ODOO_RUN" --dev=all
+        $ODOO_RUN --dev=all
     else
-        echo "Starting Odoo in debug mode with additional arguments: $ODOO_RUN" "$@"
-        exec "$ODOO_RUN" "$@" --dev=all
+        echo "Starting Odoo in debug mode with additional arguments: $ODOO_RUN $*"
+        $ODOO_RUN "$@" --dev=all
     fi
 }
 
