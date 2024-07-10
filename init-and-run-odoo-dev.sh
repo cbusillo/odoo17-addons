@@ -6,7 +6,7 @@ PROD_SERVER="opw-prod"
 PROD_DB="opw"
 PROD_DB_USER="odoo"
 PROD_FILESTORE_PATH="/opt/odoo/.local/share/Odoo/filestore"
-TEMP_DB_BACKUP="/tmp/$PROD_DB-$(date +%F).sql"
+TEMP_DB_BACKUP="/tmp/${PROD_DB}_dump.gz"
 
 # Configuration for Odoo development environment
 if [ -z "$2" ] || [ "$2" = "local" ]; then
@@ -48,19 +48,18 @@ restart_postgres() {
 sync_from_prod() {
     echo "Starting backup of production database..."
     # shellcheck disable=SC2029
-    ssh $PROD_SERVER "cd /tmp && sudo -u $PROD_DB_USER pg_dump $PROD_DB" > "$TEMP_DB_BACKUP"
-
+    ssh "$PROD_SERVER" "sudo -u $PROD_DB_USER pg_dump -Fc $PROD_DB" | gzip > "$TEMP_DB_BACKUP"
 
     echo "Production database backup completed. Starting rsync of filestore..."
     mkdir -p "$ODOO_FILESTORE_PATH"
-    rsync -avz --delete "$PROD_SERVER:$PROD_FILESTORE_PATH" "$ODOO_FILESTORE_PATH"
+    rsync -az --delete "$PROD_SERVER:$PROD_FILESTORE_PATH" "$ODOO_FILESTORE_PATH"
 
     echo "Filestore sync completed. Restoring database on development environment..."
-      restart_postgres
+    restart_postgres
     wait_for_db
     dropdb --if-exists  -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB"
     createdb -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB"
-    psql -h "$ODOO_DB_SERVER" -U "$ODOO_USER" "$ODOO_DB" < "$TEMP_DB_BACKUP"
+    gunzip < "$TEMP_DB_BACKUP" | pg_restore -d "$ODOO_DB" -h "$ODOO_DB_SERVER" -U "$ODOO_USER" --no-owner --role="$ODOO_USER"
 
     echo "Database restore completed."
 
