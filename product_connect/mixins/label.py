@@ -4,6 +4,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from odoo import models
+from odoo.exceptions import UserError
 from simple_zpl2 import ZPLDocument  # type: ignore
 
 if TYPE_CHECKING:
@@ -32,8 +33,10 @@ class LabelMixin(models.AbstractModel):
     ) -> None:
         label_data: str | bytes
         if isinstance(labels, list):
+            if not labels:
+                raise UserError("No labels to print")
             if not isinstance(labels[0], str):
-                logger.error("Invalid label data type")
+                raise UserError("Invalid label data type")
             label_data = self.combine_labels_base64(labels)
         elif isinstance(labels, bytes):
             label_data = labels
@@ -72,6 +75,7 @@ class LabelMixin(models.AbstractModel):
             label_data = ["", "Bin: ", product_bin]
             label = self.generate_label_base64(label_data, barcode=product_bin)
             labels.append(label)
+
         self._print_labels(
             labels,
             odoo_job_type="product_label",
