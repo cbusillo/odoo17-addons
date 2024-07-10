@@ -1,9 +1,10 @@
 /** @odoo-module **/
-import { onMounted, onWillUnmount, useRef, useState } from '@odoo/owl';
-import { ConfirmationDialog } from '@web/core/confirmation_dialog/confirmation_dialog';
-import { isMobileOS } from "@web/core/browser/feature_detection";
-import { CharField, charField } from '@web/views/fields/char/char_field';
-import { registry } from '@web/core/registry';
+import {onMounted, onWillUnmount, useRef, useState} from '@odoo/owl';
+import {ConfirmationDialog} from '@web/core/confirmation_dialog/confirmation_dialog';
+import {CharField, charField} from '@web/views/fields/char/char_field';
+import {registry} from '@web/core/registry';
+
+/** @typedef {import('qr-scanner').default} QrScannerType */
 
 class QRCodeWidget extends CharField {
     static template = 'product_connect.QRCodeWidget';
@@ -18,19 +19,19 @@ class QRCodeWidget extends CharField {
             buttonLabel: 'Stop',
             flashlightLabel: undefined,
         })
-        this.qrReaderRef = useRef('qrReader');
+        this.qrReaderRef = useRef('qrReader')
 
         this.onScanSuccess = this.onScanSuccess.bind(this);
         onMounted(async () => {
-            // noinspection JSUnresolvedReference
-            this.qrScanner = new window.QrScanner(
+            const qrScanner = window.QrScanner
+            this.qrScanner = new qrScanner(
                 this.qrReaderRef.el,
                 this.onScanSuccess,
-                { returnDetailedScanResult: true }
-            );
+                {returnDetailedScanResult: true}
+            )
 
             await this.startScanner()
-            if (isMobileOS()) {
+            if (this.qrScanner.hasFlash().catch((error) => this.logError(error))) {
                 this.state.flashlightLabel = "Flash on"
             }
         })
@@ -41,19 +42,17 @@ class QRCodeWidget extends CharField {
     }
 
     onScanSuccess(result) {
+        const handleConfirm = () => {
+            this.startScanner();
+        };
         try {
-            if (result.data === this.state.barcode) {
-                return;
-            }
             this.stopScanner();
-            this.props.record.update({ [this.props.name]: result.data })
+            this.props.record.update({[this.props.name]: result.data})
                 .catch((error) => {
                     this.env.services.dialog.add(ConfirmationDialog, {
                         title: 'Error',
                         body: error.data.message,
-                        confirm: () => {
-                            this.startScanner();
-                        },
+                        confirm: handleConfirm,
                     });
                 })
         } catch (error) {
@@ -61,9 +60,8 @@ class QRCodeWidget extends CharField {
         }
     }
 
-    //
     startScanner() {
-        this.qrScanner.start();
+        this.qrScanner.start().catch((error) => this.logError(error));
         this.state.buttonLabel = 'Stop'
         this.state.scanEnabled = true;
         this.qrReaderRef.el.classList.remove('d-none');
@@ -110,16 +108,20 @@ class QRCodeWidget extends CharField {
 
     toggleFlashlight() {
         if (this.state.flashlightLabel === 'Flash On') {
-            this.qrScanner.turnFlashOn();
+            this.qrScanner.turnFlashOn().catch((error) => this.logError(error));
             this.state.flashlightLabel = 'Flash Off';
         } else {
-            this.qrScanner.turnFlashOff();
+            this.qrScanner.turnFlashOff().catch((error) => this.logError(error));
             this.state.flashlightLabel = 'Flash On';
         }
     }
 
     onInputFocus() {
         this.startScanner()
+    }
+
+    logError(error) {
+        console.error('An error occurred:', error)
     }
 }
 
