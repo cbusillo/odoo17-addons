@@ -252,6 +252,9 @@ class ProductBase(models.AbstractModel):
                     "is_published": True,
                     "shopify_next_export": True,
                     "motor": product.motor.id,
+                    "length": product.length,
+                    "width": product.width,
+                    "height": product.height,
                 }
             )
             new_product.update_quantity(product.qty_available)
