@@ -48,7 +48,7 @@ restart_postgres() {
 sync_from_prod() {
     echo "Starting backup of production database..."
     # shellcheck disable=SC2029
-    ssh "$PROD_SERVER" "sudo -u $PROD_DB_USER pg_dump -Fc $PROD_DB" | gzip > "$TEMP_DB_BACKUP"
+    ssh "$PROD_SERVER" "cd /tmp && sudo -u $PROD_DB_USER pg_dump -Fc $PROD_DB" | gzip > "$TEMP_DB_BACKUP"
 
     echo "Production database backup completed. Starting rsync of filestore..."
     mkdir -p "$ODOO_FILESTORE_PATH"
