@@ -31,7 +31,6 @@ class Motor(models.Model, LabelMixin):
         domain="['|', ('id', '=', technician), '&', ('is_technician', '=', True), ('active', '=', True)]",
         ondelete="restrict",
     )
-    signature = fields.Binary()
     manufacturer = fields.Many2one("product.manufacturer", domain="[('is_motor_manufacturer', '=', True)]")
     horsepower = fields.Float(digits=(3, 1), string="HP")
     horsepower_formatted = fields.Char(compute="_compute_horsepower_formatted")

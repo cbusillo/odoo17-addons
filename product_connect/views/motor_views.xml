@@ -251,10 +251,6 @@
                             <!-- Add fields relevant for the finalization stage here -->
                         </page>
                     </notebook>
-                    <div class="p-2">Please sign here to acknowledge the completion of the motor check-in.</div>
-                    <div class="px-2 pb-2">
-                        <widget name="signature" string="Sign here"/>
-                    </div>
                 </sheet>
             </form>
         </field>
