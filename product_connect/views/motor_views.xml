@@ -42,7 +42,7 @@
                     <field name="active" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
                             invisible="active" widget_id="widget_1"/>
-                    <field name="icon" widget="image" class="oe_avatar"/>
+                    <field name="image_icon" widget="image" class="oe_avatar"/>
 
                     <div class="oe_title">
                         <label for="display_name" string="Motor Name"/>
@@ -269,11 +269,11 @@
                     <t t-name="kanban-box">
                         <div class="oe_kanban_global_click" style="overflow: hidden;">
                             <!-- Image display -->
-                            <t t-if="record.icon.raw_value">
-                                <field name="icon" invisible="1"/>
+                            <t t-if="record.image_icon.raw_value">
+                                <field name="image_icon" invisible="1"/>
                                 <div class="o_kanban_image"
                                      style="float: left; margin-right: 10px;">
-                                    <img t-att-src="kanban_image('motor', 'icon', record.id.raw_value)"
+                                    <img t-att-src="kanban_image('motor', 'image_icon', record.id.raw_value)"
                                          style="border-radius: 5px; max-width: none;" alt="Motor Image"/>
                                 </div>
                             </t>

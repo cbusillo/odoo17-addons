@@ -56,7 +56,7 @@ class Motor(models.Model, LabelMixin):
     has_notes = fields.Boolean(compute="_compute_has_notes", store=True)
     images = fields.One2many("motor.image", "motor")
     image_count = fields.Integer(compute="_compute_image_count")
-    icon = fields.Binary(compute="_compute_icon", store=True)
+    image_icon = fields.Binary(compute="_compute_icon", store=True)
     parts = fields.One2many("motor.part", "motor")
     missing_parts = fields.One2many("motor.part", "motor", domain=[("is_missing", "=", True)])
     missing_parts_names = fields.Char(compute="_compute_missing_parts_names", store=True)
@@ -137,7 +137,7 @@ class Motor(models.Model, LabelMixin):
     @api.depends("images")
     def _compute_icon(self) -> None:
         for motor in self:
-            motor.icon = motor.images[0].image_128 if motor.images else False
+            motor.image_icon = motor.images[0].image_128 if motor.images else False
 
     @api.depends("horsepower")
     def _compute_horsepower_formatted(self) -> None:

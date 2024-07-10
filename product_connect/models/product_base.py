@@ -59,7 +59,7 @@ class ProductBase(models.AbstractModel):
 
     images = fields.One2many("product.image", "product_tmpl_id")
     image_count = fields.Integer(compute="_compute_image_count")
-    icon = fields.Binary(compute="_compute_icon", store=True)
+    image_icon = fields.Binary(compute="_compute_icon", store=True)
 
     mpn = fields.Char(string="MPN", index=True)
     first_mpn = fields.Char(compute="_compute_first_mpn", store=True)
@@ -117,7 +117,7 @@ class ProductBase(models.AbstractModel):
     @api.depends("images.image_1920")
     def _compute_icon(self) -> None:
         for product in self:
-            product.icon = product.images[0].image_128 if product.images else None
+            product.image_icon = product.images[0].image_128 if product.images else None
 
     @api.depends("mpn")
     def _compute_first_mpn(self) -> None:
