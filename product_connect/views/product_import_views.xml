@@ -120,7 +120,7 @@
                             <group>
                                 <field name="images">
                                     <tree string="Images" editable="bottom">
-                                        <field name="product"/>
+                                        <field name="product" column_invisible="1"/>
                                         <field name="image_1920" widget="image_upload"/>
                                         <field name="index"/>
                                     </tree>

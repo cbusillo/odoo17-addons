@@ -31,8 +31,12 @@ class MotorProductImage(models.Model):
     _inherit = ["image.mixin"]
     _description = "Motor Product Images"
 
-    index = fields.Integer(index=True, required=True)
-    product = fields.Many2one("motor.product", ondelete="restrict")
+    index = fields.Integer(index=True, required=True, default=lambda self: self._get_next_index())
+    product = fields.Many2one("motor.product", ondelete="cascade", required=True, index=True)
+
+    def _get_next_index(self) -> int:
+        last_index = self.search([("product", "=", self.product.id)], order="index desc", limit=1).index
+        return (last_index or 0) + 1
 
 
 class MotorProduct(models.Model):

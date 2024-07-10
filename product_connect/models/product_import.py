@@ -12,8 +12,12 @@ class ProductImportImage(odoo.models.Model):
         ("index_uniq", "unique (index, product)", "Index must be unique per product!"),
     ]
 
-    index = odoo.fields.Integer(index=True, required=True)
+    index = odoo.fields.Integer(index=True, required=True, default=lambda self: self._get_next_index())
     product = odoo.fields.Many2one("product.import", ondelete="cascade", required=True, index=True)
+
+    def _get_next_index(self) -> int:
+        last_index = self.search([("product", "=", self.product.id)], order="index desc", limit=1).index
+        return (last_index or 0) + 1
 
 
 class ProductImport(odoo.models.Model):

@@ -107,8 +107,10 @@
                         <page string="Images">
                             <field name="images">
                                 <tree editable="bottom" delete="False">
+                                    <field name="product" column_invisible="1"/>
                                     <field name="image_256" widget="image" column_invisible="1"/>
                                     <field name="image_1920" widget="image_upload"/>
+                                    <field name="index"/>
                                 </tree>
                             </field>
                         </page>
