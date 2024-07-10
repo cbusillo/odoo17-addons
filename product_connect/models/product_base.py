@@ -191,7 +191,7 @@ class ProductBase(models.AbstractModel):
                 return existing_new_products
         return None
 
-    def import_to_products(self) -> dict[str, str]:
+    def import_to_products(self) -> None:
         if self._name in ["product.template", "product.product"]:
             raise UserError("This method is not available for Odoo base products.")
 
@@ -237,23 +237,21 @@ class ProductBase(models.AbstractModel):
 
             new_product = self.env["product.product"].create(
                 {
-                    "default_code": product.default_code or existing_product.default_code,
-                    "mpn": product.mpn or existing_product.mpn,
-                    "manufacturer": product.manufacturer.id or existing_product.manufacturer.id,
-                    "bin": product.bin or existing_product.bin,
-                    "name": product.name or existing_product.name,
-                    "description_sale": product.description or existing_product.description_sale,
-                    "part_type": product.part_type.id or existing_product.part_type.id,
-                    "weight": product.weight if product.weight > 0 else existing_product.weight,
-                    "list_price": product.list_price if product.list_price > 0 else existing_product.list_price,
-                    "standard_price": (
-                        product.standard_price if product.standard_price > 0 else existing_product.standard_price
-                    ),
-                    "condition": product.condition.id or existing_product.condition.id,
+                    "default_code": product.default_code,
+                    "mpn": product.mpn,
+                    "manufacturer": product.manufacturer.id,
+                    "bin": product.bin,
+                    "name": product.name,
+                    "description_sale": product.description,
+                    "part_type": product.part_type.id,
+                    "weight": product.weight,
+                    "list_price": product.list_price,
+                    "standard_price": product.standard_price,
+                    "condition": product.condition.id,
                     "detailed_type": "product",
                     "is_published": True,
                     "shopify_next_export": True,
-                    "motor": product.motor.id or existing_product.motor.id,
+                    "motor": product.motor.id,
                 }
             )
             new_product.update_quantity(product.qty_available)
@@ -267,15 +265,9 @@ class ProductBase(models.AbstractModel):
                 self.env["product.image"].create(
                     {
                         "image_1920": image.image_1920,
-                        "product_tmpl_id": existing_product.product_tmpl_id.id,
+                        "product_tmpl_id": new_product.product_tmpl_id.id,
                         "name": image.index,
                     }
                 )
                 image.unlink()
             product.unlink()
-
-        return {
-            "type": "ir.actions.act_window",
-            "view_mode": self._context.get("view_mode", "tree,form"),
-            "res_model": self._name,
-        }
