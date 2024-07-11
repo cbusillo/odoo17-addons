@@ -472,7 +472,7 @@ class ShopifySync(models.AbstractModel):
             status = "created"
 
         self.import_product_images_from_shopify(shopify_product, existing_product)
-        self.update_product_stock_in_odoo(shopify_product_data["quantity"], existing_product)
+        self.update_product_stock_in_odoo(shopify_product_data["qty_available"], existing_product)
         return status
 
     @api.model
