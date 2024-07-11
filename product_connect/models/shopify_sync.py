@@ -417,8 +417,8 @@ class ShopifySync(models.AbstractModel):
                 odoo_product_data["shopify_condition_id"] = self.extract_id_from_gid(metafield.get("id"))
             if metafield.get("key") == "ebay_category_id":
                 odoo_product_data["shopify_ebay_category_id"] = self.extract_id_from_gid(metafield.get("id"))
-                part_type = self.find_or_add_product_type(
-                    shopify_product_data["product_type"],
+                part_type = self.find_or_add_part_type(
+                    shopify_product_data["part_type"],
                     metafield.get("value"),
                 )
                 if part_type:
@@ -485,26 +485,24 @@ class ShopifySync(models.AbstractModel):
         return manufacturer
 
     @api.model
-    def find_or_add_product_type(self, product_type_name: str, ebay_category_id: str) -> Self | None:
+    def find_or_add_part_type(self, part_type_name: str, ebay_category_id: str) -> Self | None:
         try:
-            if int(ebay_category_id) < 1 or not product_type_name:
+            if int(ebay_category_id) < 1 or not part_type_name:
                 return None
         except ValueError:
             return None
-        product_type = self.env["product.type"].search(
+        part_type = self.env["product.type"].search(
             [
-                ("name", "=", product_type_name),
+                ("name", "=", part_type_name),
                 ("ebay_category_id", "=", ebay_category_id),
             ],
             limit=1,
         )
 
-        if not product_type:
-            product_type = self.env["product.type"].create(
-                {"name": product_type_name, "ebay_category_id": ebay_category_id}
-            )
+        if not part_type:
+            part_type = self.env["product.type"].create({"name": part_type_name, "ebay_category_id": ebay_category_id})
 
-        return product_type
+        return part_type
 
     @api.model
     def update_product_quantity_in_odoo(self, shopify_quantity, odoo_product) -> None:
