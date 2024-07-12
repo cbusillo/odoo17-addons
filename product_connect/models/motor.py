@@ -411,3 +411,10 @@ class Motor(models.Model, LabelMixin):
             raise UserError(_("No products to import."))
 
         products_to_import.import_to_products()
+
+    def print_motor_product_labels(self) -> None:
+        products = self.products.filtered(lambda p: p.is_listable and p.qty_available > 0)
+        if not products:
+            raise UserError(_("No products to print labels for."))
+
+        products.print_product_labels(print_quantity=True)
