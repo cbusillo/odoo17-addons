@@ -76,8 +76,8 @@ class ProductBase(models.AbstractModel):
     bin = fields.Char(index=True)
     qty_available = fields.Float(string="Quantity")
 
-    list_price = fields.Float(string="Price")
-    standard_price = fields.Float(string="Cost")
+    list_price = fields.Float(string="Price", group_operator=False)
+    standard_price = fields.Float(string="Cost", group_operator=False)
 
     description = fields.Text()
 
@@ -99,9 +99,9 @@ class ProductBase(models.AbstractModel):
         max_sku = "9" * padding
         while (new_sku := self.env["ir.sequence"].next_by_code("product.template.default_code")) <= max_sku:
             if not (
-                self.env["motor.product"].search_count([("default_code", "=", new_sku)])
-                or self.env["product.template"].search_count([("default_code", "=", new_sku)])
-                or self.env["product.import"].search_count([("default_code", "=", new_sku)])
+                    self.env["motor.product"].search_count([("default_code", "=", new_sku)])
+                    or self.env["product.template"].search_count([("default_code", "=", new_sku)])
+                    or self.env["product.import"].search_count([("default_code", "=", new_sku)])
             ):
                 return new_sku
         raise ValidationError("SKU limit reached.")
@@ -133,8 +133,8 @@ class ProductBase(models.AbstractModel):
         for product in self:
             recent_messages = product.message_ids.filtered(
                 lambda m: fields.Datetime.now() - m.create_date < timedelta(minutes=30)
-                and m.subject
-                and "Import Error" in m.subject
+                          and m.subject
+                          and "Import Error" in m.subject
             )
             product.has_recent_messages = bool(recent_messages)
 
@@ -197,14 +197,14 @@ class ProductBase(models.AbstractModel):
 
         missing_data_products = self.filtered(
             lambda current: not (
-                current.default_code
-                and current.name
-                and current.standard_price
-                and current.list_price
-                and current.qty_available
-                and current.manufacturer
+                    current.default_code
+                    and current.name
+                    and current.standard_price
+                    and current.list_price
+                    and current.qty_available
+                    and current.manufacturer
             )
-            or len(current.images) == 0
+                            or len(current.images) == 0
         )
         if missing_data_products:
             message = f"Missing data for product(s).  Please fill in all required fields for SKUs {' '.join([p.default_code for p in missing_data_products])} ."
