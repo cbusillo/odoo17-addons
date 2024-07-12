@@ -26,10 +26,11 @@ class LabelMixin(models.AbstractModel):
     BARCODE_SIZE = 8
 
     def _print_labels(
-        self,
-        labels: list[str] | bytes,
-        odoo_job_type: str,
-        job_name: str,
+            self,
+            labels: list[str] | bytes,
+            odoo_job_type: str,
+            job_name: str,
+            copies: int = 1,
     ) -> None:
         label_data: str | bytes
         if isinstance(labels, list):
@@ -48,6 +49,7 @@ class LabelMixin(models.AbstractModel):
             label_data,
             odoo_job_type=odoo_job_type,
             job_name=job_name,
+            copies=copies,
         )
 
     def print_motor_labels(self, printer_job_type: str = "motor_label") -> None:

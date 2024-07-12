@@ -57,9 +57,9 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
             self,
             label_data: str | bytes,
             odoo_job_type: str,
-            quantity: int = 1,
+            copies: int = 1,
             job_name: str = "Odoo Label",
-    ) -> PrintJob | None:
+    ) -> list[PrintJob] | None:
         gateway = self.get_gateway()
         interface_record = self.env["printnode.interface"].search(
             [
@@ -79,7 +79,8 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
                 f"Printer not selected for job type {odoo_job_type} and user {self.env.user.name}"
             )
             return None
-        print_job = None
+
+        print_jobs: list[PrintJob] = []
         print_job_params: dict[str, str | bytes]
         if isinstance(label_data, str):
             print_job_params = {"base64": label_data}
@@ -89,15 +90,16 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
             logger.error("Invalid label data type")
             return None
         try:
-            print_job = gateway.PrintJob(
-                printer=int(printer_id),
-                title=job_name,
-                options={"copies": quantity},
-                job_type="raw",
-                **print_job_params,
-            )
+            for _ in range(copies):
+                print_job = gateway.PrintJob(
+                    printer=int(printer_id),
+                    title=job_name,
+                    job_type="raw",
+                    **print_job_params,
+                )
+                print_jobs.append(print_job)
 
         except LookupError as error:
             logger.exception(f"Error printing label: {error}")
-        finally:
-            return print_job
+
+        return print_jobs
