@@ -1,9 +1,9 @@
 import logging
 
+from odoo import _, api, fields, models
 from printnodeapi import Gateway  # type: ignore
 from printnodeapi.model import PrintJob, Printer  # type: ignore
 
-from odoo import _, api, fields, models
 from ..mixins.notification_manager import NotificationManagerMixin
 
 logger = logging.getLogger(__name__)
@@ -20,9 +20,7 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
         )
     ]
 
-    printer_selection = fields.Selection(
-        selection="get_printer_tuple", string="Printer"
-    )
+    printer_selection = fields.Selection(selection="get_printer_tuple", string="Printer")
     print_job_type = fields.Selection(
         selection=[
             ("product_label", "Product Label"),
@@ -69,15 +67,11 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
             limit=1,
         )
         if not interface_record:
-            logger.error(
-                f"No printer configured for job type {odoo_job_type} and user {self.env.user.name}"
-            )
+            logger.error(f"No printer configured for job type {odoo_job_type} and user {self.env.user.name}")
             return None
         printer_id = interface_record.printer_selection
         if not printer_id:
-            logger.error(
-                f"Printer not selected for job type {odoo_job_type} and user {self.env.user.name}"
-            )
+            logger.error(f"Printer not selected for job type {odoo_job_type} and user {self.env.user.name}")
             return None
 
         print_jobs: list[PrintJob] = []

@@ -57,11 +57,7 @@ class LabelMixin(models.AbstractModel):
         report_object = self.env["ir.actions.report"]._get_report_from_name(report_name)
         pdf_data, _ = report_object._render_qweb_pdf(report_name, res_ids=self.ids)
 
-        self._print_labels(
-            pdf_data,
-            odoo_job_type=printer_job_type,
-            job_name="Motor Label",
-        )
+        self._print_labels(pdf_data, odoo_job_type=printer_job_type, job_name="Motor Label")
 
     def print_bin_labels(self) -> None:
         if TYPE_CHECKING:
@@ -132,12 +128,12 @@ class LabelMixin(models.AbstractModel):
         return lines
 
     def generate_label_base64(
-        self,
-        text: list[str] | str,
-        bottom_text: str | list[str] | None = None,
-        barcode: str | None = None,
-        quantity: int = 1,
-        print_date: bool = True,
+            self,
+            text: list[str] | str,
+            bottom_text: str | list[str] | None = None,
+            barcode: str | None = None,
+            quantity: int = 1,
+            print_date: bool = True,
     ) -> str:
         if not isinstance(text, list):
             text = [text]
