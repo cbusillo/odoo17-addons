@@ -26,6 +26,7 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
             ("product_label", "Product Label"),
             ("product_label_picture", "Product Label Picture"),
             ("motor_label", "Motor Label"),
+            ("pull_list", "Pull List"),
         ],
         default="product_label",
     )

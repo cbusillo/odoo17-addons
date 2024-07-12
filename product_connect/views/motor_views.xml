@@ -242,10 +242,13 @@
                             <button name="apply_cost" type="object" class="btn btn-primary btn-lg m-2">
                                 <i class="fa fa-dollar"/>&#160;Apply Cost
                             </button>
-                            <button name="import_to_products" type="object" class="btn btn-primary btn-lg">
+                            <button name="print_motor_pull_list" type="object" class="btn btn-primary btn-lg ms-2">
+                                <i class="fa fa-print"/>&#160;Print Pull List
+                            </button>
                             <button name="print_motor_product_labels" type="object" class="btn btn-primary btn-lg ms-2">
                                 <i class="fa fa-print"/>&#160;Print Product Labels
                             </button>
+                            <button name="import_to_products" type="object" class="btn btn-primary btn-lg ms-2">
                                 <i class="fa fa-upload"/>&#160;Import All
                             </button>
                             <field name="products"/>

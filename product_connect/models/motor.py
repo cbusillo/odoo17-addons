@@ -418,3 +418,14 @@ class Motor(models.Model, LabelMixin):
             raise UserError(_("No products to print labels for."))
 
         products.print_product_labels(print_quantity=True)
+
+    def print_motor_pull_list(self) -> None:
+        products = self.products.filtered(lambda p: p.is_listable and p.qty_available > 0)
+        if not products:
+            raise UserError(_("No products to print pull list for."))
+
+        report_name = "product_connect.report_motorproductpulllist"
+        report_object = self.env["ir.actions.report"]._get_report_from_name(report_name)
+        pdf_data, _ = report_object._render_qweb_pdf(report_name, res_ids=products.ids)
+
+        self._print_labels(pdf_data, odoo_job_type="pull_list", job_name="Motor Pull List", copies=2)
