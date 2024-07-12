@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <record id="paperformat_motor_product_pick_list" model="report.paperformat">
-            <field name="name">Motor Product Pick List A4</field>
+        <record id="paperformat_motor_product_pull_list" model="report.paperformat">
+            <field name="name">Motor Product Pull List A4</field>
             <field name="default" eval="True"/>
             <field name="format">Letter</field>
             <field name="page_height">0</field>
@@ -16,26 +16,26 @@
             <field name="header_spacing">0</field>
             <field name="dpi">90</field>
         </record>
-        <!-- Motor Product Pick List -->
-        <record id="action_report_motor_product_pick_list" model="ir.actions.report">
-            <field name="name">Pick List (PDF)</field>
+        <!-- Motor Product Pull List -->
+        <record id="action_report_motor_product_pull_list" model="ir.actions.report">
+            <field name="name">Pull List (PDF)</field>
             <field name="model">motor.product</field>
             <field name="report_type">qweb-pdf</field>
-            <field name="report_name">product_connect.report_motorproductpicklist</field>
-            <field name="report_file">product_connect.report_motorproductpicklist</field>
-            <field name="paperformat_id" ref="product_connect.paperformat_motor_product_pick_list"/>
-            <field name="print_report_name">'Motor Products Pick List - %s' % object.name</field>
+            <field name="report_name">product_connect.report_motorproductpulllist</field>
+            <field name="report_file">product_connect.report_motorproductpulllist</field>
+            <field name="paperformat_id" ref="product_connect.paperformat_motor_product_pull_list"/>
+            <field name="print_report_name">'Motor Products Pull List - %s' % object.name</field>
             <field name="binding_model_id" ref="model_motor_product"/>
             <field name="binding_type">report</field>
         </record>
 
         <!-- Report Template -->
-        <template id="report_motorproductpicklist">
+        <template id="report_motorproductpulllist">
             <t t-call="web.basic_layout">
                 <main>
                     <div class="page">
                         <style>
-                            .pick-list-header {
+                            .pull-list-header {
                                 display: flex;
                                 justify-content: space-between;
                                 align-items: center;
@@ -45,19 +45,19 @@
                                 border-radius: 5px;
                             }
 
-                            .pick-list-table {
+                            .pull-list-table {
                                 width: 100%;
                                 border-collapse: collapse;
                                 margin-bottom: 10px;
                             }
 
-                            .pick-list-table th, .pick-list-table td {
+                            .pull-list-table th, .pull-list-table td {
                                 border: 1px solid #ddd;
                                 padding: 4px;
                                 text-align: left;
                             }
 
-                            .pick-list-table th {
+                            .pull-list-table th {
                                 background-color: #f2f2f2;
                             }
 
@@ -75,13 +75,13 @@
                             }
                         </style>
 
-                        <div class="pick-list-header">
-                            <h2>Pick List for
+                        <div class="pull-list-header">
+                            <h2>Pull List for
                                 <t t-out="context_timestamp(datetime.datetime.now()).strftime('%m-%d-%Y')"/>
                             </h2>
                         </div>
 
-                        <table class="pick-list-table">
+                        <table class="pull-list-table">
                             <thead>
                                 <tr>
                                     <th>Qty Listing</th>
