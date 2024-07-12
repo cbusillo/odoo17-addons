@@ -88,7 +88,8 @@
                                     <th>Quantity</th>
                                     <th>MPN</th>
                                     <th>Name</th>
-                                    <th>Pulled</th>
+                                    <th>Done</th>
+                                    <th>QC</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -97,7 +98,7 @@
                                    t-as="product">
                                     <t t-if="product.motor != current_motor">
                                         <tr class="motor-header">
-                                            <td colspan="5"><span t-field="product.motor.display_name"/></td>
+                                            <td colspan="6"><span t-field="product.motor.display_name"/></td>
                                         </tr>
                                         <t t-set="current_motor" t-value="product.motor"/>
                                     </t>
@@ -108,6 +109,7 @@
                                         <td><span t-field="product.qty_available"/></td>
                                         <td><span t-field="product.first_mpn"/></td>
                                         <td><span t-field="product.template.name"/></td>
+                                        <td><div class="checkbox"></div></td>
                                         <td><div class="checkbox"></div></td>
                                     </tr>
                                 </t>

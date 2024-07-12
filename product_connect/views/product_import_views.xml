@@ -53,7 +53,7 @@
                 <field name="qty_available" sum="Total Quantity" widget="integer"/>
                 <field name="bin"/>
                 <field name="name"/>
-                <field name="description" optional="show"/>
+                <field name="description" optional="show" widget="char"/>
                 <field name="part_type" options="{'no_create': True}" optional="show"/>
                 <field name="weight" optional="show" widget="integer" width="100px"/>
                 <field name="length" string="L" optional="show" width="2"/>

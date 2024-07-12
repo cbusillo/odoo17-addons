@@ -34,7 +34,7 @@
             <form string="Motor Check-In" js_class="motor_form">
                 <header>
                     <button name="print_motor_labels" type="object" class="btn btn-primary btn-lg">
-                        <i class="fa fa-print"/>&#160;Print Motor Labels
+                        <i class="fa fa-print"/>&#160;Print Motor Label
                     </button>
                 </header>
                 <field name="stage" invisible="1"/>
@@ -239,7 +239,7 @@
                             <button name="create_motor_products" type="object" class="btn btn-primary btn-lg">
                                 <i class="fa fa-ship"/>&#160;Create Motor Products
                             </button>
-                            <button name="apply_cost" type="object" class="btn btn-primary btn-lg m-2">
+                            <button name="apply_cost" type="object" class="btn btn-primary btn-lg ms-2">
                                 <i class="fa fa-dollar"/>&#160;Apply Cost
                             </button>
                             <button name="print_motor_pull_list" type="object" class="btn btn-primary btn-lg ms-2">
@@ -339,7 +339,7 @@
 
 
     <record id="server_action_motor_print_labels" model="ir.actions.server">
-        <field name="name">Print Motor Labels</field>
+        <field name="name">Print Motor Label(s)</field>
         <field name="model_id" ref="model_motor"/>
         <field name="binding_model_id" ref="model_motor"/>
         <field name="binding_type">action</field>
