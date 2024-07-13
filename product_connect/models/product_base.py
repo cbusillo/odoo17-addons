@@ -42,7 +42,6 @@ class ProductBase(models.AbstractModel):
     _inherit = [
         "mail.thread",
         "label.mixin",
-        "image.mixin",
     ]
     _description = "Product Base"
     _order = "create_date desc"
@@ -58,7 +57,7 @@ class ProductBase(models.AbstractModel):
     create_date = fields.Datetime(index=True)
 
     images = fields.One2many("product.image", "product_tmpl_id")
-    image_count = fields.Integer(compute="_compute_image_count")
+    image_count = fields.Integer(compute="_compute_image_count", store=True)
     image_icon = fields.Binary(compute="_compute_icon", store=True)
 
     mpn = fields.Char(string="MPN", index=True)
@@ -124,6 +123,7 @@ class ProductBase(models.AbstractModel):
         for product in self:
             product.first_mpn = product.mpn.split(",")[0].strip() if product.mpn else ""
 
+    @api.depends("images")
     def _compute_image_count(self) -> None:
         for product in self:
             product.image_count = len([image for image in product.images if image.image_1920])

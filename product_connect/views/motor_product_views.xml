@@ -119,7 +119,7 @@
         <field name="arch" type="xml">
             <kanban>
                 <field name="reference_product"/>
-                <field name="image_256"/>
+                <field name="image_icon"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_global_click">
