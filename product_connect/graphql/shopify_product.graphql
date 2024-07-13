@@ -12,6 +12,7 @@ query GetProductIds($cursor: String, $limit: Int!, $query: String) {
     }
 }
 
+# noinspection GraphQLDeprecatedSymbols
 query GetProducts($cursor: String, $limit: Int!, $query: String) {
     products(first: $limit, after: $cursor, query: $query) {
         pageInfo {
