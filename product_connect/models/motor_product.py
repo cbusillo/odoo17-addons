@@ -67,6 +67,35 @@ class MotorProduct(models.Model):
     is_pictured_qc = fields.Boolean(default=False)
     ready_to_list = fields.Boolean(compute="_compute_ready_to_list", store=True)
 
+    def write(self, vals: dict) -> bool:
+        result = super(MotorProduct, self).write(vals)
+
+        if "images" in vals:
+            for product in self:
+                if product.image_count < 1:
+                    product.is_pictured = False
+                    product.is_pictured_qc = False
+
+        if any(
+            field in vals
+            for field in [
+                "is_dismantled",
+                "is_dismantled_qc",
+                "is_cleaned",
+                "is_cleaned_qc",
+                "is_pictured",
+                "is_pictured_qc",
+                "bin",
+                "weight",
+                "length",
+                "width",
+                "height",
+            ]
+        ):
+            for product in self:
+                product.motor.notify_changes()
+        return result
+
     @api.depends("first_mpn")
     def _compute_reference_product(self) -> None:
         for motor_product in self:
