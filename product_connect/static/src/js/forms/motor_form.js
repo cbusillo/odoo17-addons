@@ -1,49 +1,101 @@
 /** @odoo-module **/
 import { FormController } from '@web/views/form/form_controller'
 import { registry } from '@web/core/registry'
+import { onWillUnmount } from "@odoo/owl";
+
 
 class MotorFormController extends FormController {
     setup() {
         super.setup()
+        this.motorId = this.props.resId || null
+        this.busService = this.env.services["bus_service"]
+        if (this.motorId) {
+            this.registerBus()
+        } else {
+            this.model.hooks.onWillSaveRecord = this.onWillSaveRecord.bind(this)
+        }
+        this.model.hooks.onRecordChanged = this.onRecordChanged.bind(this)
 
-        this.model.hooks.onRecordChanged = (editedRecord, editedFields) => {
-            const editedData = editedRecord.data
-            const editedFieldNames = Object.keys(editedFields)
-            const requiredFieldsToSave = [
-                'technician',
-                'manufacturer',
-                'stroke',
-                'configuration',
-                'color',
-            ]
-            const requiredFieldsToPrint = [
-                'horsepower',
-                'model',
-                'serial_number',
-                'year',
-            ]
-            const combinedRequiredFields = [
-                ...requiredFieldsToSave,
-                ...requiredFieldsToPrint]
+        onWillUnmount(this.unregisterBus.bind(this))
+    }
 
-            const allPrintFieldsHaveValues = this.allFieldsHaveValues(editedData,
-                combinedRequiredFields)
 
-            const changedFieldInFieldsToPrint = requiredFieldsToPrint.some(
-                field => editedFieldNames.includes(field))
+    async onWillSaveRecord(record) {
+        await super.onWillSaveRecord(...arguments)
+        if (record.resId && !this.motorId) {
+            this.motorId = record.resId
+            this.registerBus()
+        }
+    }
 
-            const allSaveFieldsHaveValues = this.allFieldsHaveValues(editedData,
-                requiredFieldsToSave)
+    registerBus() {
+        const channel = `motor_${this.motorId}`
+        this.busService.addChannel(channel)
+        this.busService.addEventListener('notification', this.onBusNotification.bind(this))
+    }
 
-            if (allPrintFieldsHaveValues && allSaveFieldsHaveValues &&
-                changedFieldInFieldsToPrint) {
-                this.printMotorLabels()
-                return
+    unregisterBus() {
+        const channel = `motor_${this.motorId}`
+        this.busService.deleteChannel(channel)
+        this.busService.removeEventListener('notification', this.onBusNotification.bind(this))
+    }
+
+    onBusNotification({detail: notifications}) {
+        for (const {type, payload} of notifications) {
+            if (type === 'notification' && payload.type === 'motor_product_update') {
+                this.reloadProductFields().catch(console.error)
             }
+        }
+    }
 
-            if (allSaveFieldsHaveValues) {
-                this.model.root.save()
-            }
+    async reloadProductFields() {
+        const fieldsToReload = [
+            'products',
+            'products_to_dismantle',
+            'products_to_clean',
+            'products_to_picture',
+            'products_to_stock',
+        ]
+        await this.model.load({fieldNames: fieldsToReload})
+    }
+
+    onRecordChanged(editedRecord, editedFields) {
+        const editedData = editedRecord.data
+        const editedFieldNames = Object.keys(editedFields)
+        const requiredFieldsToSave = [
+            'technician',
+            'manufacturer',
+            'stroke',
+            'configuration',
+            'color',
+        ]
+        const requiredFieldsToPrint = [
+            'horsepower',
+            'model',
+            'serial_number',
+            'year',
+        ]
+        const combinedRequiredFields = [
+            ...requiredFieldsToSave,
+            ...requiredFieldsToPrint]
+
+        const allPrintFieldsHaveValues = this.allFieldsHaveValues(editedData,
+            combinedRequiredFields)
+
+        const changedFieldInFieldsToPrint = requiredFieldsToPrint.some(
+            field => editedFieldNames.includes(field))
+
+        const allSaveFieldsHaveValues = this.allFieldsHaveValues(editedData,
+            requiredFieldsToSave)
+
+        if (allPrintFieldsHaveValues && allSaveFieldsHaveValues &&
+            changedFieldInFieldsToPrint) {
+            this.printMotorLabels()
+            return
+        }
+
+        if (allSaveFieldsHaveValues) {
+            this.model.root.save()
         }
     }
 

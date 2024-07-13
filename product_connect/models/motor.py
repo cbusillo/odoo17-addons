@@ -483,3 +483,11 @@ class Motor(models.Model, LabelMixin):
         pdf_data, _type = report_object._render_qweb_pdf(report_name, res_ids=products.ids)
 
         self._print_labels(pdf_data, odoo_job_type="pull_list", job_name="Motor Pull List", copies=2)
+
+    def notify_changes(self) -> None:
+        self.ensure_one()
+        channel = f"motor_{self.id}"
+        message = {
+            "type": "motor_product_update",
+        }
+        self.env["bus.bus"]._sendone(channel, "notification", message)
