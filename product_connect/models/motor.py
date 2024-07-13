@@ -69,6 +69,41 @@ class Motor(models.Model, LabelMixin):
     compression_formatted_html = fields.Html(compute="_compute_compression_formatted_html")
     hide_compression_page = fields.Boolean(compute="_compute_hide_compression_page", store=True)
     products = fields.One2many("motor.product", "motor")
+    products_with_reference_product = fields.Many2many(
+        "motor.product",
+        "motor_product_with_reference_product_rel",
+        "motor_id",
+        "product_id",
+        compute="_compute_products_with_reference",
+        store=True,
+    )
+
+    products_to_dismantle = fields.Many2many(
+        "motor.product",
+        "motor_product_to_dismantle_rel",
+        "motor_id",
+        "product_id",
+        compute="_compute_products_to_dismantle",
+        store=True,
+    )
+
+    products_to_clean = fields.Many2many(
+        "motor.product",
+        "motor_product_to_clean_rel",
+        "motor_id",
+        "product_id",
+        compute="_compute_products_to_clean",
+        store=True,
+    )
+
+    products_to_picture = fields.Many2many(
+        "motor.product",
+        "motor_product_to_picture_rel",
+        "motor_id",
+        "product_id",
+        compute="_compute_products_to_picture",
+        store=True,
+    )
 
     stage = fields.Selection(constants.MOTOR_STAGE_SELECTION, default="basic_info", required=True)
 
@@ -99,6 +134,30 @@ class Motor(models.Model, LabelMixin):
         for motor in self.with_context(_stage_updating=True):
             motor._update_stage()
         return result
+
+    @api.depends("products.reference_product", "products.reference_product.image_256")
+    def _compute_products_with_reference(self) -> None:
+        for record in self:
+            record.products_with_reference_product = record.products.filtered(
+                lambda p: p.reference_product and p.reference_product.image_256
+            )
+
+    @api.depends("products.is_listable")
+    def _compute_products_to_dismantle(self) -> None:
+        for record in self:
+            record.products_to_dismantle = record.products.filtered(lambda p: p.is_listable)
+
+    @api.depends("products_to_dismantle", "products.is_dismantled", "products.is_dismantled_qc")
+    def _compute_products_to_clean(self) -> None:
+        for record in self:
+            record.products_to_clean = record.products_to_dismantle.filtered(
+                lambda p: p.is_dismantled and p.is_dismantled_qc
+            )
+
+    @api.depends("products_to_clean", "products.is_cleaned", "products.is_cleaned_qc")
+    def _compute_products_to_picture(self) -> None:
+        for record in self:
+            record.products_to_picture = record.products_to_clean.filtered(lambda p: p.is_cleaned and p.is_cleaned_qc)
 
     def _compute_image_count(self) -> None:
         for motor in self:

@@ -55,6 +55,13 @@ class MotorProduct(models.Model):
     excluded_parts = fields.Many2many("motor.part.template", related="template.excluded_parts")
     excluded_tests = fields.Many2many("motor.test.template", related="template.excluded_tests")
 
+    is_dismantled = fields.Boolean(default=False)
+    is_dismantled_qc = fields.Boolean(default=False)
+    is_cleaned = fields.Boolean(default=False)
+    is_cleaned_qc = fields.Boolean(default=False)
+    is_pictured = fields.Boolean(default=False)
+    is_pictured_qc = fields.Boolean(default=False)
+    ready_to_list = fields.Boolean(compute="_compute_ready_to_list", store=True)
     @api.depends("name", "computed_name", "default_code")
     def _compute_display_name(self) -> None:
         for product in self:
@@ -87,6 +94,36 @@ class MotorProduct(models.Model):
             if not product.name or product.name == product.computed_name:
                 product.name = new_computed_name
             product.computed_name = new_computed_name
+
+    @api.depends("is_listable", "is_dismantled", "is_dismantled_qc", "is_cleaned", "is_cleaned_qc")
+    def _compute_stage_fields(self) -> None:
+        for product in self:
+            # Your existing logic here
+            product.motor._compute_products_to_dismantle()
+            product.motor._compute_products_to_clean()
+            product.motor._compute_products_to_picture()
+
+    # Ensure this method is called when relevant fields change
+    @api.onchange("is_listable", "is_dismantled", "is_dismantled_qc", "is_cleaned", "is_cleaned_qc")
+    def _onchange_stage_fields(self) -> None:
+        if self.motor:
+            self.motor._compute_products_to_dismantle()
+            self.motor._compute_products_to_clean()
+            self.motor._compute_products_to_picture()
+
+    @api.depends("is_dismantled", "is_dismantled_qc", "is_cleaned", "is_cleaned_qc", "is_pictured", "is_pictured_qc")
+    def _compute_ready_to_list(self) -> None:
+        for product in self:
+            product.ready_to_list = all(
+                [
+                    product.is_dismantled,
+                    product.is_dismantled_qc,
+                    product.is_cleaned,
+                    product.is_cleaned_qc,
+                    product.is_pictured,
+                    product.is_pictured_qc,
+                ]
+            )
 
     def reset_name(self) -> None:
         for product in self:

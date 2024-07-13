@@ -44,6 +44,81 @@
             </tree>
         </field>
     </record>
+    <record id="view_motor_product_tree_dismantle" model="ir.ui.view">
+        <field name="name">motor.product.tree</field>
+        <field name="model">motor.product</field>
+        <field name="arch" type="xml">
+            <tree string="Motor Products" editable="bottom" open_form_view="1" create="0">
+                <field name="qty_available" widget="integer"/>
+                <field name="first_mpn"/>
+                <field name="short_name"/>
+                <field name="is_dismantled" widget="boolean_toggle" string="Done"/>
+                <field name="is_dismantled_qc" widget="boolean_toggle" string="QC"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_motor_product_tree_clean" model="ir.ui.view">
+        <field name="name">motor.product.tree</field>
+        <field name="model">motor.product</field>
+        <field name="arch" type="xml">
+            <tree string="Motor Products" editable="bottom" open_form_view="1" create="0">
+                <field name="qty_available" widget="integer"/>
+                <field name="first_mpn"/>
+                <field name="short_name"/>
+                <field name="is_cleaned" widget="boolean_toggle" string="Done"/>
+                <field name="is_cleaned_qc" widget="boolean_toggle" string="QC"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_motor_product_tree_picture" model="ir.ui.view">
+        <field name="name">motor.product.tree</field>
+        <field name="model">motor.product</field>
+        <field name="arch" type="xml">
+            <tree string="Motor Products" editable="bottom" open_form_view="1" create="0">
+                <field name="is_qty_listing" widget="boolean" string="Qty Listing"/>
+                <field name="qty_available" widget="integer"/>
+                <field name="first_mpn"/>
+                <field name="short_name"/>
+                <field name="is_pictured" widget="boolean_toggle" string="Done"/>
+                <field name="is_pictured_qc" widget="boolean_toggle" string="QC"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_motor_product_kanban" model="ir.ui.view">
+        <field name="name">motor.product.kanban</field>
+        <field name="model">motor.product</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="reference_product"/>
+                <field name="image_256"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+
+                            <field name="reference_product" invisible="1"/>
+                            <div class="oe_kanban_image">
+                                <img t-att-src="kanban_image('product.template', 'image_256', record.reference_product.raw_value)"
+                                     style="border-radius: 5px; max-width: none;" alt="Product Image"/>
+                            </div>
+
+                            <div class="oe_kanban_details">
+                                <div class="oe_kanban_bottom_left">
+                                    <strong>
+                                        <field name="short_name"/><br/>
+                                    </strong>
+                                    MPN: <field name="first_mpn"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    Quantity: <field name="qty_available" widget="integer"/><br/>
+                                    Quantity Listing: <field name="is_qty_listing" widget="boolean_toggle"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
 
     <record id="view_motor_product_form" model="ir.ui.view">
         <field name="name">motor.product.form</field>
