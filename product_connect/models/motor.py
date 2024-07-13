@@ -480,6 +480,6 @@ class Motor(models.Model, LabelMixin):
 
         report_name = "product_connect.report_motorproductpulllist"
         report_object = self.env["ir.actions.report"]._get_report_from_name(report_name)
-        pdf_data, _ = report_object._render_qweb_pdf(report_name, res_ids=products.ids)
+        pdf_data, _type = report_object._render_qweb_pdf(report_name, res_ids=products.ids)
 
         self._print_labels(pdf_data, odoo_job_type="pull_list", job_name="Motor Pull List", copies=2)
