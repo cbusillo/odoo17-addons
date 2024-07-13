@@ -105,12 +105,18 @@ class Motor(models.Model, LabelMixin):
         store=True,
     )
 
-    products_to_stock = fields.Many2many(
+    products_to_stock = fields.One2many(
         "motor.product",
-        "motor_product_to_stock_rel",
-        "motor_id",
-        "product_id",
-        compute="_compute_products_to_stock",
+        "motor",
+        domain=[
+            ("is_listable", "=", True),
+            ("is_dismantled", "=", True),
+            ("is_dismantled_qc", "=", True),
+            ("is_cleaned", "=", True),
+            ("is_cleaned_qc", "=", True),
+            ("is_pictured", "=", True),
+            ("is_pictured_qc", "=", True),
+        ],
     )
 
     stage = fields.Selection(constants.MOTOR_STAGE_SELECTION, default="basic_info", required=True)
@@ -167,10 +173,11 @@ class Motor(models.Model, LabelMixin):
         for record in self:
             record.products_to_picture = record.products_to_clean.filtered(lambda p: p.is_cleaned and p.is_cleaned_qc)
 
-    @api.depends("products_to_picture", "products.is_pictured", "products.is_pictured_qc")
-    def _compute_products_to_stock(self) -> None:
-        for record in self:
-            record.products_to_stock = record.products_to_picture.filtered(lambda p: p.is_pictured and p.is_pictured_qc)
+    @api.onchange(
+        "products",
+    )
+    def _onchange_products_status(self) -> None:
+        self.products_to_stock = self.products_to_stock._origin
 
     def _compute_image_count(self) -> None:
         for motor in self:
