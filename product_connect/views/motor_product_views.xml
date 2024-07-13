@@ -24,6 +24,8 @@
                 <field name="is_listable" widget="boolean_toggle" string="Listable"/>
                 <field name="ready_to_list" widget="boolean" string="Ready"/>
                 <field name="default_code" width="20px"/>
+                <field name="images" widget="file_drop" optional="show"/>
+                <field name="image_count" column_invisible="1"/>
                 <field name="manufacturer" options="{'no_create': True}"/>
                 <field name="mpn" width="20px"/>
                 <field name="qty_available" widget="integer" string="Qty" width="50px"/>
@@ -39,8 +41,6 @@
                 <field name="height" string="H" optional="hide" width="2"/>
                 <field name="list_price" optional="show" width="80px"/>
                 <field name="standard_price" optional="show" width="70px"/>
-                <field name="images" widget="file_drop" optional="show"/>
-                <field name="image_count" column_invisible="1"/>
                 <field name="has_recent_messages" column_invisible="1"/>
             </tree>
         </field>
@@ -78,6 +78,9 @@
             <tree string="Motor Products" editable="bottom" open_form_view="1" create="0">
                 <field name="is_qty_listing" widget="boolean" string="Qty Listing"/>
                 <field name="default_code"/>
+                <field name="images" widget="file_drop"/>
+                <field name="images"/>
+                <field name="image_count" column_invisible="1"/>
                 <field name="first_mpn"/>
                 <field name="qty_available" widget="integer"/>
                 <field name="short_name"/>
@@ -86,9 +89,6 @@
                 <field name="length" string="L" optional="hide"/>
                 <field name="width" string="W" optional="hide"/>
                 <field name="height" string="H" optional="hide"/>
-                <field name="images" widget="file_drop"/>
-                <field name="images"/>
-                <field name="image_count" column_invisible="1"/>
 
                 <field name="is_pictured" widget="boolean_toggle" string="Done"/>
                 <field name="is_pictured_qc" widget="boolean_toggle" string="QC"/>
