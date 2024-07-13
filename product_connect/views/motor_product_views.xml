@@ -85,6 +85,24 @@
             </tree>
         </field>
     </record>
+
+    <record id="view_motor_product_tree_stock" model="ir.ui.view">
+        <field name="name">motor.product.tree</field>
+        <field name="model">motor.product</field>
+        <field name="arch" type="xml">
+            <tree string="Motor Products" editable="bottom" open_form_view="1" create="0">
+                <field name="default_code"/>
+                <field name="qty_available" widget="integer"/>
+                <field name="short_name"/>
+                <field name="bin"/>
+                <field name="weight" widget="integer"/>
+                <field name="length" string="L"/>
+                <field name="width" string="W"/>
+                <field name="height" string="H"/>
+            </tree>
+        </field>
+    </record>
+
     <record id="view_motor_product_kanban" model="ir.ui.view">
         <field name="name">motor.product.kanban</field>
         <field name="model">motor.product</field>

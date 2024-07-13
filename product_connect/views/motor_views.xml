@@ -275,6 +275,10 @@
                                     <field name="products_to_picture"
                                            context="{'tree_view_ref': 'product_connect.view_motor_product_tree_picture'}"/>
                                 </page>
+                                <page string="Stock" invisible="stage != 'finalization'">
+                                    <field name="products_to_stock"
+                                           context="{'tree_view_ref': 'product_connect.view_motor_product_tree_stock'}"/>
+                                </page>
                             </notebook>
                         </page>
                     </notebook>

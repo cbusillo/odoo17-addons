@@ -112,23 +112,51 @@ class MotorProduct(models.Model):
                 product.name = new_computed_name
             product.computed_name = new_computed_name
 
-    @api.depends("is_listable", "is_dismantled", "is_dismantled_qc", "is_cleaned", "is_cleaned_qc")
+    @api.depends(
+        "is_listable",
+        "is_dismantled",
+        "is_dismantled_qc",
+        "is_cleaned",
+        "is_cleaned_qc",
+        "is_pictured",
+        "is_pictured_qc",
+    )
     def _compute_stage_fields(self) -> None:
         for product in self:
-            # Your existing logic here
             product.motor._compute_products_to_dismantle()
             product.motor._compute_products_to_clean()
             product.motor._compute_products_to_picture()
+            product.motor._compute_products_to_stock()
 
     # Ensure this method is called when relevant fields change
-    @api.onchange("is_listable", "is_dismantled", "is_dismantled_qc", "is_cleaned", "is_cleaned_qc")
+    @api.onchange(
+        "is_listable",
+        "is_dismantled",
+        "is_dismantled_qc",
+        "is_cleaned",
+        "is_cleaned_qc",
+        "is_pictured",
+        "is_pictured_qc",
+    )
     def _onchange_stage_fields(self) -> None:
         if self.motor:
             self.motor._compute_products_to_dismantle()
             self.motor._compute_products_to_clean()
             self.motor._compute_products_to_picture()
+            self.motor._compute_products_to_stock()
 
-    @api.depends("is_dismantled", "is_dismantled_qc", "is_cleaned", "is_cleaned_qc", "is_pictured", "is_pictured_qc")
+    @api.depends(
+        "is_dismantled",
+        "is_dismantled_qc",
+        "is_cleaned",
+        "is_cleaned_qc",
+        "is_pictured",
+        "is_pictured_qc",
+        "weight",
+        "length",
+        "width",
+        "height",
+    )
     def _compute_ready_to_list(self) -> None:
         for product in self:
             product.ready_to_list = all(
@@ -139,6 +167,10 @@ class MotorProduct(models.Model):
                     product.is_cleaned_qc,
                     product.is_pictured,
                     product.is_pictured_qc,
+                    product.weight,
+                    product.length,
+                    product.width,
+                    product.height,
                 ]
             )
 
