@@ -13,6 +13,8 @@ class ProductTemplate(models.Model):
         readonly=True,
         store=True,
     )
+    shopify_product_url = fields.Char(compute="_compute_shopify_urls", store=True, string="Shopify Product")
+    shopify_product_admin_url = fields.Char(compute="_compute_shopify_urls", store=True, string="Shopify Product Admin")
 
     @api.depends("product_template_image_ids")
     def _compute_image_1920(self) -> None:
@@ -37,3 +39,17 @@ class ProductTemplate(models.Model):
                         "name": f"{product.name}_image",
                     }
                 )
+
+    @api.depends("shopify_product_id")
+    def _compute_shopify_urls(self) -> None:
+        for product in self:
+            if product.shopify_product_id:
+                product.shopify_product_admin_url = (
+                    f"https://admin.shopify.com/store/yps-your-part-supplier/products/{product.shopify_product_id}"
+                )
+                product.shopify_product_url = (
+                    f"https://yps-your-part-supplier.myshopify.com/products/{product.shopify_product_id}"
+                )
+            else:
+                product.shopify_product_admin_url = False
+                product.shopify_product_url = False

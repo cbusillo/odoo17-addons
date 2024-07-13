@@ -72,7 +72,10 @@
                 <field name="part_type"/>
                 <field name="mpn"/>
                 <field name="bin"/>
-                <field name="shopify_product_id"/>
+                <field name="shopify_product_id" widget="CopyClipboardChar"/>
+                <field name="shopify_product_url" widget="CopyClipboardURL"/>
+                <field name="shopify_product_admin_url" widget="CopyClipboardURL"/>
+
             </field>
             <xpath expr="//group[@name='group_lots_and_weight']/div[@name='weight']" position="after">
                 <div class="o_row">
