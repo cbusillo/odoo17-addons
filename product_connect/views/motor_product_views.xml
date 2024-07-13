@@ -33,7 +33,7 @@
                 <button name="reset_name" type="object" icon="fa-refresh" class="sc_refresh_button_row"
                         title="Reset Name" invisible="computed_name == name"/>
                 <field name="name" decoration-warning="computed_name != name"/>
-                <field name="description" optional="show" width="20px" widget="char"/>
+                <field name="description" optional="show" widget="text" class="text-nowrap"/>
                 <field name="part_type" optional="hide"/>
                 <field name="weight" optional="hide" width="70px" widget="integer"/>
                 <field name="length" string="L" optional="hide" width="2"/>
@@ -49,7 +49,7 @@
         <field name="name">motor.product.tree</field>
         <field name="model">motor.product</field>
         <field name="arch" type="xml">
-            <tree string="Motor Products" editable="bottom" open_form_view="1" create="0">
+            <tree string="Motor Products" editable="bottom" open_form_view="1" create="0" delete="0">
                 <field name="qty_available" widget="integer"/>
                 <field name="first_mpn"/>
                 <field name="short_name"/>
@@ -62,7 +62,7 @@
         <field name="name">motor.product.tree</field>
         <field name="model">motor.product</field>
         <field name="arch" type="xml">
-            <tree string="Motor Products" editable="bottom" open_form_view="1" create="0">
+            <tree string="Motor Products" editable="bottom" open_form_view="1" create="0" delete="0">
                 <field name="qty_available" widget="integer"/>
                 <field name="first_mpn"/>
                 <field name="short_name"/>
@@ -75,7 +75,7 @@
         <field name="name">motor.product.tree</field>
         <field name="model">motor.product</field>
         <field name="arch" type="xml">
-            <tree string="Motor Products" editable="bottom" open_form_view="1" create="0">
+            <tree string="Motor Products" editable="bottom" open_form_view="1" create="0" delete="0">
                 <field name="is_qty_listing" widget="boolean" string="Qty Listing"/>
                 <field name="default_code"/>
                 <field name="images" widget="file_drop"/>
@@ -100,7 +100,7 @@
         <field name="name">motor.product.tree</field>
         <field name="model">motor.product</field>
         <field name="arch" type="xml">
-            <tree string="Motor Products" editable="bottom" open_form_view="1" create="0">
+            <tree string="Motor Products" editable="bottom" open_form_view="1" create="0" delete="0">
                 <field name="default_code"/>
                 <field name="qty_available" widget="integer"/>
                 <field name="short_name"/>

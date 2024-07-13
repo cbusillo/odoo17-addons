@@ -31,3 +31,10 @@ $o-brand-primary: #1071B6;
   width: 100%; /* Ensures no additional padding or margin within form view */
   max-width: none; /* Removes any max-width restrictions */
 }
+
+.o_list_view .text-nowrap {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 200px; /* Adjust this value as needed */
+}
