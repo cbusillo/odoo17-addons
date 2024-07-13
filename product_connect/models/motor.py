@@ -78,31 +78,32 @@ class Motor(models.Model, LabelMixin):
         store=True,
     )
 
-    products_to_dismantle = fields.Many2many(
+    products_to_dismantle = fields.One2many(
         "motor.product",
-        "motor_product_to_dismantle_rel",
-        "motor_id",
-        "product_id",
-        compute="_compute_products_to_dismantle",
-        store=True,
+        "motor",
+        domain=[("is_listable", "=", True)],
     )
 
-    products_to_clean = fields.Many2many(
+    products_to_clean = fields.One2many(
         "motor.product",
-        "motor_product_to_clean_rel",
-        "motor_id",
-        "product_id",
-        compute="_compute_products_to_clean",
-        store=True,
+        "motor",
+        domain=[
+            ("is_listable", "=", True),
+            ("is_dismantled", "=", True),
+            ("is_dismantled_qc", "=", True),
+        ],
     )
 
-    products_to_picture = fields.Many2many(
+    products_to_picture = fields.One2many(
         "motor.product",
-        "motor_product_to_picture_rel",
-        "motor_id",
-        "product_id",
-        compute="_compute_products_to_picture",
-        store=True,
+        "motor",
+        domain=[
+            ("is_listable", "=", True),
+            ("is_dismantled", "=", True),
+            ("is_dismantled_qc", "=", True),
+            ("is_cleaned", "=", True),
+            ("is_cleaned_qc", "=", True),
+        ],
     )
 
     products_to_stock = fields.One2many(
@@ -155,23 +156,6 @@ class Motor(models.Model, LabelMixin):
             record.products_with_reference_product = record.products.filtered(
                 lambda p: p.reference_product and p.reference_product.image_256
             )
-
-    @api.depends("products.is_listable")
-    def _compute_products_to_dismantle(self) -> None:
-        for record in self:
-            record.products_to_dismantle = record.products.filtered(lambda p: p.is_listable)
-
-    @api.depends("products_to_dismantle", "products.is_dismantled", "products.is_dismantled_qc")
-    def _compute_products_to_clean(self) -> None:
-        for record in self:
-            record.products_to_clean = record.products_to_dismantle.filtered(
-                lambda p: p.is_dismantled and p.is_dismantled_qc
-            )
-
-    @api.depends("products_to_clean", "products.is_cleaned", "products.is_cleaned_qc")
-    def _compute_products_to_picture(self) -> None:
-        for record in self:
-            record.products_to_picture = record.products_to_clean.filtered(lambda p: p.is_cleaned and p.is_cleaned_qc)
 
     def _compute_image_count(self) -> None:
         for motor in self:

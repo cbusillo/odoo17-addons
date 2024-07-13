@@ -113,35 +113,6 @@ class MotorProduct(models.Model):
             product.computed_name = new_computed_name
 
     @api.depends(
-        "is_listable",
-        "is_dismantled",
-        "is_dismantled_qc",
-        "is_cleaned",
-        "is_cleaned_qc",
-        "is_pictured",
-        "is_pictured_qc",
-    )
-    def _compute_stage_fields(self) -> None:
-        for product in self:
-            product.motor._compute_products_to_dismantle()
-            product.motor._compute_products_to_clean()
-            product.motor._compute_products_to_picture()
-
-    @api.onchange(
-        "is_listable",
-        "is_dismantled",
-        "is_dismantled_qc",
-        "is_cleaned",
-        "is_cleaned_qc",
-        "is_pictured",
-        "is_pictured_qc",
-    )
-    def _onchange_stage_fields(self) -> None:
-        self.motor._compute_products_to_dismantle()
-        self.motor._compute_products_to_clean()
-        self.motor._compute_products_to_picture()
-
-    @api.depends(
         "is_dismantled",
         "is_dismantled_qc",
         "is_cleaned",
