@@ -113,8 +113,8 @@ class ShopifySync(models.AbstractModel):
     _description = "Shopify Sync"
     _inherit = "notification.manager.mixin"
 
-    MAX_SHOPIFY_PRODUCTS_PER_FETCH = 5
-    COMMIT_AFTER = 50
+    MAX_SHOPIFY_PRODUCTS_PER_FETCH = 250
+    COMMIT_AFTER = 1000
     DEFAULT_DATETIME = datetime(2000, 1, 1, tzinfo=UTC)
     ONLINE_STORE_ID = 19453116480
     POINT_OF_SALE_ID = 42683596853
