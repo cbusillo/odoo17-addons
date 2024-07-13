@@ -173,12 +173,6 @@ class Motor(models.Model, LabelMixin):
         for record in self:
             record.products_to_picture = record.products_to_clean.filtered(lambda p: p.is_cleaned and p.is_cleaned_qc)
 
-    @api.onchange(
-        "products",
-    )
-    def _onchange_products_status(self) -> None:
-        self.products_to_stock = self.products_to_stock._origin
-
     def _compute_image_count(self) -> None:
         for motor in self:
             motor.image_count = len([image for image in motor.images if image.image_1920])

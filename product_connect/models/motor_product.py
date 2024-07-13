@@ -126,9 +126,7 @@ class MotorProduct(models.Model):
             product.motor._compute_products_to_dismantle()
             product.motor._compute_products_to_clean()
             product.motor._compute_products_to_picture()
-            product.motor._compute_products_to_stock()
 
-    # Ensure this method is called when relevant fields change
     @api.onchange(
         "is_listable",
         "is_dismantled",
@@ -139,11 +137,9 @@ class MotorProduct(models.Model):
         "is_pictured_qc",
     )
     def _onchange_stage_fields(self) -> None:
-        if self.motor:
-            self.motor._compute_products_to_dismantle()
-            self.motor._compute_products_to_clean()
-            self.motor._compute_products_to_picture()
-            self.motor._compute_products_to_stock()
+        self.motor._compute_products_to_dismantle()
+        self.motor._compute_products_to_clean()
+        self.motor._compute_products_to_picture()
 
     @api.depends(
         "is_dismantled",
@@ -152,6 +148,7 @@ class MotorProduct(models.Model):
         "is_cleaned_qc",
         "is_pictured",
         "is_pictured_qc",
+        "bin",
         "weight",
         "length",
         "width",
@@ -167,6 +164,7 @@ class MotorProduct(models.Model):
                     product.is_cleaned_qc,
                     product.is_pictured,
                     product.is_pictured_qc,
+                    product.bin,
                     product.weight,
                     product.length,
                     product.width,
