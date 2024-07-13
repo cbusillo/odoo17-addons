@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from odoo import models
 from odoo.exceptions import UserError
-from simple_zpl2 import ZPLDocument  # type: ignore
+from simple_zpl2 import ZPLDocument
 
 if TYPE_CHECKING:
     from ..models.product_base import ProductBase
@@ -26,11 +26,11 @@ class LabelMixin(models.AbstractModel):
     BARCODE_SIZE = 8
 
     def _print_labels(
-            self,
-            labels: list[str] | bytes,
-            odoo_job_type: str,
-            job_name: str,
-            copies: int = 1,
+        self,
+        labels: list[str] | bytes,
+        odoo_job_type: str,
+        job_name: str,
+        copies: int = 1,
     ) -> None:
         label_data: str | bytes
         if isinstance(labels, list):
@@ -128,12 +128,12 @@ class LabelMixin(models.AbstractModel):
         return lines
 
     def generate_label_base64(
-            self,
-            text: list[str] | str,
-            bottom_text: str | list[str] | None = None,
-            barcode: str | None = None,
-            quantity: int = 1,
-            print_date: bool = True,
+        self,
+        text: list[str] | str,
+        bottom_text: str | list[str] | None = None,
+        barcode: str | None = None,
+        quantity: int = 1,
+        print_date: bool = True,
     ) -> str:
         if not isinstance(text, list):
             text = [text]

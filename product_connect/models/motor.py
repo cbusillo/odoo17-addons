@@ -8,7 +8,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import Any, Self
 
-import qrcode  # type: ignore
+import qrcode
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError, UserError
 

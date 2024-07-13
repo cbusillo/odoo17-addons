@@ -1,8 +1,8 @@
 import logging
 
 from odoo import _, api, fields, models
-from printnodeapi import Gateway  # type: ignore
-from printnodeapi.model import PrintJob, Printer  # type: ignore
+from printnodeapi import Gateway
+from printnodeapi.model import PrintJob, Printer
 
 from ..mixins.notification_manager import NotificationManagerMixin
 
@@ -53,11 +53,11 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
 
     @api.model
     def print_label(
-            self,
-            label_data: str | bytes,
-            odoo_job_type: str,
-            copies: int = 1,
-            job_name: str = "Odoo Label",
+        self,
+        label_data: str | bytes,
+        odoo_job_type: str,
+        copies: int = 1,
+        job_name: str = "Odoo Label",
     ) -> list[PrintJob] | None:
         gateway = self.get_gateway()
         interface_record = self.env["printnode.interface"].search(

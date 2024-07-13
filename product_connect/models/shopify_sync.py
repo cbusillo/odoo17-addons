@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo
 
 import odoo
 import requests
-import shopify  # type: ignore
+import shopify
 from dateutil.parser import parse
 from odoo import api, fields, models
 from requests.exceptions import RequestException
