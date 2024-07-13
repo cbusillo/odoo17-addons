@@ -32,11 +32,7 @@
         <field name="model">motor</field>
         <field name="arch" type="xml">
             <form string="Motor Check-In" js_class="motor_form">
-                <header>
-                    <button name="print_motor_labels" type="object" class="btn btn-primary btn-lg">
-                        <i class="fa fa-print"/>&#160;Print Motor Label
-                    </button>
-                </header>
+
                 <field name="stage" invisible="1"/>
                 <sheet>
                     <field name="active" invisible="1"/>
@@ -46,12 +42,12 @@
 
                     <div class="oe_title">
                         <label for="display_name" string="Motor Name"/>
-                        <h1>
+                        <h2>
                             <div class="d-flex">
                                 <field class="text-break" name="display_name" options="{'line_breaks': False}"
                                        on_change="1"/>
                             </div>
-                        </h1>
+                        </h2>
                     </div>
 
                     <div invisible="not notes">
@@ -63,8 +59,11 @@
                         <group><field name="write_date"/></group>
                     </group>
 
-                    <notebook>
+                    <notebook class="motor_main_notebook">
                         <page id="basic_info" string="Basic Info">
+                            <button name="print_motor_labels" type="object" class="btn btn-primary mb-2">
+                                <i class="fa fa-print"/>&#160;Print Motor Label
+                            </button>
                             <group>
                                 <field name="motor_number" readonly="1"/>
                                 <field name="location"/>
@@ -114,69 +113,72 @@
                                 <field name="notes"/>
                             </group>
                         </page>
-                        <page id="basic_testing" string="Basic Testing"
-                              invisible="stage not in ['basic_testing', 'extended_testing', 'finalization']">
-                            <field name="basic_tests" widget="motor_test_widget">
-                                <tree>
-                                    <field name="id"/>
-                                    <field name="name"/>
-                                    <field name="result_type"/>
-                                    <field name="section"/>
-                                    <field name="sequence"/>
-                                    <field name="section_sequence"/>
-                                    <field name="template"/>
-                                    <field name="yes_no_result"/>
-                                    <field name="selection_options" widget="many2many_tags"/>
-                                    <field name="selection_result"/>
-                                    <field name="numeric_result"/>
-                                    <field name="text_result"/>
-                                    <field name="file_result"/>
-                                    <field name="default_value"/>
-                                    <field name="conditions"/>
-                                    <field name="conditional_tests"/>
-                                </tree>
-                            </field>
-                            <group>
-                                <field name="notes"/>
-                            </group>
+                        <page string="Testing">
+                            <notebook class="motor_nested_notebook">
+                                <page id="basic_testing" string="Basic Testing"
+                                      invisible="stage not in ['basic_testing', 'extended_testing', 'finalization']">
+                                    <field name="basic_tests" widget="motor_test_widget">
+                                        <tree>
+                                            <field name="id"/>
+                                            <field name="name"/>
+                                            <field name="result_type"/>
+                                            <field name="section"/>
+                                            <field name="sequence"/>
+                                            <field name="section_sequence"/>
+                                            <field name="template"/>
+                                            <field name="yes_no_result"/>
+                                            <field name="selection_options" widget="many2many_tags"/>
+                                            <field name="selection_result"/>
+                                            <field name="numeric_result"/>
+                                            <field name="text_result"/>
+                                            <field name="file_result"/>
+                                            <field name="default_value"/>
+                                            <field name="conditions"/>
+                                            <field name="conditional_tests"/>
+                                        </tree>
+                                    </field>
+                                    <group>
+                                        <field name="notes"/>
+                                    </group>
+                                </page>
+                                <page string="Compression"
+                                      invisible="hide_compression_page or stage not in ['basic_testing', 'extended_testing', 'finalization']">
+                                    <field name="cylinders">
+                                        <tree editable="bottom" delete="False" create="False">
+                                            <field name="cylinder_number" readonly="1"/>
+                                            <field name="compression_psi" string="PSI"/>
+                                        </tree>
+                                    </field>
+                                    <field name="hide_compression_page" invisible="1"/>
+                                </page>
+                                <page id="extended_testing" string="Extended Testing"
+                                      invisible="stage not in ['extended_testing', 'finalization']">
+                                    <field name="extended_tests" widget="motor_test_widget">
+                                        <tree>
+                                            <field name="id"/>
+                                            <field name="name"/>
+                                            <field name="result_type"/>
+                                            <field name="section"/>
+                                            <field name="sequence"/>
+                                            <field name="section_sequence"/>
+                                            <field name="template"/>
+                                            <field name="yes_no_result"/>
+                                            <field name="selection_options" widget="many2many_tags"/>
+                                            <field name="selection_result"/>
+                                            <field name="numeric_result"/>
+                                            <field name="text_result"/>
+                                            <field name="file_result"/>
+                                            <field name="default_value"/>
+                                            <field name="conditions"/>
+                                            <field name="conditional_tests"/>
+                                        </tree>
+                                    </field>
+                                    <group>
+                                        <field name="notes"/>
+                                    </group>
+                                </page>
+                            </notebook>
                         </page>
-                        <page string="Compression Testing"
-                              invisible="hide_compression_page or stage not in ['basic_testing', 'extended_testing', 'finalization']">
-                            <field name="cylinders">
-                                <tree editable="bottom" delete="False" create="False">
-                                    <field name="cylinder_number" readonly="1"/>
-                                    <field name="compression_psi" string="PSI"/>
-                                </tree>
-                            </field>
-                            <field name="hide_compression_page" invisible="1"/>
-                        </page>
-                        <page id="extended_testing" string="Extended Testing"
-                              invisible="stage not in ['extended_testing', 'finalization']">
-                            <field name="extended_tests" widget="motor_test_widget">
-                                <tree>
-                                    <field name="id"/>
-                                    <field name="name"/>
-                                    <field name="result_type"/>
-                                    <field name="section"/>
-                                    <field name="sequence"/>
-                                    <field name="section_sequence"/>
-                                    <field name="template"/>
-                                    <field name="yes_no_result"/>
-                                    <field name="selection_options" widget="many2many_tags"/>
-                                    <field name="selection_result"/>
-                                    <field name="numeric_result"/>
-                                    <field name="text_result"/>
-                                    <field name="file_result"/>
-                                    <field name="default_value"/>
-                                    <field name="conditions"/>
-                                    <field name="conditional_tests"/>
-                                </tree>
-                            </field>
-                            <group>
-                                <field name="notes"/>
-                            </group>
-                        </page>
-
                         <!-- Summary page-->
                         <page string="Summary" invisible="stage != 'finalization'">
                             <group string="Notes">
@@ -235,26 +237,45 @@
                                 </field>
                             </group>
                         </page>
-                        <page string="Products" invisible="stage != 'finalization'">
-                            <button name="create_motor_products" type="object" class="btn btn-primary btn-lg">
-                                <i class="fa fa-ship"/>&#160;Create Motor Products
-                            </button>
-                            <button name="apply_cost" type="object" class="btn btn-primary btn-lg ms-2">
-                                <i class="fa fa-dollar"/>&#160;Apply Cost
-                            </button>
-                            <button name="print_motor_pull_list" type="object" class="btn btn-primary btn-lg ms-2">
-                                <i class="fa fa-print"/>&#160;Print Pull List
-                            </button>
-                            <button name="print_motor_product_labels" type="object" class="btn btn-primary btn-lg ms-2">
-                                <i class="fa fa-print"/>&#160;Print Product Labels
-                            </button>
-                            <button name="import_to_products" type="object" class="btn btn-primary btn-lg ms-2">
-                                <i class="fa fa-upload"/>&#160;Import All
-                            </button>
-                            <field name="products"/>
-                        </page>
-                        <page string="Finalization" invisible="stage != 'finalization'">
-                            <!-- Add fields relevant for the finalization stage here -->
+                        <page string="Listing" invisible="stage != 'finalization'">
+                            <notebook class="motor_nested_notebook">
+                                <page string="Admin" groups="stock.group_stock_manager">
+                                    <button name="create_motor_products" type="object" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-ship"/>&#160;Create Motor Products
+                                    </button>
+                                    <button name="apply_cost" type="object" class="btn btn-primary btn-sm ms-2">
+                                        <i class="fa fa-dollar"/>&#160;Apply Cost
+                                    </button>
+                                    <button name="print_motor_pull_list" type="object"
+                                            class="btn btn-primary btn-sm ms-2">
+                                        <i class="fa fa-print"/>&#160;Print Pull List
+                                    </button>
+                                    <button name="print_motor_product_labels" type="object"
+                                            class="btn btn-primary btn-sm ms-2">
+                                        <i class="fa fa-print"/>&#160;Print Product Labels
+                                    </button>
+                                    <button name="import_to_products" type="object" class="btn btn-primary btn-sm ms-2">
+                                        <i class="fa fa-upload"/>&#160;Import All
+                                    </button>
+                                    <field name="products"/>
+                                </page>
+                                <page string="Reference" invisible="stage != 'finalization'">
+                                    <field name="products_with_reference_product"
+                                           context="{'tree_view_ref': 'product_connect.view_motor_product_kanban'}"/>
+                                </page>
+                                <page string="Dismantle" invisible="stage != 'finalization'">
+                                    <field name="products_to_dismantle"
+                                           context="{'tree_view_ref': 'product_connect.view_motor_product_tree_dismantle'}"/>
+                                </page>
+                                <page string="Clean" invisible="stage != 'finalization'">
+                                    <field name="products_to_clean"
+                                           context="{'tree_view_ref': 'product_connect.view_motor_product_tree_clean'}"/>
+                                </page>
+                                <page string="Picture" invisible="stage != 'finalization'">
+                                    <field name="products_to_picture"
+                                           context="{'tree_view_ref': 'product_connect.view_motor_product_tree_picture'}"/>
+                                </page>
+                            </notebook>
                         </page>
                     </notebook>
                 </sheet>

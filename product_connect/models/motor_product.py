@@ -50,6 +50,10 @@ class MotorProduct(models.Model):
     template = fields.Many2one("motor.product.template", required=True, ondelete="restrict", readonly=True)
     part_type = fields.Many2one(related="template.part_type", store=True)
     computed_name = fields.Char(compute="_compute_name", store=True)
+    short_name = fields.Char(related="template.name")
+    is_qty_listing = fields.Boolean(related="template.is_quantity_listing")
+
+    reference_product = fields.Many2one("product.template", compute="_compute_reference_product", store=True)
 
     sequence = fields.Integer(related="template.sequence", index=True, store=True)
     excluded_parts = fields.Many2many("motor.part.template", related="template.excluded_parts")
@@ -62,6 +66,19 @@ class MotorProduct(models.Model):
     is_pictured = fields.Boolean(default=False)
     is_pictured_qc = fields.Boolean(default=False)
     ready_to_list = fields.Boolean(compute="_compute_ready_to_list", store=True)
+
+    @api.depends("first_mpn")
+    def _compute_reference_product(self) -> None:
+        for motor_product in self:
+            if not motor_product.first_mpn:
+                motor_product.reference_product = False
+                continue
+            products = self.env["product.template"].search([])
+            matching_products = products.filtered(lambda p: motor_product.first_mpn.lower() in p.mpn.lower().split(","))
+            latest_product = max(matching_products, key=lambda p: p.create_date, default=None)
+            if latest_product:
+                motor_product.reference_product = latest_product.id if latest_product else False
+
     @api.depends("name", "computed_name", "default_code")
     def _compute_display_name(self) -> None:
         for product in self:

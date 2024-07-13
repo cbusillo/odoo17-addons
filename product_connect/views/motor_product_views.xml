@@ -21,7 +21,8 @@
                     <button string="Import" type="object" name="import_to_products" icon="fa-upload"/>
                 </header>
                 <field name="computed_name" column_invisible="1"/>
-                <field name="is_listable" widget="boolean_toggle"/>
+                <field name="is_listable" widget="boolean_toggle" string="Listable"/>
+                <field name="ready_to_list" widget="boolean" string="Ready"/>
                 <field name="default_code" width="20px"/>
                 <field name="manufacturer" options="{'no_create': True}"/>
                 <field name="mpn" width="20px"/>
@@ -199,7 +200,7 @@
         <field name="name">Motor Products</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">motor.product</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,kanban,form</field>
         <field name="search_view_id" ref="view_motor_product_search"/>
         <field name="context">{'search_default_group_by_motor': 1}</field>
         <field name="domain">[]</field>
