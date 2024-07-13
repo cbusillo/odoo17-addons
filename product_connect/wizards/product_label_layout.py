@@ -25,6 +25,7 @@ class ProductLabelLayout(models.TransientModel):
 
         products_data = []
         if "bin" in self.print_format:
+            # noinspection SpellCheckingInspection
             xml_id = "product_connect.report_product_template_label_2x1_bin_noprice"
 
             products = self.product_ids if self.product_ids else self.product_tmpl_ids
@@ -35,6 +36,7 @@ class ProductLabelLayout(models.TransientModel):
                     products_data.append({"bin": product.bin, "current_date": fields.Date.today()})
 
         elif self.print_format == "2x1":
+            # noinspection SpellCheckingInspection
             xml_id = "product_connect.report_product_template_label_2x1_noprice"
 
             products = self.product_ids if self.product_ids else self.product_tmpl_ids

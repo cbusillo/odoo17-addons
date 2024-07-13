@@ -54,7 +54,7 @@ function pluralizeWrapper() {
      * Interpolate a regexp string.
      *
      * @param  {string} str
-     * @param  {Array}  args
+     * @param  {IArguments}  args
      * @return {string}
      */
     function interpolate(str, args) {
