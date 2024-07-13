@@ -1,6 +1,5 @@
 /** @odoo-module **/
 
-// noinspection JSUnusedGlobalSymbols
 export async function resizeImage(file, maxWidth, maxHeight) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader()
@@ -11,6 +10,7 @@ export async function resizeImage(file, maxWidth, maxHeight) {
                 const width = image.width * scale
                 const height = image.height * scale
 
+                /** @type {HTMLCanvasElement} */
                 const canvas = document.createElement('canvas')
                 canvas.width = width
                 canvas.height = height
@@ -26,14 +26,4 @@ export async function resizeImage(file, maxWidth, maxHeight) {
         reader.onerror = (error) => reject(error)
         reader.readAsDataURL(file)
     })
-}
-
-// noinspection JSUnusedGlobalSymbols
-export async function blobToBase(blob) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-    });
 }

@@ -54,10 +54,8 @@ export class ImageUploadWidget extends BinaryField {
         }
         const file = ev.target.files[0]
         const data = await resizeImage(file, 1920, 1920)
-        // const dataBase = await blobToBase(data)
 
-
-        await this.props.record.update({ image_1920: data })
+        await this.props.record.update({image_1920: data})
         await this.props.record.save()
         this.state.image = data
         this.state.size = this.getPreviewImageSize()
