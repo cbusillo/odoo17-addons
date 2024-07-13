@@ -614,7 +614,7 @@ class ShopifySync(models.AbstractModel):
         odoo_products = self.env["product.product"].search(
             [
                 ("sale_ok", "=", True),
-                ("description_sale1", "!=", False),
+                ("description_sale", "!=", False),
             ]
         )
 
