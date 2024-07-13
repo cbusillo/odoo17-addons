@@ -77,9 +77,19 @@
         <field name="arch" type="xml">
             <tree string="Motor Products" editable="bottom" open_form_view="1" create="0">
                 <field name="is_qty_listing" widget="boolean" string="Qty Listing"/>
-                <field name="qty_available" widget="integer"/>
+                <field name="default_code"/>
                 <field name="first_mpn"/>
+                <field name="qty_available" widget="integer"/>
                 <field name="short_name"/>
+                <field name="bin" optional="hide"/>
+                <field name="weight" widget="integer" optional="hide"/>
+                <field name="length" string="L" optional="hide"/>
+                <field name="width" string="W" optional="hide"/>
+                <field name="height" string="H" optional="hide"/>
+                <field name="images" widget="file_drop"/>
+                <field name="images"/>
+                <field name="image_count" column_invisible="1"/>
+
                 <field name="is_pictured" widget="boolean_toggle" string="Done"/>
                 <field name="is_pictured_qc" widget="boolean_toggle" string="QC"/>
             </tree>
