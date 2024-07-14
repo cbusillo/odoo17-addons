@@ -117,7 +117,7 @@
         <field name="name">motor.product.kanban</field>
         <field name="model">motor.product</field>
         <field name="arch" type="xml">
-            <kanban>
+            <kanban create="0" limit="200">
                 <field name="reference_product"/>
                 <field name="image_icon"/>
                 <templates>
