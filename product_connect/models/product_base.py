@@ -78,7 +78,7 @@ class ProductBase(models.AbstractModel):
     list_price = fields.Float(string="Price", group_operator=False)
     standard_price = fields.Float(string="Cost", group_operator=False)
 
-    sales_description = fields.Text()
+    sales_description = fields.Text(string="Description")
 
     active = fields.Boolean(default=True)
     has_recent_messages = fields.Boolean(compute="_compute_has_recent_messages", store=True)

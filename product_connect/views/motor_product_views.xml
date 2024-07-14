@@ -21,8 +21,12 @@
                     <button string="Import" type="object" name="import_to_products" icon="fa-upload"/>
                 </header>
                 <field name="computed_name" column_invisible="1"/>
-                <field name="is_listable" widget="boolean_toggle" string="List"/>
-                <field name="ready_to_list" widget="boolean" string="Ready"/>
+                <field name="is_listable" widget="boolean_toggle" string="Listable"/>
+                <field name="ready_to_list" column_invisible="1"/>
+                <button name="import_to_products" type="object" icon="fa-upload"
+                        invisible="not ready_to_list"/>
+                <field name="is_qty_listing" widget="boolean" string="Qty" class="green_checkmark"
+                       invisible="not is_qty_listing" width="30px"/>
                 <field name="default_code" width="20px"/>
                 <field name="images" widget="file_drop" optional="show"/>
                 <field name="image_count" column_invisible="1"/>
