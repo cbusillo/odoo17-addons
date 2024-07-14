@@ -33,7 +33,7 @@
                 <button name="reset_name" type="object" icon="fa-refresh" class="sc_refresh_button_row"
                         title="Reset Name" invisible="computed_name == name"/>
                 <field name="name" decoration-warning="computed_name != name"/>
-                <field name="description" optional="show" widget="text" class="text-nowrap"/>
+                <field name="sales_description" optional="show" widget="text" class="text-nowrap"/>
                 <field name="part_type" optional="hide"/>
                 <field name="weight" optional="hide" width="70px" widget="integer"/>
                 <field name="length" string="L" optional="hide" width="2"/>
@@ -205,7 +205,7 @@
                                 </group>
                             </group>
                             <group>
-                                <field name="description"/>
+                                <field name="sales_description"/>
                             </group>
                         </page>
                         <page string="Images">

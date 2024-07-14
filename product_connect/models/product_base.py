@@ -78,7 +78,7 @@ class ProductBase(models.AbstractModel):
     list_price = fields.Float(string="Price", group_operator=False)
     standard_price = fields.Float(string="Cost", group_operator=False)
 
-    description = fields.Text()
+    sales_description = fields.Text()
 
     active = fields.Boolean(default=True)
     has_recent_messages = fields.Boolean(compute="_compute_has_recent_messages", store=True)
@@ -242,7 +242,7 @@ class ProductBase(models.AbstractModel):
                     "manufacturer": product.manufacturer.id,
                     "bin": product.bin,
                     "name": product.name,
-                    "description_sale": product.description,
+                    "description_sale": product.sales_description,
                     "part_type": product.part_type.id,
                     "weight": product.weight,
                     "list_price": product.list_price,
