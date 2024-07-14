@@ -102,10 +102,8 @@ class MotorProduct(models.Model):
             if not motor_product.first_mpn:
                 motor_product.reference_product = False
                 continue
-            products = self.env["product.template"].search([])
-            matching_products = products.filtered(
-                lambda p: motor_product.first_mpn.lower() in p.mpn.lower().split(",") if p.mpn else False
-            )
+            products = self.env["product.template"].search(["mpn", "!=", False])
+            matching_products = products.filtered(lambda p: motor_product.first_mpn.lower() in p.mpn.lower().split(","))
             latest_product = max(matching_products, key=lambda p: p.create_date, default=None)
             if latest_product:
                 motor_product.reference_product = latest_product.id if latest_product else False
