@@ -21,7 +21,7 @@
                     <button string="Import" type="object" name="import_to_products" icon="fa-upload"/>
                 </header>
                 <field name="computed_name" column_invisible="1"/>
-                <field name="is_listable" widget="boolean_toggle" string="Listable"/>
+                <field name="is_listable" widget="boolean_toggle" string="List"/>
                 <field name="ready_to_list" widget="boolean" string="Ready"/>
                 <field name="default_code" width="20px"/>
                 <field name="images" widget="file_drop" optional="show"/>
@@ -101,14 +101,14 @@
         <field name="model">motor.product</field>
         <field name="arch" type="xml">
             <tree string="Motor Products" editable="bottom" open_form_view="1" create="0" delete="0">
-                <field name="default_code"/>
-                <field name="qty_available" widget="integer"/>
+                <field name="default_code" width="5"/>
+                <field name="qty_available" widget="integer" width="30px"/>
                 <field name="short_name"/>
-                <field name="bin"/>
-                <field name="weight" widget="integer"/>
-                <field name="length" string="L"/>
-                <field name="width" string="W"/>
-                <field name="height" string="H"/>
+                <field name="bin" width="30px" placeholder="A01A1"/>
+                <field name="weight" widget="integer" width="30px"/>
+                <field name="length" string="L" width="5"/>
+                <field name="width" string="W" width="5"/>
+                <field name="height" string="H" width="5"/>
             </tree>
         </field>
     </record>
