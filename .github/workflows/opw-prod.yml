@@ -41,7 +41,7 @@ jobs:
         shell: bash
       - name: Trigger Backup on Proxmox
         run: |
-          ssh ${{ vars.PRODUCTION_USER }}@${{ vars.PROXMOX_SERVER }} 'vzdump 109 --mailnotification failure --prune-backups "keep-daily=5,keep-hourly=5,keep-last=10,keep-monthly=5,keep-weekly=5,keep-yearly=5" --compress zstd --mode snapshot --mailto info@shinycomputers.com --quiet 1 --notes-template "{{guestname}}" --storage backup'
+          ssh ${{ vars.PRODUCTION_USER }}@${{ vars.PROXMOX_SERVER }} 'vzdump 109 --mailnotification failure --mode snapshot --mailto info@shinycomputers.com --quiet 1 --notes-template "{{guestname}}" --fleecing 0 --all 0 --storage PBS_OPW'
         shell: bash
       - name: Clone & Install
         run: |
