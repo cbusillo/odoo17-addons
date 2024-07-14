@@ -270,26 +270,26 @@
                                             <i class="fa fa-upload"/>&#160;Import All
                                         </button>
                                     </div>
-                                    <field name="products"/>
+                                    <field name="products" mode="tree"/>
                                 </page>
                                 <page string="Reference" invisible="stage != 'finalization'">
                                     <field name="products_with_reference_product"
                                            context="{'tree_view_ref': 'product_connect.view_motor_product_kanban'}"/>
                                 </page>
                                 <page string="Dismantle" invisible="stage != 'finalization'">
-                                    <field name="products_to_dismantle"
+                                    <field name="products_to_dismantle" mode="tree"
                                            context="{'tree_view_ref': 'product_connect.view_motor_product_tree_dismantle'}"/>
                                 </page>
                                 <page string="Clean" invisible="stage != 'finalization'">
-                                    <field name="products_to_clean"
+                                    <field name="products_to_clean" mode="tree"
                                            context="{'tree_view_ref': 'product_connect.view_motor_product_tree_clean'}"/>
                                 </page>
                                 <page string="Picture" invisible="stage != 'finalization'">
-                                    <field name="products_to_picture"
+                                    <field name="products_to_picture" mode="tree"
                                            context="{'tree_view_ref': 'product_connect.view_motor_product_tree_picture'}"/>
                                 </page>
                                 <page string="Stock" invisible="stage != 'finalization'">
-                                    <field name="products_to_stock"
+                                    <field name="products_to_stock" mode="tree"
                                            context="{'tree_view_ref': 'product_connect.view_motor_product_tree_stock'}"/>
                                 </page>
                             </notebook>
