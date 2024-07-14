@@ -195,6 +195,7 @@
                                     <field name="condition"/>
                                 </group>
                                 <group>
+                                    <field name="reference_product"/>
                                     <field name="template"/>
                                     <field name="part_type"/>
                                     <field name="default_code"/>
