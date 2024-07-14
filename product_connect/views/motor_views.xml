@@ -38,26 +38,35 @@
                     <field name="active" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
                             invisible="active" widget_id="widget_1"/>
-                    <field name="image_icon" widget="image" class="oe_avatar"/>
 
-                    <div class="oe_title">
-                        <label for="display_name" string="Motor Name"/>
-                        <h2>
-                            <div class="d-flex">
-                                <field class="text-break" name="display_name" options="{'line_breaks': False}"
-                                       on_change="1"/>
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="oe_title">
+                                <label for="display_name" string="Motor Name"/>
+                                <h2>
+                                    <field class="text-break" name="display_name" placeholder="Motor Name"
+                                           options="{'line_breaks': False}" on_change="1"/>
+                                </h2>
                             </div>
-                        </h2>
-                    </div>
 
-                    <div invisible="not notes">
-                        <i class="fa fa-warning text-danger"></i>
-                        <span class="h3 text-warning">&#160;See Notes</span>
+                            <group>
+                                <group>
+                                    <field name="create_date" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="write_date" readonly="1"/>
+                                </group>
+                            </group>
+                            <div invisible="not notes" class="alert alert-warning" role="alert">
+                                <i class="fa fa-warning me-2"></i>
+                                <span class="h3">See Notes</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <field name="image_icon" widget="image" class="oe_avatar"
+                                   options="{'preview_image': 'image_icon', 'size': [None, 350]}"/>
+                        </div>
                     </div>
-                    <group>
-                        <group><field name="create_date"/></group>
-                        <group><field name="write_date"/></group>
-                    </group>
 
                     <notebook class="motor_main_notebook">
                         <page id="basic_info" string="Basic Info">
