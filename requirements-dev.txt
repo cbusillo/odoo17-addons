@@ -6,3 +6,4 @@ types-Pillow
 types-python-dateutil
 types-requests==2.31.0.6
 types-geoip2
+parameterized
