@@ -1,9 +1,5 @@
-import logging
-
 from odoo.tests import common, tagged
 from parameterized import parameterized
-
-_logger = logging.getLogger(__name__)
 
 
 @tagged("post_install", "-at_install")
@@ -39,7 +35,6 @@ class TestShopifySync(common.TransactionCase):
 
     @parameterized.expand(TEST_CASES)
     def test_extract_sku_bin_from_shopify_product(self, name, sku_input, expected_sku, expected_bin) -> None:
-        _logger.info(f"Running parameterized test case: {name}")
         product = {"id": f"gid://shopify/Product/{name}", "variants": {"edges": [{"node": {"sku": sku_input}}]}}
 
         sku, bin_location = self.shopify_sync.extract_sku_bin_from_shopify_product(product)
