@@ -1,6 +1,7 @@
 import importlib
 
 modules = [
+    "test_motor",
     "test_shopify_sync",
 ]
 
