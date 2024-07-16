@@ -1,6 +1,7 @@
 import logging
 import re
 from datetime import timedelta
+from typing import Any
 
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, UserError
@@ -78,7 +79,7 @@ class ProductBase(models.AbstractModel):
     list_price = fields.Float(string="Price")
     standard_price = fields.Float(string="Cost")
 
-    sales_description = fields.Text(string="Description")
+    sales_description = fields.Text(string="Descr")
 
     active = fields.Boolean(default=True)
     has_recent_messages = fields.Boolean(compute="_compute_has_recent_messages", store=True)

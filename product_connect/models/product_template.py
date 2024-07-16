@@ -13,8 +13,10 @@ class ProductTemplate(models.Model):
         readonly=True,
         store=True,
     )
-    shopify_product_url = fields.Char(compute="_compute_shopify_urls", store=True, string="Shopify Product")
-    shopify_product_admin_url = fields.Char(compute="_compute_shopify_urls", store=True, string="Shopify Product Admin")
+    shopify_product_url = fields.Char(compute="_compute_shopify_urls", store=True, string="Shopify Product Link")
+    shopify_product_admin_url = fields.Char(
+        compute="_compute_shopify_urls", store=True, string="Shopify Product Admin Link"
+    )
 
     @api.depends("product_template_image_ids")
     def _compute_image_1920(self) -> None:
