@@ -64,9 +64,7 @@ sync_from_prod() {
     echo "Database restore completed."
 
     $ODOO_SHELL --no-http <<EOF
-from passlib.context import CryptContext
 from odoo import api, SUPERUSER_ID
-from odoo.tools import config
 
 # Initialize the environment for script execution
 db_registry = odoo.modules.registry.Registry(odoo.tools.config['db_name'])
@@ -79,6 +77,7 @@ with db_registry.cursor() as cr:
         env['ir.config_parameter'].sudo().set_param('mail.catchall.domain', False)
         env['ir.config_parameter'].sudo().set_param('mail.catchall.alias', False)
         env['ir.config_parameter'].sudo().set_param('mail.bounce.alias', False)
+        env['ir.config_parameter'].sudo().set_param('shopify.last_import_time', '2000-07-16T17:41:53Z')
         # Deactivate scheduled actions
         env['ir.cron'].search([]).write({'active': False})
         cr.commit()
