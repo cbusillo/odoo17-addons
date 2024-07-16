@@ -627,9 +627,13 @@ class ShopifySync(models.AbstractModel):
         total_count = 0
         for odoo_product in odoo_products:
             logger.debug(f"Starting export of Odoo product ID: {odoo_product.default_code} - {odoo_product.name}")
+            if odoo_product.bin:
+                sku_field = f"{odoo_product.default_code} - {odoo_product.bin}"
+            else:
+                sku_field = odoo_product.default_code
             variant_data = {
                 "price": odoo_product.list_price,
-                "sku": f"{odoo_product.default_code} - {odoo_product.bin or ''}",
+                "sku": sku_field,
                 "barcode": odoo_product.mpn or "",
                 "inventoryManagement": "SHOPIFY",
                 "weight": odoo_product.weight,

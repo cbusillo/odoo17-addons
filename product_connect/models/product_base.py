@@ -1,6 +1,7 @@
 import logging
 import re
 from datetime import timedelta
+from typing import Any
 
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, UserError
@@ -75,14 +76,36 @@ class ProductBase(models.AbstractModel):
     bin = fields.Char(index=True)
     qty_available = fields.Float(string="Quantity")
 
-    list_price = fields.Float(string="Price", group_operator=False)
-    standard_price = fields.Float(string="Cost", group_operator=False)
+    list_price = fields.Float(string="Price")
+    standard_price = fields.Float(string="Cost")
 
-    sales_description = fields.Text(string="Description")
+    sales_description = fields.Text(string="Descr")
 
     active = fields.Boolean(default=True)
     has_recent_messages = fields.Boolean(compute="_compute_has_recent_messages", store=True)
     is_listable = fields.Boolean(default=True)
+
+    # noinspection PyShadowingNames
+    @api.model
+    def read_group(
+        self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True
+    ) -> list[dict[str, Any]]:
+        groups = super(ProductBase, self).read_group(
+            domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy
+        )
+        fields_to_sum_with_qty = {"list_price", "standard_price"}
+        if fields_to_sum_with_qty.intersection(fields):
+            for group in groups:
+                if "__domain" in group:
+                    group["list_price"] = sum(
+                        product["list_price"] * product["qty_available"] for product in self.search(group["__domain"])
+                    )
+                    group["standard_price"] = sum(
+                        product["standard_price"] * product["qty_available"]
+                        for product in self.search(group["__domain"])
+                    )
+
+        return groups
 
     @api.constrains("default_code")
     def _check_sku(self) -> None:
@@ -202,6 +225,7 @@ class ProductBase(models.AbstractModel):
                 and current.standard_price
                 and current.list_price
                 and current.qty_available
+                and current.bin
                 and current.manufacturer
             )
             or len(current.images) == 0

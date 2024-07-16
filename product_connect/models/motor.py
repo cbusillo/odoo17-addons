@@ -255,8 +255,8 @@ class Motor(models.Model, LabelMixin):
     @api.constrains("horsepower")
     def _check_horsepower(self) -> None:
         for motor in self:
-            if not isinstance(motor.horsepower, float) or (motor.horsepower and not (0.0 <= motor.horsepower <= 600.0)):
-                raise ValidationError(_("Horsepower must be between 1 and 600."))
+            if motor.horsepower < 0.0 or motor.horsepower > 600.0:
+                raise ValidationError(_("Horsepower must be between 0 and 600."))
 
     @api.constrains("location")
     def _check_unique_location(self) -> None:

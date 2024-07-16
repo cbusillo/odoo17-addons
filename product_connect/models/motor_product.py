@@ -1,3 +1,4 @@
+import odoo
 from odoo import api, fields, models
 
 
@@ -50,7 +51,7 @@ class MotorProduct(models.Model):
     template = fields.Many2one("motor.product.template", required=True, ondelete="restrict", readonly=True)
     part_type = fields.Many2one(related="template.part_type", store=True)
     computed_name = fields.Char(compute="_compute_name", store=True)
-    short_name = fields.Char(related="template.name")
+    template_name = fields.Char(related="template.name", string="Template Name")
     is_qty_listing = fields.Boolean(related="template.is_quantity_listing")
 
     reference_product = fields.Many2one("product.template", compute="_compute_reference_product", store=True)
@@ -67,7 +68,30 @@ class MotorProduct(models.Model):
     is_pictured_qc = fields.Boolean(default=False)
     ready_to_list = fields.Boolean(compute="_compute_ready_to_list", store=True)
 
-    def write(self, vals: dict) -> bool:
+    def write(self, vals: "odoo.values.motor_product") -> bool:
+        qc_reset_fields = {
+            "is_dismantled",
+            "is_cleaned",
+            "is_pictured",
+        }
+        ui_refresh_fields = {
+            "is_dismantled",
+            "is_dismantled_qc",
+            "is_cleaned",
+            "is_cleaned_qc",
+            "is_pictured",
+            "is_pictured_qc",
+            "bin",
+            "weight",
+            "length",
+            "width",
+            "height",
+        }
+
+        for field in qc_reset_fields:
+            if field in vals and not vals[field]:
+                vals[f"{field}_qc"] = False
+
         result = super(MotorProduct, self).write(vals)
 
         if "images" in vals:
@@ -76,37 +100,24 @@ class MotorProduct(models.Model):
                     product.is_pictured = False
                     product.is_pictured_qc = False
 
-        if any(
-            field in vals
-            for field in [
-                "is_dismantled",
-                "is_dismantled_qc",
-                "is_cleaned",
-                "is_cleaned_qc",
-                "is_pictured",
-                "is_pictured_qc",
-                "bin",
-                "weight",
-                "length",
-                "width",
-                "height",
-            ]
-        ):
+        if any(field in vals for field in ui_refresh_fields):
             for product in self:
                 product.motor.notify_changes()
         return result
 
-    @api.depends("first_mpn")
+    @api.depends("mpn")
     def _compute_reference_product(self) -> None:
         for motor_product in self:
-            if not motor_product.first_mpn:
+            if not motor_product.mpn:
                 motor_product.reference_product = False
                 continue
             products = self.env["product.template"].search([("mpn", "!=", False)])
-            matching_products = products.filtered(lambda p: motor_product.first_mpn.lower() in p.mpn.lower().split(","))
+            matching_products = products.filtered(
+                lambda p: any(mpn.lower() in p.mpn.lower() for mpn in motor_product.mpn.split(","))
+            )
             latest_product = max(matching_products, key=lambda p: p.create_date, default=None)
             if latest_product:
-                motor_product.reference_product = latest_product.id if latest_product else False
+                motor_product.reference_product = latest_product
 
     @api.depends("name", "computed_name", "default_code")
     def _compute_display_name(self) -> None:
