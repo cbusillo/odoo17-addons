@@ -80,7 +80,8 @@
         <field name="model">motor.product</field>
         <field name="arch" type="xml">
             <tree string="Motor Products" editable="bottom" open_form_view="1" create="0" delete="0">
-                <field name="is_qty_listing" widget="boolean" string="Qty Listing"/>
+                <field name="is_qty_listing" widget="boolean" string="Qty Listing" class="green_checkmark"
+                       invisible="not is_qty_listing"/>
                 <field name="default_code"/>
                 <field name="images" widget="file_drop"/>
                 <field name="images"/>
@@ -142,8 +143,12 @@
                                     MPN: <field name="first_mpn"/>
                                 </div>
                                 <div class="oe_kanban_bottom_right">
-                                    Quantity: <field name="qty_available" widget="integer"/><br/>
-                                    Quantity Listing: <field name="is_qty_listing" widget="boolean_toggle"/>
+                                    <span>Quantity: </span>
+                                    <field name="qty_available" widget="integer"/><br/>
+                                    <span>Quantity Listing: </span>
+                                    <span t-if="record.is_qty_listing.raw_value" class="fa fa-check fa-lg"
+                                          style="color: lawngreen;"/>
+                                    <field name="is_qty_listing" invisible="1"/>
                                 </div>
                             </div>
                         </div>

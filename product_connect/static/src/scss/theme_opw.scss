@@ -38,3 +38,20 @@ $o-brand-primary: #1071B6;
   text-overflow: ellipsis !important;
   max-width: 200px; /* Adjust this value as needed */
 }
+
+.o_list_view .o_data_cell .green_checkmark {
+  display: inline-block;
+  font-family: "FontAwesome", serif;
+  font-size: 1.2em;
+  color: #28a745; /* Green color */
+  width: 20px;
+  text-align: center;
+}
+
+.o_list_view .o_data_cell .green_checkmark input {
+  display: none;
+}
+
+.o_list_view .o_data_cell .green_checkmark:before {
+  content: "\f00c"; /* FontAwesome checkmark */
+}
