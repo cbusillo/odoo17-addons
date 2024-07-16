@@ -58,7 +58,7 @@
                 <field name="first_mpn"/>
                 <field name="template_name"/>
                 <field name="is_dismantled" widget="boolean_toggle" string="Done"/>
-                <field name="is_dismantled_qc" widget="boolean_toggle" string="QC"/>
+                <field name="is_dismantled_qc" widget="boolean_toggle" string="QC" readonly="not is_dismantled"/>
             </tree>
         </field>
     </record>
@@ -71,7 +71,7 @@
                 <field name="first_mpn"/>
                 <field name="template_name"/>
                 <field name="is_cleaned" widget="boolean_toggle" string="Done"/>
-                <field name="is_cleaned_qc" widget="boolean_toggle" string="QC"/>
+                <field name="is_cleaned_qc" widget="boolean_toggle" string="QC" readonly="not is_cleaned"/>
             </tree>
         </field>
     </record>
@@ -96,7 +96,8 @@
                 <field name="height" string="H" optional="hide"/>
 
                 <field name="is_pictured" widget="boolean_toggle" string="Done" readonly="image_count&lt;1"/>
-                <field name="is_pictured_qc" widget="boolean_toggle" string="QC" readonly="image_count&lt;1"/>
+                <field name="is_pictured_qc" widget="boolean_toggle" string="QC"
+                       readonly="image_count&lt;1 and not is_pictured"/>
             </tree>
         </field>
     </record>

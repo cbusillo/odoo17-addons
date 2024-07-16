@@ -69,15 +69,12 @@ class MotorProduct(models.Model):
     ready_to_list = fields.Boolean(compute="_compute_ready_to_list", store=True)
 
     def write(self, vals: "odoo.values.motor_product") -> bool:
-        result = super(MotorProduct, self).write(vals)
-
-        if "images" in vals:
-            for product in self:
-                if product.image_count < 1:
-                    product.is_pictured = False
-                    product.is_pictured_qc = False
-
-        monitor_fields = {
+        qc_reset_fields = {
+            "is_dismantled",
+            "is_cleaned",
+            "is_pictured",
+        }
+        ui_refresh_fields = {
             "is_dismantled",
             "is_dismantled_qc",
             "is_cleaned",
@@ -91,7 +88,19 @@ class MotorProduct(models.Model):
             "height",
         }
 
-        if any(field in vals for field in monitor_fields):
+        for field in qc_reset_fields:
+            if field in vals and not vals[field]:
+                vals[f"{field}_qc"] = False
+
+        result = super(MotorProduct, self).write(vals)
+
+        if "images" in vals:
+            for product in self:
+                if product.image_count < 1:
+                    product.is_pictured = False
+                    product.is_pictured_qc = False
+
+        if any(field in vals for field in ui_refresh_fields):
             for product in self:
                 product.motor.notify_changes()
         return result
