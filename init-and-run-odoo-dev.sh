@@ -63,7 +63,6 @@ sync_from_prod() {
 
     echo "Database restore completed."
 
-    $ODOO_RUN --stop-after-init -u product_connect
     $ODOO_SHELL --no-http <<EOF
 from passlib.context import CryptContext
 from odoo import api, SUPERUSER_ID
@@ -87,6 +86,8 @@ EOF
 
     echo "Database neutralization completed."
     rm "$TEMP_DB_BACKUP"
+
+    $ODOO_RUN --stop-after-init -u product_connect
 }
 
 
