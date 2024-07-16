@@ -1,3 +1,4 @@
+import odoo
 from odoo import api, fields, models
 
 
@@ -67,7 +68,7 @@ class MotorProduct(models.Model):
     is_pictured_qc = fields.Boolean(default=False)
     ready_to_list = fields.Boolean(compute="_compute_ready_to_list", store=True)
 
-    def write(self, vals: dict) -> bool:
+    def write(self, vals: "odoo.values.motor_product") -> bool:
         result = super(MotorProduct, self).write(vals)
 
         if "images" in vals:
@@ -76,22 +77,21 @@ class MotorProduct(models.Model):
                     product.is_pictured = False
                     product.is_pictured_qc = False
 
-        if any(
-            field in vals
-            for field in [
-                "is_dismantled",
-                "is_dismantled_qc",
-                "is_cleaned",
-                "is_cleaned_qc",
-                "is_pictured",
-                "is_pictured_qc",
-                "bin",
-                "weight",
-                "length",
-                "width",
-                "height",
-            ]
-        ):
+        monitor_fields = {
+            "is_dismantled",
+            "is_dismantled_qc",
+            "is_cleaned",
+            "is_cleaned_qc",
+            "is_pictured",
+            "is_pictured_qc",
+            "bin",
+            "weight",
+            "length",
+            "width",
+            "height",
+        }
+
+        if any(field in vals for field in monitor_fields):
             for product in self:
                 product.motor.notify_changes()
         return result
