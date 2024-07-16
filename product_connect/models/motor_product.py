@@ -105,17 +105,19 @@ class MotorProduct(models.Model):
                 product.motor.notify_changes()
         return result
 
-    @api.depends("first_mpn")
+    @api.depends("mpn")
     def _compute_reference_product(self) -> None:
         for motor_product in self:
-            if not motor_product.first_mpn:
+            if not motor_product.mpn:
                 motor_product.reference_product = False
                 continue
             products = self.env["product.template"].search([("mpn", "!=", False)])
-            matching_products = products.filtered(lambda p: motor_product.first_mpn.lower() in p.mpn.lower().split(","))
+            matching_products = products.filtered(
+                lambda p: any(mpn.lower() in p.mpn.lower() for mpn in motor_product.mpn.split(","))
+            )
             latest_product = max(matching_products, key=lambda p: p.create_date, default=None)
             if latest_product:
-                motor_product.reference_product = latest_product.id if latest_product else False
+                motor_product.reference_product = latest_product
 
     @api.depends("name", "computed_name", "default_code")
     def _compute_display_name(self) -> None:
