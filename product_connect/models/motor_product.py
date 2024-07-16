@@ -50,7 +50,7 @@ class MotorProduct(models.Model):
     template = fields.Many2one("motor.product.template", required=True, ondelete="restrict", readonly=True)
     part_type = fields.Many2one(related="template.part_type", store=True)
     computed_name = fields.Char(compute="_compute_name", store=True)
-    short_name = fields.Char(related="template.name")
+    template_name = fields.Char(related="template.name", string="Template Name")
     is_qty_listing = fields.Boolean(related="template.is_quantity_listing")
 
     reference_product = fields.Many2one("product.template", compute="_compute_reference_product", store=True)
