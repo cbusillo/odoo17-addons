@@ -225,6 +225,7 @@ class ProductBase(models.AbstractModel):
                 and current.standard_price
                 and current.list_price
                 and current.qty_available
+                and current.bin
                 and current.manufacturer
             )
             or len(current.images) == 0
