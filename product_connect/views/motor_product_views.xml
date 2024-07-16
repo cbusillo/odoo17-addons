@@ -18,13 +18,13 @@
                 standard_price == 0"
                   decoration-danger="has_recent_messages">
                 <header>
-                    <button string="Import" type="object" name="import_to_products" icon="fa-upload"/>
+                    <button string="Import" type="object" name="import_to_products" icon="fa-upload" title="Import"/>
                 </header>
                 <field name="computed_name" column_invisible="1"/>
                 <field name="is_listable" widget="boolean_toggle" string="Listable"/>
                 <field name="ready_to_list" column_invisible="1"/>
                 <button name="import_to_products" type="object" icon="fa-upload"
-                        invisible="not ready_to_list"/>
+                        invisible="not ready_to_list" title="Upload"/>
                 <field name="is_qty_listing" widget="boolean" string="Qty" class="green_checkmark"
                        invisible="not is_qty_listing" width="30px"/>
                 <field name="default_code" width="20px"/>
@@ -44,7 +44,7 @@
                 <field name="width" string="W" optional="hide" width="2"/>
                 <field name="height" string="H" optional="hide" width="2"/>
                 <field name="list_price" optional="show" width="80px"/>
-                <field name="standard_price" optional="show" width="70px"/>
+                <field name="standard_price" optional="show" width="80px"/>
                 <field name="has_recent_messages" column_invisible="1"/>
             </tree>
         </field>
