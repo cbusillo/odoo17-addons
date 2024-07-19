@@ -147,7 +147,7 @@ class ShopifySync(models.AbstractModel):
     def initialize_shopify_session(self) -> None:
         shop_url = self.env["ir.config_parameter"].sudo().get_param("shopify.shop_url")
         token = self.env["ir.config_parameter"].sudo().get_param("shopify.api_token")
-        shopify_session = shopify.Session(f"{shop_url}.myshopify.com", token=token, version="2024-01")
+        shopify_session = shopify.Session(f"{shop_url}.myshopify.com", token=token, version="2023-10")
         shopify.ShopifyResource.activate_session(shopify_session)
 
     def fetch_import_timestamps(self) -> tuple[str, datetime, datetime]:
@@ -339,7 +339,6 @@ class ShopifySync(models.AbstractModel):
                     last_import_time_str,
                 )
                 if total_count % self.COMMIT_AFTER == 0:
-                    # Commit every 50 products to avoid re downloading all images if the import fails
                     self.env.cr.commit()
 
             if shopify_products:
