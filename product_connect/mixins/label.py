@@ -92,7 +92,7 @@ class LabelMixin(models.AbstractModel):
                 f"SKU: {product.default_code}",
                 "MPN: ",
                 f"(SM){mpn}",
-                f"Bin: {product.bin or '       '}",
+                f"{product.motor.motor_number or '       '}",
                 product.condition.name if product.condition else "",
             ]
             quantity = getattr(product, "qty_available", 1) if print_quantity else 1

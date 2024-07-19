@@ -63,8 +63,8 @@
                                     <p style="margin: 0; font-size: 3mm;">
                                         <span t-out="product['mpn']"/>
                                     </p>
-                                    <p style="margin: 0; font-size: 4mm;">Bin:
-                                        <span style="font-weight: bold;" t-out="product['bin']"/>
+                                    <p style="margin: 0; font-size: 4mm;">
+                                        <span style="font-weight: bold;" t-out="product['motor_number']"/>
                                     </p>
                                     <p style="margin: 0.25mm; font-size: 2.5mm;">Condition:
                                         <span t-out="product['condition']"/>

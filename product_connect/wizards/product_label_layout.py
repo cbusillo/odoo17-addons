@@ -49,6 +49,7 @@ class ProductLabelLayout(models.TransientModel):
                         "name": product.name,
                         "mpn": (product.mpn.split(",")[0] if product.mpn else ""),
                         "bin": product.bin,
+                        "motor_number": (product.motor.motor_number if product.motor else ""),
                         "condition": (product.condition.name if product.condition else ""),
                         "qty_available": data["quantity_by_product"].get(product.id, 1),
                     }
