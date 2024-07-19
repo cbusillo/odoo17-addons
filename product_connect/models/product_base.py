@@ -1,7 +1,7 @@
 import logging
 import re
 from datetime import timedelta
-from typing import Any, cast
+from typing import Any
 
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, UserError
@@ -230,10 +230,6 @@ class ProductBase(models.AbstractModel):
             )
             or len(current.images) == 0
         )
-        if self._name == "motor.product":
-            missing_data_products = missing_data_products.filtered(
-                lambda current: (not cast(self.env["motor.product"], current).is_ready_to_list)
-            )
         if missing_data_products:
             message = f"Missing data for product(s).  Please fill in all required fields for SKUs {' '.join([p.default_code for p in missing_data_products])} ."
             _logger.warning(message)

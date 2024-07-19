@@ -458,9 +458,7 @@ class Motor(models.Model, LabelMixin):
             product.standard_price = (cost_proportion * self.cost) / product.qty_available
 
     def import_to_products(self) -> None:
-        products_to_import = self.products.filtered(
-            lambda p: p.is_listable and p.qty_available > 0 and p.list_price and p.standard_price
-        )
+        products_to_import = self.products.filtered(lambda p: p.is_listable and p.is_ready_to_list)
         if not products_to_import:
             raise UserError(_("No products to import."))
 
