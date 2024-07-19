@@ -4,6 +4,11 @@
         <field name="model">motor.product</field>
         <field name="arch" type="xml">
             <search string="Search Motor Products">
+                <field name="default_code" string="Product"
+                       filter_domain="['|', '|', ('name', 'ilike', self) , ('default_code', 'ilike', self), ('bin', 'ilike', self)]"/>
+                <field name="name"/>
+                <field name="default_code"/>
+                <field name="bin"/>
                 <filter name="group_by_motor" string="Motor" context="{'group_by': 'motor'}"/>
             </search>
         </field>
