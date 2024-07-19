@@ -83,7 +83,7 @@ class ProductBase(models.AbstractModel):
 
     active = fields.Boolean(default=True)
     has_recent_messages = fields.Boolean(compute="_compute_has_recent_messages", store=True)
-    is_listable = fields.Boolean(default=True)
+    is_listable = fields.Boolean(default=False)
 
     # noinspection PyShadowingNames
     @api.model
