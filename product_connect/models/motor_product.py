@@ -66,7 +66,7 @@ class MotorProduct(models.Model):
     is_cleaned_qc = fields.Boolean(default=False)
     is_pictured = fields.Boolean(default=False)
     is_pictured_qc = fields.Boolean(default=False)
-    ready_to_list = fields.Boolean(compute="_compute_ready_to_list", store=True)
+    is_ready_to_list = fields.Boolean(compute="_compute_ready_to_list", store=True)
 
     def write(self, vals: "odoo.values.motor_product") -> bool:
         qc_reset_fields = {
@@ -167,7 +167,7 @@ class MotorProduct(models.Model):
     )
     def _compute_ready_to_list(self) -> None:
         for product in self:
-            product.ready_to_list = all(
+            product.is_ready_to_list = all(
                 [
                     product.is_dismantled,
                     product.is_dismantled_qc,
