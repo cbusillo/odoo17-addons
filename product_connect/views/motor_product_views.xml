@@ -32,7 +32,7 @@
                         invisible="not is_ready_to_list" title="Upload"/>
                 <field name="is_qty_listing" widget="boolean" string="Qty" class="green_checkmark"
                        invisible="not is_qty_listing" width="30px"/>
-                <field name="default_code" width="20px"/>
+                <field name="default_code" width="80px"/>
                 <field name="images" widget="file_drop" optional="show"/>
                 <field name="image_count" column_invisible="1"/>
                 <field name="manufacturer" options="{'no_create': True}"/>
@@ -87,7 +87,7 @@
             <tree string="Motor Products" editable="bottom" open_form_view="1" create="0" delete="0">
                 <field name="is_qty_listing" widget="boolean" string="Qty Listing" class="green_checkmark"
                        invisible="not is_qty_listing"/>
-                <field name="default_code"/>
+                <field name="default_code" width="80px"/>
                 <field name="images" widget="file_drop"/>
                 <field name="images"/>
                 <field name="image_count" column_invisible="1"/>
@@ -112,7 +112,7 @@
         <field name="model">motor.product</field>
         <field name="arch" type="xml">
             <tree string="Motor Products" editable="bottom" open_form_view="1" create="0" delete="0">
-                <field name="default_code" width="5"/>
+                <field name="default_code" width="80px"/>
                 <field name="qty_available" widget="integer" width="30px"/>
                 <field name="template_name"/>
                 <field name="bin" width="30px" placeholder="A01A1"/>
