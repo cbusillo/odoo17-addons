@@ -704,20 +704,7 @@ class ShopifySync(models.AbstractModel):
                         variables={"input": shopify_product_data},
                         operation_name="CreateProduct",
                     )
-                    publications_data = {
-                        "id": result["data"]["productCreate"]["product"]["id"],
-                        "input": [
-                            {"publicationId": self.convert_to_shopify_gid("Publication", self.ONLINE_STORE_ID)},
-                            {"publicationId": self.convert_to_shopify_gid("Publication", self.POINT_OF_SALE_ID)},
-                            {"publicationId": self.convert_to_shopify_gid("Publication", self.GOOGLE_ID)},
-                            {"publicationId": self.convert_to_shopify_gid("Publication", self.SHOP_ID)},
-                        ],
-                    }
-                    graphql_client.execute(
-                        query=graphql_document,
-                        variables=publications_data,
-                        operation_name="UpdatePublications",
-                    )
+
                 logger.debug("Shopify export result: %s", shopify_product_data)
                 result_dict = self.parse_and_validate_shopify_response(result)
 
@@ -733,6 +720,20 @@ class ShopifySync(models.AbstractModel):
             shopify_product = result_dict.get("data", {}).get("productUpdate", {}).get("product") or result_dict.get(
                 "data", {}
             ).get("productCreate", {}).get("product")
+            publications_data = {
+                "id": shopify_product.get("id"),
+                "input": [
+                    {"publicationId": self.convert_to_shopify_gid("Publication", self.ONLINE_STORE_ID)},
+                    {"publicationId": self.convert_to_shopify_gid("Publication", self.POINT_OF_SALE_ID)},
+                    {"publicationId": self.convert_to_shopify_gid("Publication", self.GOOGLE_ID)},
+                    {"publicationId": self.convert_to_shopify_gid("Publication", self.SHOP_ID)},
+                ],
+            }
+            graphql_client.execute(
+                query=graphql_document,
+                variables=publications_data,
+                operation_name="UpdatePublications",
+            )
 
             shopify_metafields = shopify_product.get("metafields", {}).get("edges", [])
             shopify_ebay_category_id = ""
