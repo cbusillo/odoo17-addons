@@ -1,12 +1,13 @@
 import logging
 
+from odoo.sql_db import Cursor
 from odoo.upgrade import util
 
 _logger = logging.getLogger(__name__)
 
 
 # noinspection SqlResolve
-def migrate(cr, version) -> None:
+def migrate(cr: Cursor, version: str) -> None:
     _logger.info("Post-migration: set default values for manufacturer and condition")
     env = util.env(cr)
 

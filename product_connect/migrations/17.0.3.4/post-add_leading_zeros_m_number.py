@@ -1,15 +1,14 @@
 import logging
 
+from odoo.sql_db import Cursor
 from odoo.upgrade import util
 
 _logger = logging.getLogger(__name__)
 
 
 # noinspection SqlResolve
-def migrate(cr, version) -> None:
-    _logger.info(
-        "Post-migration: Adding leading zeros to 'motor.number'"
-    )
+def migrate(cr: Cursor, version: str) -> None:
+    _logger.info("Post-migration: Adding leading zeros to 'motor.number'")
     env = util.env(cr)
     motors = env["motor"].search([])
 

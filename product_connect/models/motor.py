@@ -6,8 +6,9 @@ import zipfile
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Self
+from typing import Self
 
+import odoo
 import qrcode
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError, UserError
@@ -138,7 +139,7 @@ class Motor(models.Model, LabelMixin):
 
         return motors
 
-    def write(self, vals) -> Self:
+    def write(self, vals: "odoo.values.motor") -> Self:
         if self.env.context.get("_stage_updating"):
             return super().write(vals)
         vals = self._sanitize_vals(vals)
@@ -270,7 +271,7 @@ class Motor(models.Model, LabelMixin):
                 )
 
     @staticmethod
-    def _sanitize_vals(vals: dict[str, Any]) -> dict[str, Any]:
+    def _sanitize_vals(vals: "odoo.values.motor") -> "odoo.values.motor":
         if "year" in vals and vals["year"]:
             vals["year"] = "".join(char for char in vals["year"] if char.isdigit())
         if "model" in vals and vals["model"]:

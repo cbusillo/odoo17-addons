@@ -1,11 +1,12 @@
 import logging
 
+from odoo.sql_db import Cursor
 from odoo.upgrade import util
 
 _logger = logging.getLogger(__name__)
 
 
-def migrate(cr, version) -> None:
+def migrate(cr: Cursor, version: str) -> None:
     env = util.env(cr)
     product_template = env["product.template"]
     product_import = env["product.import"]
