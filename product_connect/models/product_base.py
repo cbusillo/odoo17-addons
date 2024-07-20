@@ -9,6 +9,12 @@ from odoo.exceptions import ValidationError, UserError
 _logger = logging.getLogger(__name__)
 
 
+class ProductImage(models.Model):
+    _inherit = "product.image"
+
+    index = fields.Integer()
+
+
 class ProductType(models.Model):
     _name = "product.type"
     _description = "Part Type"
@@ -88,7 +94,14 @@ class ProductBase(models.AbstractModel):
     # noinspection PyShadowingNames
     @api.model
     def read_group(
-        self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True
+        self,
+        domain: list,
+        fields: list,
+        groupby: list,
+        offset: int = 0,
+        limit: int | None = None,
+        orderby: str = "",
+        lazy: bool = True,
     ) -> list[dict[str, Any]]:
         groups = super(ProductBase, self).read_group(
             domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy

@@ -26,7 +26,8 @@ class NotificationHistory(models.Model):
     def recent_notifications(self, subject: str, channel_name: str, hours: int) -> "NotificationHistory":
         time_frame = fields.Datetime.subtract(fields.Datetime.now(), hours=hours)
         return self.search(
-            [("timestamp", ">=", time_frame), ("subject", "=", subject), ("channel_name", "=", channel_name)])
+            [("timestamp", ">=", time_frame), ("subject", "=", subject), ("channel_name", "=", channel_name)]
+        )
 
 
 class NotificationManagerMixin(models.AbstractModel):
@@ -36,16 +37,16 @@ class NotificationManagerMixin(models.AbstractModel):
     ADMIN_EMAIL = "info@shinycomputers.com"
 
     def notify_channel(
-            self,
-            subject: str,
-            body: str,
-            channel_name: str,
-            record: models.Model | None = None,
-            env: api.Environment | None = None,
-            logs: list[str] | None = None,
-    ):
+        self,
+        subject: str,
+        body: str,
+        channel_name: str,
+        record: models.Model | None = None,
+        env: api.Environment | None = None,
+        logs: list[str] | None = None,
+    ) -> None:
         env = env or self.env
-        notification_history = env['notification.history']
+        notification_history = env["notification.history"]
         if notification_history.count_of_recent_notifications(subject, channel_name, 1) > 5:
             logger.info(f"Too many notifications for {subject} in the last hour.")
             return
@@ -67,20 +68,18 @@ class NotificationManagerMixin(models.AbstractModel):
         if record:
             record.message_post(body=body, subject=subject, message_type="auto_comment")
         else:
-            channel.message_post(
-                body=body, subject=subject, message_type="auto_comment"
-            )
+            channel.message_post(body=body, subject=subject, message_type="auto_comment")
 
         notification_history.create({"subject": subject, "channel_name": channel_name})
         notification_history.cleanup()
 
     def notify_channel_on_error(
-            self,
-            subject: str,
-            body: str,
-            record: models.Model | None = None,
-            logs: list[str] | None = None,
-    ):
+        self,
+        subject: str,
+        body: str,
+        record: models.Model | None = None,
+        logs: list[str] | None = None,
+    ) -> None:
         new_cr = self.env.registry.cursor()
         try:
             new_env = api.Environment(new_cr, self.env.uid, self.env.context)
@@ -91,13 +90,9 @@ class NotificationManagerMixin(models.AbstractModel):
             new_cr.close()
 
     def send_email_notification_to_admin(self, subject: str, body: str) -> None:
-        recipient_user = self.env["res.users"].search(
-            [("login", "=", self.ADMIN_EMAIL)], limit=1
-        )
+        recipient_user = self.env["res.users"].search([("login", "=", self.ADMIN_EMAIL)], limit=1)
         if not recipient_user:
-            logger.error(
-                "Recipient email %s not found among partners.", self.ADMIN_EMAIL
-            )
+            logger.error("Recipient email %s not found among partners.", self.ADMIN_EMAIL)
             return
 
         # Create an email and send it
@@ -105,10 +100,7 @@ class NotificationManagerMixin(models.AbstractModel):
             "subject": subject,
             "body_html": f"<div>{body}</div>",
             "recipient_ids": [(4, recipient_user.id)],
-            "email_from": self.env["ir.mail_server"]
-            .sudo()
-            .search([], limit=1)
-            .smtp_user,
+            "email_from": self.env["ir.mail_server"].sudo().search([], limit=1).smtp_user,
         }
         mail = self.env["mail.mail"].sudo().create(mail_values)
         mail.send()

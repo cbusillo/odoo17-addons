@@ -1,17 +1,18 @@
 import logging
 
 from odoo import fields
+from odoo.sql_db import Cursor
 from odoo.upgrade import util
 
 _logger = logging.getLogger(__name__)
 
 
-def migrate(cr, _version) -> None:
+def migrate(cr: Cursor, _version: str) -> None:
     _logger.info(f"Running migration script: {__name__}")
     env = util.env(cr)
 
     model_motor_image = env["motor.image"]
-    # noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences,PyProtectedMember
     if "image_data" not in model_motor_image._fields:
         _logger.info("Adding image_data field to motor.image model")
         # noinspection PyProtectedMember
