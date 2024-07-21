@@ -255,7 +255,7 @@ class ProductBase(models.AbstractModel):
                     partner_ids=[self.env.user.partner_id.id],
                 )
 
-        for product in self.filtered(lambda current: current.is_listable) - missing_data_products:
+        for product in self - missing_data_products:
             existing_products_with_mpn = product.products_from_mpn_condition_new()
             if existing_products_with_mpn:
                 existing_products_display = [
