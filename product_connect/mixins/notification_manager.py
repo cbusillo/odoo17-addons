@@ -2,7 +2,7 @@ import logging
 
 from odoo import api, models, fields
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class NotificationHistory(models.Model):
@@ -48,7 +48,7 @@ class NotificationManagerMixin(models.AbstractModel):
         env = env or self.env
         notification_history = env["notification.history"]
         if notification_history.count_of_recent_notifications(subject, channel_name, 1) > 5:
-            logger.info(f"Too many notifications for {subject} in the last hour.")
+            _logger.info(f"Too many notifications for {subject} in the last hour.")
             return
 
         channel = env["discuss.channel"].search([("name", "=", channel_name)], limit=1)
@@ -58,7 +58,7 @@ class NotificationManagerMixin(models.AbstractModel):
             body += "\n\nRecent logs:\n"
             body += "\n".join(logs)
 
-        logger.debug(
+        _logger.debug(
             "Sending message to channel %s with message %s for record %s",
             channel,
             body,
@@ -92,7 +92,7 @@ class NotificationManagerMixin(models.AbstractModel):
     def send_email_notification_to_admin(self, subject: str, body: str) -> None:
         recipient_user = self.env["res.users"].search([("login", "=", self.ADMIN_EMAIL)], limit=1)
         if not recipient_user:
-            logger.error("Recipient email %s not found among partners.", self.ADMIN_EMAIL)
+            _logger.error("Recipient email %s not found among partners.", self.ADMIN_EMAIL)
             return
 
         # Create an email and send it
