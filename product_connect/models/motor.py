@@ -124,7 +124,7 @@ class Motor(models.Model, LabelMixin):
     stage = fields.Selection(constants.MOTOR_STAGE_SELECTION, default="basic_info", required=True)
 
     @api.model_create_multi
-    def create(self, vals_list: list[dict]) -> Self:
+    def create(self, vals_list: list["odoo.values.motor"]) -> Self:
         vals_list = [self._sanitize_vals(vals) for vals in vals_list]
 
         motors = super().create(vals_list)
