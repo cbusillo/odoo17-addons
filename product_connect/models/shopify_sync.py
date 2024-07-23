@@ -22,7 +22,7 @@ MAX_RETRIES = 5
 MIN_SHOPIFY_REMAINING_API_POINTS = 500
 MIN_RETRY_DELAY = 5
 MAX_RETRY_DELAY = 60
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class MemoryHandler(logging.Handler):
@@ -46,10 +46,10 @@ def apply_rate_limit_patch_to_shopify_execute() -> None:
         error_code = error_data.get("extensions", {}).get("code")
         error_message = error_data.get("message", "Unknown error")
         if error_code == "THROTTLED":
-            logger.debug("Throttled by Shopify: %s", error_message)
+            _logger.debug("Throttled by Shopify: %s", error_message)
             raise ThrottledError("Throttled by Shopify")
         else:
-            logger.error("Error from Shopify: %s", error_message)
+            _logger.error("Error from Shopify: %s", error_message)
             raise Exception("Error from Shopify")
 
     def delay_if_near_rate_limit(response_json: dict[str, Any]) -> None:
@@ -72,7 +72,7 @@ def apply_rate_limit_patch_to_shopify_execute() -> None:
         else:
             raise RuntimeError(f"Unexpected error: {error}")
 
-        logger.debug("Exceeded Shopify API limit. Retrying in %s seconds", retry_after)
+        _logger.debug("Exceeded Shopify API limit. Retrying in %s seconds", retry_after)
         time.sleep(retry_after)
 
     def rate_limited_execute(self, *args, **kwargs) -> str:
@@ -206,7 +206,7 @@ class ShopifySync(models.AbstractModel):
         if not match:
             # noinspection SpellCheckingInspection
             raise ValueError(f"Invalid date format in query: '{base_query}'. Expected format: 'YYYY-MM-DDTHH:MM:SSZ'")
-        logger.debug("Executing GraphQL query: %s", base_query)
+        _logger.debug("Executing GraphQL query: %s", base_query)
         # noinspection Annotator
         return graphql_client.execute(
             query=graphql_document,
@@ -222,7 +222,7 @@ class ShopifySync(models.AbstractModel):
     def extract_sku_bin_from_shopify_product(shopify_product: dict) -> tuple[str, str]:
         variant_edges = shopify_product.get("variants", {}).get("edges", [])
         if not variant_edges:
-            logger.warning("No variants found for product: %s", shopify_product["id"])
+            _logger.warning("No variants found for product: %s", shopify_product["id"])
             return "", ""
         product_variant = variant_edges[0].get("node", {})
         sku_field = product_variant.get("sku", "") or ""
@@ -230,7 +230,7 @@ class ShopifySync(models.AbstractModel):
         sku_bin = [value.strip() if value else "" for value in sku_field.split(" - " if " - " in sku_field else " ", 1)]
 
         if len(sku_bin) == 0:
-            logger.warning(
+            _logger.warning(
                 "Received unexpected SKU format from Shopify for product: %s",
                 shopify_product["id"],
             )
@@ -314,7 +314,7 @@ class ShopifySync(models.AbstractModel):
 
     @api.model
     def import_from_shopify(self) -> None:
-        logger.debug("Starting import from Shopify.")
+        _logger.debug("Starting import from Shopify.")
 
         last_import_time_str, current_import_start_time, last_import_time = self.fetch_import_timestamps()
         graphql_client, graphql_document, _, _ = self.setup_sync_environment()
@@ -331,7 +331,7 @@ class ShopifySync(models.AbstractModel):
                 status = self.import_or_update_shopify_product(shopify_product, last_import_time)
                 if status in ["created", "updated"]:
                     updated_count += 1
-                logger.debug(
+                _logger.debug(
                     "Imported %s products from Shopify so far. Last product ID: %s has status: %s and was updated at %s start time: %s",
                     total_count,
                     self.extract_id_from_gid(shopify_product["id"]),
@@ -528,7 +528,7 @@ class ShopifySync(models.AbstractModel):
                 )
                 return
             except RequestException as error:
-                logger.warning(
+                _logger.warning(
                     "Failed to fetch image from Shopify. Attempt %s/%s. Reason: %s",
                     retries + 1,
                     MAX_RETRIES,
@@ -537,7 +537,7 @@ class ShopifySync(models.AbstractModel):
                 retries += 1
                 time.sleep(MIN_RETRY_DELAY * (2**retries))
 
-        logger.error("Failed to fetch image from Shopify after %s attempts.", MAX_RETRIES)
+        _logger.error("Failed to fetch image from Shopify after %s attempts.", MAX_RETRIES)
 
     @staticmethod
     def convert_to_shopify_gid(resource_type, numeric_id) -> str:
@@ -584,7 +584,7 @@ class ShopifySync(models.AbstractModel):
                     f"(Field: {error.get('field')})"
                 )
                 error_messages.append(error_message)
-                logger.error(error_message)
+                _logger.error(error_message)
             raise ValueError(f"Shopify GraphQL Errors: {' | '.join(error_messages)}")
 
     def parse_and_validate_shopify_response(self, result: str) -> dict[str, Any]:
@@ -609,7 +609,7 @@ class ShopifySync(models.AbstractModel):
 
     @api.model
     def export_to_shopify(self) -> None:
-        logger.debug("Starting export to Shopify...")
+        _logger.debug("Starting export to Shopify...")
 
         odoo_products = self.env["product.product"].search(
             [("sale_ok", "=", True), ("description_sale", "!=", False), ("description_sale", "!=", "")]
@@ -626,7 +626,7 @@ class ShopifySync(models.AbstractModel):
         graphql_client, graphql_document, shopify_location_gid, base_url = self.setup_sync_environment()
         total_count = 0
         for odoo_product in odoo_products:
-            logger.debug(f"Starting export of Odoo product ID: {odoo_product.default_code} - {odoo_product.name}")
+            _logger.debug(f"Starting export of Odoo product ID: {odoo_product.default_code} - {odoo_product.name}")
             if odoo_product.bin:
                 sku_field = f"{odoo_product.default_code} - {odoo_product.bin}"
             else:
@@ -706,7 +706,7 @@ class ShopifySync(models.AbstractModel):
                         operation_name="CreateProduct",
                     )
 
-                logger.debug("Shopify export result: %s", shopify_product_data)
+                _logger.debug("Shopify export result: %s", shopify_product_data)
                 result_dict = self.parse_and_validate_shopify_response(result)
 
             except ValueError as error:
@@ -755,7 +755,7 @@ class ShopifySync(models.AbstractModel):
                 }
             )
             total_count += 1
-            logger.debug(
+            _logger.debug(
                 "Exported %s of %s products from Shopify so far. Last product ID: %s has status: %s and was updated at %s",
                 total_count,
                 len(odoo_products),
@@ -807,7 +807,7 @@ class ShopifySync(models.AbstractModel):
 
         graph_ql_client, graph_ql_document, _, _ = self.setup_sync_environment()
 
-        logger.debug("Fetching all orders since %s", date_filter)
+        _logger.debug("Fetching all orders since %s", date_filter)
         products_sold = []
 
         for order in self.get_orders_since_date(date_filter_iso):
@@ -819,7 +819,7 @@ class ShopifySync(models.AbstractModel):
 
         products_sold = list(set(products_sold))
 
-        logger.debug("Fetching all products created before %s", date_filter)
+        _logger.debug("Fetching all products created before %s", date_filter)
         products_with_no_sales, cursor, has_more_data, total_count = [], None, True, 0
         while has_more_data:
             shopify_product_edges = self.fetch_shopify_product_edges(
@@ -844,7 +844,7 @@ class ShopifySync(models.AbstractModel):
             else:
                 has_more_data = False
 
-        logger.debug(
+        _logger.debug(
             "Found %s of %s products with no sales since %s",
             len(products_with_no_sales),
             total_count,

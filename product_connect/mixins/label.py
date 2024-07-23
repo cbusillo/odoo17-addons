@@ -10,7 +10,7 @@ from simple_zpl2 import ZPLDocument
 if TYPE_CHECKING:
     from ..models.product_base import ProductBase
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class LabelMixin(models.AbstractModel):
@@ -42,7 +42,7 @@ class LabelMixin(models.AbstractModel):
         elif isinstance(labels, bytes):
             label_data = labels
         else:
-            logger.error("Invalid label data type")
+            _logger.error("Invalid label data type")
             return
 
         self.env["printnode.interface"].print_label(

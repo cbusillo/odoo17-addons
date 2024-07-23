@@ -6,7 +6,7 @@ from printnodeapi.model import PrintJob, Printer
 
 from ..mixins.notification_manager import NotificationManagerMixin
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class PrintNodeInterface(NotificationManagerMixin, models.Model):
@@ -68,11 +68,11 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
             limit=1,
         )
         if not interface_record:
-            logger.error(f"No printer configured for job type {odoo_job_type} and user {self.env.user.name}")
+            _logger.error(f"No printer configured for job type {odoo_job_type} and user {self.env.user.name}")
             return None
         printer_id = interface_record.printer_selection
         if not printer_id:
-            logger.error(f"Printer not selected for job type {odoo_job_type} and user {self.env.user.name}")
+            _logger.error(f"Printer not selected for job type {odoo_job_type} and user {self.env.user.name}")
             return None
 
         print_jobs: list[PrintJob] = []
@@ -82,7 +82,7 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
         elif isinstance(label_data, bytes):
             print_job_params = {"binary": label_data}
         else:
-            logger.error("Invalid label data type")
+            _logger.error("Invalid label data type")
             return None
         try:
             for _ in range(copies):
@@ -95,6 +95,6 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
                 print_jobs.append(print_job)
 
         except LookupError as error:
-            logger.exception(f"Error printing label: {error}")
+            _logger.exception(f"Error printing label: {error}")
 
         return print_jobs
