@@ -1,0 +1,27 @@
+query GetShop {
+    shop {
+        name
+        primaryDomain {
+            url
+            host
+        }
+    }
+}
+
+query GetLocations {
+    locations(first: 1) {
+        edges {
+            node {
+                id
+                name
+            }
+        }
+    }
+}
+
+query GetLocation {
+    location {
+        id
+        name
+    }
+}

@@ -12,5 +12,6 @@ from . import (
     product_product,
     product_template,
     res_users,
+    shopify_product,
     shopify_sync,
 )

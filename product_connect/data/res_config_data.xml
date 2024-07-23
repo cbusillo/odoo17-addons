@@ -1,6 +1,18 @@
 <odoo>
     <data noupdate="1">
-        <record id="import_time_last" model="ir.config_parameter">
+        <record id="shopify_api_version" model="ir.config_parameter">
+            <field name="key">shopify.api_version</field>
+            <field name="value">2024-07</field>
+        </record>
+        <record id="shopify_store_url_key" model="ir.config_parameter">
+            <field name="key">shopify.store_url_key</field>
+            <field name="value"></field>
+        </record>
+        <record id="shopify_api_token" model="ir.config_parameter">
+            <field name="key">shopify.api_token</field>
+            <field name="value"></field>
+        </record>
+        <record id="shopify_last_import_time" model="ir.config_parameter">
             <field name="key">shopify.last_import_time</field>
             <field name="value">2000-01-01T00:00:00Z</field>
         </record>
