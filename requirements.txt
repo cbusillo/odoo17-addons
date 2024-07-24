@@ -4,5 +4,4 @@ pdfminer.six
 odoo_upgrade @ git+https://github.com/odoo/upgrade-util@master
 odoo
 python-dotenv
-graphql-core
-pydantic
+sgqlc

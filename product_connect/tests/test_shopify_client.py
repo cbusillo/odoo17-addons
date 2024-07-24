@@ -1,28 +1,50 @@
+import json
 import logging
+import sys
 import time
 import unittest
+from typing import Optional
 
+import black
 import requests
-from graphql import DocumentNode
 from odoo.tests import common, tagged, BaseCase
-from parameterized import parameterized
 from requests import Response, Session, PreparedRequest
+from sgqlc.operation import Operation
 
 _logger = logging.getLogger(__name__)
 
 
-class TestShopifyClientBase(common.HttpCase):
+class TestShopifySettingsMixin(unittest.TestCase):
+    client: Optional["odoo.model.shopify_client"] = None
+
+    def test_1settings(self) -> None:
+        self.client._overwrite_settings_from_dotenv()
+        try:
+            self.assertTrue(self.client.store_url_key)
+            self.assertIn("myshopify.com", self.client.store_url)
+            self.assertIn("shpat_", self.client.api_token)
+            self.assertIn("-", self.client.api_version)
+            self.assertIn("graphql.json", self.client.endpoint_url)
+            self.assertTrue(self.client.endpoint_url.startswith("https://"))
+            self.assertIn(self.client.store_url, self.client.endpoint_url)
+        except AssertionError as e:
+            _logger.error("Exiting due to test credentials not loading")
+            _logger.error(e)
+
+            sys.exit(1)
+
+
+class TestShopifyClientBase(common.HttpCase, TestShopifySettingsMixin):
+    client: Optional["odoo.model.shopify_client"] = None
+    shopify_schema = None
+
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
+        cls.client = cls.env["shopify.client"].with_context(use_dotenv=True).create({})
+        from odoo.addons.product_connect.services.generated.shopify import shopify_schema
 
-        cls.ShopifyClient = cls.env["shopify.client"]
-        cls.ShopifyClient._overwrite_settings_from_dotenv()
-        cls.client = cls.ShopifyClient.create({})
-        cls.shop_query_type = "store"
-        cls.shop_query_name = "GetShop"
-
-        cls.mock_send_request = "odoo.addons.product_connect.services.shopify_client.ShopifyClient._send_request"
+        cls.shopify_schema = shopify_schema
 
 
 class TestShopifyClientBaseExternal(TestShopifyClientBase):
@@ -45,123 +67,115 @@ class TestShopifyClientBaseExternal(TestShopifyClientBase):
 @tagged("post_install", "-at_install", "shopify")
 class TestShopifyClientInternal(TestShopifyClientBase):
 
-    def test_settings(self) -> None:
-        self.assertTrue(self.client.store_url_key)
-        self.assertIn("myshopify.com", self.client.store_url)
-        self.assertIn("shpat_", self.client.api_token)
-        self.assertIn("-", self.client.api_version)
-        self.assertIn("graphql.json", self.client.endpoint_url)
-        self.assertTrue(self.client.endpoint_url.startswith("https://"))
-        self.assertIn(self.client.store_url, self.client.endpoint_url)
-
-    @parameterized.expand(["shop", "product"])
-    def test_load_query(self, query_type: str) -> None:
-        document = self.env["shopify.client"]._load_query_file(query_type)
-        self.assertTrue(document)
-        self.assertIsInstance(document, DocumentNode)
-
-    def test_get_client(self) -> None:
+    def test_client_creation(self) -> None:
         self.assertTrue(self.client)
-
-    def test_rate_limiting(self) -> None:
-        with unittest.mock.patch(self.mock_send_request) as mock_send, unittest.mock.patch.object(
-            self.ShopifyClient, "_wait_for_bucket"
-        ) as mock_wait:
-            mock_send.side_effect = [
-                {"extensions": {"cost": {"throttleStatus": {"currentlyAvailable": 10, "restoreRate": 50}}}},
-                {"extensions": {"cost": {"throttleStatus": {"currentlyAvailable": 0, "restoreRate": 50}}}},
-                {"extensions": {"cost": {"throttleStatus": {"currentlyAvailable": 50, "restoreRate": 50}}}},
-            ]
-
-            self.client.execute_query(self.shop_query_type, self.shop_query_name, return_pydantic_model=False)
-            self.client.execute_query(self.shop_query_type, self.shop_query_name)
-            self.client.execute_query(self.shop_query_type, self.shop_query_name)
-
-            mock_wait.assert_called()
-
-    def test_error_handling(self) -> None:
-        with unittest.mock.patch(self.mock_send_request) as mock_send:
-            mock_send.side_effect = requests.exceptions.RequestException("Network error")
-            with self.assertRaises(requests.exceptions.RequestException):
-                self.client.execute_query(self.shop_query_type, self.shop_query_name)
-
-        with unittest.mock.patch(self.mock_send_request) as mock_send:
-            mock_send.return_value = {"errors": ["API error"]}
-            with self.assertRaises(ValueError):
-                self.client.execute_query(self.shop_query_type, self.shop_query_name)
-
-    def test_caching(self) -> None:
-        with unittest.mock.patch("builtins.open", unittest.mock.mock_open(read_data="query { test }")) as mock_file:
-            self.client._load_query_file(self.shop_query_type)
-            self.client._load_query_file(self.shop_query_type)
-            mock_file.assert_called_once()
-
-    def test_complex_query(self) -> None:
-        variables = {"first": 5, "query": "title:Test*"}
-        with unittest.mock.patch(self.mock_send_request) as mock_send:
-            mock_send.return_value = {"data": {"products": {"edges": [{"node": {"title": "Test Product"}}]}}}
-            result = self.client.execute_query("product", "getProducts", variables)
-
-        self.assertIsInstance(result, list)
-        self.assertTrue(all("title" in product for product in result))
-
-    def test_session_management(self) -> None:
-        original_session = self.client._session
-        self.client.ensure_session()
-        self.assertEqual(original_session, self.client._session)
-
-        self.ShopifyClient._session = None
-        self.client.ensure_session()
-        self.assertIsNotNone(self.client._session)
-        self.assertNotEqual(original_session, self.client._session)
-
-    @unittest.mock.patch("time.time")
-    def test_leak_bucket(self, mock_time) -> None:
-        mock_time.return_value = 1000  # Set initial time
-        self.ShopifyClient._session_available_points = 0
-        self.ShopifyClient._session_last_leak_time = 990  # 10 seconds ago
-        self.client._leak_bucket()
-        self.assertEqual(self.client._session_available_points, 1000)  # 10 seconds * 100 points/second
-
-    @unittest.mock.patch.object(time, "sleep")
-    def test_wait_for_bucket(self, mock_sleep) -> None:
-        self.ShopifyClient._session_available_points = 0
-        self.ShopifyClient._session_leak_rate = 10
-        self.client._wait_for_bucket(100)
-
-        expected_sleep_time = 10
-        mock_sleep.assert_called_with(expected_sleep_time)
 
 
 @tagged("post_install", "-at_install", "shopify", "current")
 class TestShopifyClientExternal(TestShopifyClientBaseExternal):
+    def test_execute_query(self) -> None:
+        debug_info = self.client.debug_schema()
+        _logger.info(f"Schema debug info: {debug_info}")
+        _logger.info(f"Available attributes in shopify module: {dir(self.shopify_schema)}")
 
-    def test_execute_query_shop(self) -> None:
-        from odoo.addons.product_connect.services.models.shopify_shop import Shop
+        op = Operation(self.shopify_schema.query_type)
+        shop_query = op.shop()
+        shop_query.name()
+        shop_query.description()
+        shop_query.primary_domain()
+        shop_query.primary_domain().host()
+        shop_query.primary_domain().url()
 
-        shop = self.client.execute_query(self.shop_query_type, self.shop_query_name, pydantic_model=Shop)
-        self.assertTrue(shop)
-        self.assertTrue("opw-testing" in shop.name)
-        self.assertTrue("opw-testing" in shop.primary_domain.host)
+        shop_data = self.client.execute(op)
+        shop = (op + shop_data).shop
 
-        _logger.info(shop)
-        _logger.info(shop.name)
+        self.assertTrue(shop, "Shop data not found")
+        self.assertIn("test", shop.name, "'test' not found in shop name")
 
-    def test_get_products(self) -> None:
-        from odoo.addons.product_connect.services.models.shopify_product import Product
+        _logger.info(
+            f"Shop name: {shop.name} - {shop.description} - {shop.primary_domain.host} - {shop.primary_domain.url}")
 
-        location = self.client.get_first_location()
-        query_type = "product"
-        query_name = "GetProducts"
-        variables = {
-            "first": 5,
-            "quantityNames": ["available"],
-            "locationId": location,
+    def test_execute_mutation(self) -> None:
+        op = Operation(self.shopify_schema.mutation_type)
+        product_input = {
+            "title": "Test Product",
+            "description": f"Test Description {time.time()}",
+            "productType": "Test Type",
+            "vendor": "Test Vendor",
+            "status": "ACTIVE",
+            "options": [{"name": "Size", "values": ["Small", "Medium", "Large"]}],
+            "variants": [
+                {
+                    "price": "10.00",
+                    "sku": f"TEST-SKU-{int(time.time())}",
+                    "optionValues": [{"option": "Size", "value": "Small"}],
+                    "inventoryItem": {"tracked": True},
+                    "inventoryQuantities": [
+                        {"availableQuantity": 100, "locationId": "gid://shopify/Location/1234567890"}]
+                }
+            ],
         }
-        products = self.client.execute_query(query_type, query_name, variables, pydantic_model=Product)
-        self.assertTrue(products)
-        self.assertTrue(len(products) > 0)
-        self.assertTrue(products[0].title)
 
-        _logger.info(products)
-        _logger.info(products[0].title)
+        product_set = op.product_set(input=product_input)
+
+        product = product_set.product
+        product.id()
+        product.title()
+        product.description()
+        product.product_type()
+        product.vendor()
+        product.status()
+        product.variants().edges().node().price()
+        product.variants().edges().node().sku()
+
+        product.published_on_publication(publication_id="gid://shopify/Publication/1234567890")
+        product.in_collection(id="gid://shopify/Collection/1234567890")
+        product.published_in_context(context={"country": "US", "language": "EN"})
+
+        product_data = self.client.execute(op)
+        new_product = (op + product_data).product_set.product
+
+        self.assertTrue(product, "Product data not found")
+        self.assertIn("Test Product", new_product.name, "'Test Product' not found in product name")
+        self.assertIn("Test Description", new_product.description,
+                      "'Test Description' not found in product description")
+        self.assertIn("10.00", new_product.price, "'10.00' not found in product price")
+
+        _logger.info(f"Product created: {new_product.name} - {new_product.description} - {new_product.price}")
+
+
+@tagged("post_install", "-at_install", "shopify", "slow")
+class TestShopifyClientExternalSlow(TestShopifyClientBaseExternal):
+    def test_generate_schema(self) -> None:
+        schema_path = self.client._get_current_schema_path()
+        schema_path.unlink(missing_ok=True)
+        self.assertFalse(schema_path.exists(), f"Schema file not removed: {schema_path}")
+        self.client._generate_schema()
+        self.assertTrue(schema_path.exists(), f"Schema file not generated: {schema_path}")
+        self.assertTrue(schema_str := schema_path.read_text(), "Schema file is empty")
+        self.assertTrue(schema_data := json.loads(schema_str), "Schema file contains invalid JSON")
+        self.assertTrue(
+            types := schema_data.get("data", {}).get("__schema", {}).get("types"),
+            "Schema file is missing data or types",
+        )
+        self.assertTrue(len(types) > 0, "Schema file has no types")
+        self.assertFalse(json.loads(schema_path.read_text()).get("errors"), "Schema file contains errors")
+        _logger.info(types[:10])
+
+    def test_for_generate_module(self) -> None:
+        model_path = self.client._get_current_models_path()
+        model_path.unlink(missing_ok=True)
+        self.assertFalse(model_path.exists(), f"Module file not removed: {model_path}")
+        self.client._generate_models()
+        self.assertTrue(model_path.exists(), f"Module file not generated: {model_path}")
+        self.assertTrue(model_path.read_text(), "Module file is empty")
+        self.assertTrue(model_path.stat().st_size > 1024 * 1024, "Module file is too small")
+        self.assertTrue(
+            black.format_file_in_place(
+                model_path,
+                fast=True,
+                mode=black.FileMode(),
+                write_back=black.WriteBack.CHECK,
+            ),
+            "Module file is not formatted correctly",
+        )

@@ -1,28 +1,21 @@
+import datetime
+import json
 import logging
 import os
 import time
 from pathlib import Path
-from typing import Any, TypeVar
+from types import ModuleType
+from typing import Any
 
-import requests
+import odoo
 from dotenv import load_dotenv
-from graphql import (
-    parse,
-    print_ast,
-    DocumentNode,
-    OperationDefinitionNode,
-    FragmentDefinitionNode,
-)
-from odoo import models, api, fields, tools
-from odoo.modules import module
-from pydantic import BaseModel, ValidationError
-from requests import Session
-from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
+from odoo import models, api, fields
+from sgqlc import introspection
+from sgqlc.codegen.schema import CodeGen
+from sgqlc.endpoint.http import HTTPEndpoint
+from sgqlc.operation import Operation
 
 _logger = logging.getLogger(__name__)
-
-T = TypeVar("T", bound=BaseModel)
 
 
 class ShopifyClient(models.TransientModel):
@@ -35,127 +28,120 @@ class ShopifyClient(models.TransientModel):
     store_url = fields.Char()
     endpoint_url = fields.Char()
 
-    _session: Session | None = None
     _session_available_points = 2000
     _session_last_leak_time = int(time.time())
     _session_max_bucket_size = 2000
     _session_leak_rate = 100
 
+    _endpoint: HTTPEndpoint = None
+    _schema_module: ModuleType | None = None
+
     @api.model_create_multi
     def create(self, vals_list: list["odoo.values.shopify_client"]) -> "ShopifyClient":
+        if self.env.context.get("use_dotenv"):
+            self._overwrite_settings_from_dotenv()
         clients = super().create(vals_list)
         for client in clients:
             client._settings_from_db()
-            client._create_session()
+            client._check_and_generate_schema_models()
         return clients
 
-    def ensure_session(self) -> Session:
-        if not self._session:
-            self._create_session()
-        if not self._session:
-            raise ValueError("Session not found")
-        return self._session
+    def _check_and_generate_schema_models(self, retries: int = 3) -> None:
+        schema_path = self._get_current_schema_path()
+        models_path = self._get_current_models_path()
 
-    def get_first_location(self) -> str:
-        from odoo.addons.product_connect.services.models.shopify_product import Location
+        for folder in [schema_path.parent, models_path.parent]:
+            if not folder.exists():
+                folder.mkdir()
 
-        location = self.execute_query("store", "GetLocation", pydantic_model=Location)
-        return location.id
+        (models_path.parent / "__init__.py").touch()
 
-    @api.model
-    def execute_query(
-        self,
-        query_type: str,
-        query_name: str,
-        variables: dict[str, Any] | None = None,
-        estimated_cost: int = 500,
-        return_pydantic_model: bool = True,
-        pydantic_model: type[T] | None = None,
-    ) -> dict[str, Any] | list[dict[str, Any]] | T | list[T]:
-        self.ensure_session()
-        query_document = self._load_query_file(query_type)
-        query = self._get_query_and_fragments(query_document, query_name)
-        payload = {"query": query, "variables": variables or {}}
+        has_new_schema = False
+        while retries > 0:
+            if self._test_for_valid_schema_file():
+                break
+            has_new_schema = True
+            self._generate_schema()
+            retries -= 1
 
-        result = self._send_request(payload, estimated_cost)
-        flat_result = self._flatten_graphql_response(result)
-        if return_pydantic_model:
-            return self._convert_to_pydantic_model(flat_result, pydantic_model)
-        return flat_result
+        if not self._test_for_valid_models_file() or has_new_schema:
+            models_path.unlink(missing_ok=True)
+            self._generate_models()
+
+    def _test_for_valid_schema_file(self) -> bool:
+        schema_path = self._get_current_schema_path()
+        if not schema_path.exists() or self._is_schema_outdated(schema_path):
+            return False
+        try:
+            schema_dict = json.load(schema_path.open())
+        except json.JSONDecodeError:
+            return False
+        if not schema_dict or schema_dict.get("data") is None or schema_dict.get("errors"):
+            return False
+        return True
+
+    def _test_for_valid_models_file(self) -> bool:
+        models_path = self._get_current_models_path()
+        if not models_path.exists():
+            return False
+        if models_path.stat().st_size > 1024 * 1024:
+            return True
+        _logger.warning(f"Model file {models_path} is empty or too small")
+        return False
+
+    def _get_current_schema_path(self) -> Path:
+        return Path(__file__).parent / "generated" / f"shopify_{self.api_version}.json"
 
     @staticmethod
-    def _convert_to_pydantic_model(data: dict[str, Any], model: type[T] | None) -> T | list[T]:
-        if not model:
-            raise ValueError("Model type not provided (required for Pydantic conversion)")
-        try:
-            if isinstance(data, list):
-                return [model.model_validate(item) for item in data]
-            return model.model_validate(data, from_attributes=True)
-        except ValidationError as error:
-            raise ValueError(f"Data validation failed: {error}")
+    def _get_current_models_path() -> Path:
+        return Path(__file__).parent / "generated" / "shopify.py"
 
-    def _create_session(self) -> Session:
-        retry_strategy = Retry(
-            status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["HEAD", "GET", "POST"],
-            backoff_factor=0.1,
-        )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        ShopifyClient._session = Session()
-        self._session.mount("https://", adapter)
-        self._session.headers.update(
-            {
-                "X-Shopify-Access-Token": self.api_token,
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Accept-Encoding": "gzip, deflate",
-            }
-        )
-        return self._session
+    @staticmethod
+    def _is_schema_outdated(schema_file: Path) -> bool:
+        return time.time() - schema_file.stat().st_mtime > datetime.timedelta(weeks=1).total_seconds()
 
-    def _send_request(self, payload: dict[str, Any], estimated_cost: int) -> dict[str, Any]:
-        self._wait_for_bucket(estimated_cost)
-        try:
-            response = self._session.post(self.endpoint_url, json=payload)
-            response.raise_for_status()
-            result = response.json()
-            _logger.debug(f"Query result: {result}")
-            if "errors" in result:
-                raise ValueError(
-                    f"Shopify GraphQL query failed: {result['errors']}\nQuery: {payload.get('query')}\nVariables: {payload.get('variables')}"
-                )
-            self._handle_cost_info(result["extensions"]["cost"], estimated_cost)
-            return result["data"]
-        except (requests.exceptions.RequestException, ValueError) as error:
-            raise ValueError(f"Shopify GraphQL query failed: {error}")
+    def _get_endpoint(self) -> HTTPEndpoint:
+        if self._endpoint:
+            return self._endpoint
 
-    def _handle_cost_info(self, cost_info: dict, estimated_cost: int) -> None:
-        try:
-            actual_cost = cost_info["requestedQueryCost"]
-            self._wait_for_bucket(max(0, actual_cost - estimated_cost))
-            _logger.debug(f"Query cost: {cost_info}")
-            throttle_status = cost_info["throttleStatus"]
-            ShopifyClient._session_max_bucket_size = throttle_status["maximumAvailable"]
-            ShopifyClient._session_leak_rate = throttle_status["restoreRate"]
-        except KeyError:
-            _logger.warning("No throttle status found in query cost info: {cost_info}")
+        if not (self.store_url and self.api_version and self.api_token):
+            raise ValueError(
+                f"Shopify client setting(s) not found: {'store url' if not self.store_url else ''} {'api version' if not self.api_version else ''} {'api token' if not self.api_token else ''}"
+            )
 
-    def _leak_bucket(self) -> None:
-        now = int(time.time())
-        time_passed = now - self._session_last_leak_time
-        leaked_points = time_passed * self._session_leak_rate
-        ShopifyClient._session_available_points = min(
-            self._session_max_bucket_size, self._session_available_points + leaked_points
-        )
-        ShopifyClient._session_last_leak_time = now
+        headers = {"X-Shopify-Access-Token": self.api_token}
+        ShopifyClient._endpoint = HTTPEndpoint(self.endpoint_url, headers, timeout=30)
 
-    def _wait_for_bucket(self, cost: float) -> None:
-        while True:
-            self._leak_bucket()
-            if self._session_available_points >= cost:
-                ShopifyClient._session_available_points -= cost
-                return
-            time.sleep(0.1)
+        return self._endpoint
+
+    def _generate_schema(self) -> None:
+        schema_path = self._get_current_schema_path()
+        _logger.info(f"Generating schema for Shopify API version {self.api_version}")
+        endpoint = self._get_endpoint()
+        response_data = endpoint(introspection.query, introspection.variables(include_deprecated=False))
+        response_str = json.dumps(response_data, sort_keys=True, indent=2, default=str)
+        # noinspection HttpUrlsUsage
+        response_str = response_str.replace("http://", "https://")
+        schema_path.write_text(response_str)
+
+    def _generate_models(self) -> None:
+
+        schema_path = self._get_current_schema_path()
+        models_path = self._get_current_models_path()
+        schema_data = json.load(schema_path.open())
+        schema = schema_data.get("data", {}).get("__schema", {})
+
+        generator = CodeGen("shopify_schema", schema, models_path.open("w").write, docstrings=False)
+        generator.write()
+
+    def execute(self, operation: Operation, variables: dict[str, Any] = None):
+        endpoint = self._get_endpoint()
+        result = endpoint(operation, variables)
+
+        if "errors" in result:
+            raise ValueError(f"Shopify GraphQL query failed: {result['errors']}")
+
+        return result
 
     def _overwrite_settings_from_dotenv(self) -> None:
         load_dotenv()
@@ -165,60 +151,23 @@ class ShopifyClient(models.TransientModel):
                 self.env["ir.config_parameter"].sudo().set_param(odoo_key, val)
 
     def _settings_from_db(self) -> None:
-        IrConfigParameter = self.env["ir.config_parameter"].sudo()
-        self.store_url_key = IrConfigParameter.get_param("shopify.store_url_key")
-        self.api_version = IrConfigParameter.get_param("shopify.api_version")
-        self.api_token = IrConfigParameter.get_param("shopify.api_token")
+        ir_config_parameter = self.env["ir.config_parameter"].sudo()
+        self.store_url_key = ir_config_parameter.get_param("shopify.store_url_key")
+        self.api_version = ir_config_parameter.get_param("shopify.api_version")
+        self.api_token = ir_config_parameter.get_param("shopify.api_token")
         self.store_url = f"https://{self.store_url_key}.myshopify.com"
         self.endpoint_url = f"{self.store_url}/admin/api/{self.api_version}/graphql.json"
 
-    def _load_query_file(self, query_type: str) -> DocumentNode:
-        query_type_path = self._get_graphql_path() / f"shopify_{query_type}.graphql"
-        if not query_type_path.exists():
-            raise ValueError(f"Query type file {query_type_path} not found")
-        return parse(query_type_path.read_text())
+    def debug_schema(self) -> str:
+        models_path = self._get_current_models_path()
+        if not models_path.exists():
+            return "Schema file does not exist"
 
-    def _get_graphql_path(self) -> Path:
-        module_path_str = self._get_module_path()
-        return Path(module_path_str) / "graphql"
+        with open(models_path) as f:
+            content = f.read()
 
-    @staticmethod
-    def _get_module_path() -> Path:
-        module_path_str = module.get_module_path("product_connect")
-        if not module_path_str or not isinstance(module_path_str, str):
-            raise ValueError("Module path not found")
-        return Path(module_path_str)
-
-    @tools.ormcache("document", "query_name")
-    def _get_query_and_fragments(self, document: DocumentNode, query_name: str) -> str:
-        query = None
-        fragments = []
-
-        for definition in document.definitions:
-            if (
-                isinstance(definition, OperationDefinitionNode)
-                and definition.name
-                and definition.name.value == query_name
-            ):
-                query = print_ast(definition)
-            elif isinstance(definition, FragmentDefinitionNode):
-                fragments.append(print_ast(definition))
-
-        if not query:
-            raise ValueError(f"Query '{query_name}' not found in the document")
-
-        return f"{query}\n\n{''.join(fragments)}"
-
-    def _flatten_graphql_response(
-        self, data: list[dict[str, Any]] | dict[str, Any]
-    ) -> list[dict[str, Any]] | dict[str, Any]:
-        if isinstance(data, dict):
-            if len(data) == 1 and isinstance(next(iter(data.values())), dict):
-                return self._flatten_graphql_response(next(iter(data.values())))
-            if "edges" in data and isinstance(data["edges"], list):
-                return [self._flatten_graphql_response(edge["node"]) for edge in data["edges"] if "node" in edge]
-            return {k: self._flatten_graphql_response(v) for k, v in data.items() if k not in ["edges", "node"]}
-        elif isinstance(data, list):
-            return [self._flatten_graphql_response(item) for item in data]
+        # Check if 'Query' is defined in the schema
+        if "class Query(" in content:
+            return "Query class found in schema"
         else:
-            return data
+            return "Query class not found in schema"
