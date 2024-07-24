@@ -62,9 +62,7 @@ sync_from_prod() {
     gunzip < "$TEMP_DB_BACKUP" | pg_restore -d "$ODOO_DB" -h "$ODOO_DB_SERVER" -U "$ODOO_USER" --no-owner --role="$ODOO_USER"
 
     echo "Database restore completed."
-    service odoo stop
 
-    $ODOO_SHELL --no-http -u product_connect --stop-after-init
     $ODOO_SHELL --no-http -u product_connect <<EOF
 from odoo import api, SUPERUSER_ID
 
@@ -89,7 +87,6 @@ EOF
     rm "$TEMP_DB_BACKUP"
 
     $ODOO_RUN --stop-after-init -u product_connect
-    service odoo start
 }
 
 
