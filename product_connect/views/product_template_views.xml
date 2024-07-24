@@ -215,7 +215,7 @@
     <menuitem id="menu_product_template_edit" name="Product Edit" action="action_product_template_tree_edit"
               parent="stock.menu_stock_inventory_control" sequence="2"/>
     <menuitem id="menu_product_template_dimensions_form" name="Product Dimensions"
-              parent="stock.menu_stock_inventory_control" sequence="3"
+              parent="stock.menu_stock_inventory_control" sequence="4"
               action="action_product_template_dimensions_form"/>
 
     <!-- reorder configuration menu items -->
