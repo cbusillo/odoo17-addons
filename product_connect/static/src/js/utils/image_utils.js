@@ -20,6 +20,7 @@ export async function resizeImage(file, maxWidth, maxHeight) {
                 let outputType = file.type
                 if (file.type === 'image/heic') {
                     outputType = 'image/jpeg'
+                    file.name = file.name.replace(/\.heic$/, '.jpg')
                 }
 
                 resolve(canvas.toDataURL(outputType, 0.8).split(',')[1])
