@@ -4,13 +4,12 @@ from odoo import _, api, fields, models
 from printnodeapi import Gateway
 from printnodeapi.model import PrintJob, Printer
 
-from ..mixins.notification_manager import NotificationManagerMixin
-
 _logger = logging.getLogger(__name__)
 
 
-class PrintNodeInterface(NotificationManagerMixin, models.Model):
+class PrintNodeInterface(models.Model):
     _name = "printnode.interface"
+    _inherit = ["notification.manager.mixin"]
     _description = "PrintNode Interface"
     _sql_constraints = [
         (

@@ -1,14 +1,10 @@
 import base64
 import datetime
 import logging
-from typing import TYPE_CHECKING
 
 from odoo import models
 from odoo.exceptions import UserError
 from simple_zpl2 import ZPLDocument
-
-if TYPE_CHECKING:
-    from ..models.product_base import ProductBase
 
 _logger = logging.getLogger(__name__)
 
@@ -50,63 +46,6 @@ class LabelMixin(models.AbstractModel):
             odoo_job_type=odoo_job_type,
             job_name=job_name,
             copies=copies,
-        )
-
-    def print_motor_labels(self, printer_job_type: str = "motor_label") -> None:
-        report_name = "product_connect.report_motortemplatelabel4x2noprice"
-        report_object = self.env["ir.actions.report"]._get_report_from_name(report_name)
-        pdf_data, _ = report_object._render_qweb_pdf(report_name, res_ids=self.ids)
-
-        self._print_labels(pdf_data, odoo_job_type=printer_job_type, job_name="Motor Label")
-
-    def print_bin_labels(self) -> None:
-        if TYPE_CHECKING:
-            assert isinstance(self, ProductBase)
-        unique_bins = [
-            bin_location
-            for bin_location in set(self.mapped("bin"))
-            if bin_location and bin_location.strip().lower() not in ["", " ", "back"]
-        ]
-        unique_bins.sort()
-        labels = []
-        for product_bin in unique_bins:
-            label_data = ["", "Bin: ", product_bin]
-            label = self.generate_label_base64(label_data, barcode=product_bin)
-            labels.append(label)
-
-        self._print_labels(
-            labels,
-            odoo_job_type="product_label",
-            job_name="Bin Label",
-        )
-
-    def print_product_labels(self, print_quantity: bool = False, printer_job_type: str = "product_label") -> None:
-        labels = []
-        for product in self:
-            if TYPE_CHECKING:
-                assert isinstance(product, ProductBase)
-            mpn = product.mpn.strip() if product.mpn else ""
-            if "," in mpn:
-                mpn = mpn.split(",")[0].strip()
-            label_data = [
-                f"SKU: {product.default_code}",
-                "MPN: ",
-                f"(SM){mpn}",
-                f"{product.motor.motor_number or '       '}",
-                product.condition.name if product.condition else "",
-            ]
-            quantity = getattr(product, "qty_available", 1) if print_quantity else 1
-            label = self.generate_label_base64(
-                label_data,
-                bottom_text=self.wrap_text(product.name, 50),
-                barcode=product.default_code,
-                quantity=quantity,
-            )
-            labels.append(label)
-        self._print_labels(
-            labels,
-            odoo_job_type=printer_job_type,
-            job_name="Product Label",
         )
 
     @staticmethod
