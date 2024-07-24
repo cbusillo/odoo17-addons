@@ -3,7 +3,7 @@ from odoo import api, fields, models
 
 class ProductTemplate(models.Model):
     _name = "product.template"
-    _inherit = ["product.base", "product.template"]
+    _inherit = ["product.base", "product.template", "notification.manager.mixin"]
     _description = "Product"
 
     image_1920 = fields.Image(compute="_compute_image_1920", inverse="_inverse_image_1920", store=True)

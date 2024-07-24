@@ -4,13 +4,12 @@ from odoo import _, api, fields, models
 from printnodeapi import Gateway
 from printnodeapi.model import PrintJob, Printer
 
-from ..mixins.notification_manager import NotificationManagerMixin
-
 _logger = logging.getLogger(__name__)
 
 
-class PrintNodeInterface(NotificationManagerMixin, models.Model):
+class PrintNodeInterface(models.Model):
     _name = "printnode.interface"
+    _inherit = ["notification.manager.mixin"]
     _description = "PrintNode Interface"
     _sql_constraints = [
         (
@@ -53,11 +52,11 @@ class PrintNodeInterface(NotificationManagerMixin, models.Model):
 
     @api.model
     def print_label(
-        self,
-        label_data: str | bytes,
-        odoo_job_type: str,
-        copies: int = 1,
-        job_name: str = "Odoo Label",
+            self,
+            label_data: str | bytes,
+            odoo_job_type: str,
+            copies: int = 1,
+            job_name: str = "Odoo Label",
     ) -> list[PrintJob] | None:
         gateway = self.get_gateway()
         interface_record = self.env["printnode.interface"].search(
