@@ -64,6 +64,7 @@ sync_from_prod() {
     echo "Database restore completed."
     service odoo stop
 
+    $ODOO_SHELL --no-http -u product_connect --stop-after-init
     $ODOO_SHELL --no-http -u product_connect <<EOF
 from odoo import api, SUPERUSER_ID
 
