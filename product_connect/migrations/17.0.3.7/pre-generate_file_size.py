@@ -7,7 +7,7 @@ _logger = logging.getLogger(__name__)
 
 
 def migrate(cr: Cursor, version: str) -> None:
-    util.create_column(cr, "product.image", "file_size", "integer")
+    util.create_column(cr, "product_image", "file_size", "integer")
     env = util.env(cr)
 
     product_images = env["product.image"].search([])
