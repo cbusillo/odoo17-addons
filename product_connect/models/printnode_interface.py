@@ -52,11 +52,11 @@ class PrintNodeInterface(models.Model):
 
     @api.model
     def print_label(
-        self,
-        label_data: str | bytes,
-        odoo_job_type: str,
-        copies: int = 1,
-        job_name: str = "Odoo Label",
+            self,
+            label_data: str | bytes,
+            odoo_job_type: str,
+            copies: int = 1,
+            job_name: str = "Odoo Label",
     ) -> list[PrintJob] | None:
         gateway = self.get_gateway()
         interface_record = self.env["printnode.interface"].search(
