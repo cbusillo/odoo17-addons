@@ -42,6 +42,7 @@
         "views/product_import_wizard.xml",
         "views/product_product_views.xml",
         "views/product_template_views.xml",
+        "views/product_image_views.xml",
         "views/product_type_views.xml",
         "views/product_manufacturer_views.xml",
         "views/project_task_views.xml",

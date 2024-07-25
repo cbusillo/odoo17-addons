@@ -46,10 +46,7 @@ class ProductCondition(models.Model):
 
 class ProductBase(models.AbstractModel):
     _name = "product.base"
-    _inherit = [
-        "mail.thread",
-        "label.mixin",
-    ]
+    _inherit = ["mail.thread", "label.mixin"]
     _description = "Product Base"
     _order = "create_date desc"
     _sql_constraints = [
@@ -94,14 +91,14 @@ class ProductBase(models.AbstractModel):
     # noinspection PyShadowingNames
     @api.model
     def read_group(
-        self,
-        domain: list,
-        fields: list,
-        groupby: list,
-        offset: int = 0,
-        limit: int | None = None,
-        orderby: str = "",
-        lazy: bool = True,
+            self,
+            domain: list,
+            fields: list,
+            groupby: list,
+            offset: int = 0,
+            limit: int | None = None,
+            orderby: str = "",
+            lazy: bool = True,
     ) -> list[dict[str, Any]]:
         groups = super(ProductBase, self).read_group(
             domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy
@@ -134,9 +131,9 @@ class ProductBase(models.AbstractModel):
         max_sku = "9" * padding
         while (new_sku := self.env["ir.sequence"].next_by_code("product.template.default_code")) <= max_sku:
             if not (
-                self.env["motor.product"].search_count([("default_code", "=", new_sku)])
-                or self.env["product.template"].search_count([("default_code", "=", new_sku)])
-                or self.env["product.import"].search_count([("default_code", "=", new_sku)])
+                    self.env["motor.product"].search_count([("default_code", "=", new_sku)])
+                    or self.env["product.template"].search_count([("default_code", "=", new_sku)])
+                    or self.env["product.import"].search_count([("default_code", "=", new_sku)])
             ):
                 return new_sku
         raise ValidationError("SKU limit reached.")
@@ -166,11 +163,8 @@ class ProductBase(models.AbstractModel):
     @api.depends("message_ids")
     def _compute_has_recent_messages(self) -> None:
         for product in self:
-            recent_messages = product.message_ids.filtered(
-                lambda m: fields.Datetime.now() - m.create_date < timedelta(minutes=30)
-                and m.subject
-                and "Import Error" in m.subject
-            )
+            recent_messages = product.message_ids.filtered(lambda m: fields.Datetime.now() - m.create_date < timedelta(
+                minutes=30) and m.subject and "Import Error" in m.subject)
             product.has_recent_messages = bool(recent_messages)
 
     def name_get(self) -> list[tuple[int, str]]:
@@ -230,8 +224,7 @@ class ProductBase(models.AbstractModel):
         if self._name in ["product.template", "product.product"]:
             raise UserError("This method is not available for Odoo base products.")
 
-        missing_data_products = self.filtered(
-            lambda current: not (
+        missing_data_products = self.filtered(lambda current: not (
                 current.default_code
                 and current.name
                 and current.sales_description
@@ -240,9 +233,8 @@ class ProductBase(models.AbstractModel):
                 and current.qty_available
                 and current.bin
                 and current.manufacturer
-            )
-            or len(current.images) == 0
-        )
+        ) or len(current.images) == 0)
+
         if missing_data_products:
             message = f"Missing data for product(s).  Please fill in all required fields for SKUs {' '.join([p.default_code for p in missing_data_products])} ."
             _logger.warning(message)
@@ -311,3 +303,50 @@ class ProductBase(models.AbstractModel):
                 )
                 image.unlink()
             product.unlink()
+
+    def print_bin_labels(self) -> None:
+        self: "odoo.model.product_base"
+        unique_bins = [
+            bin_location
+            for bin_location in set(self.mapped("bin"))
+            if bin_location and bin_location.strip().lower() not in ["", " ", "back"]
+        ]
+        unique_bins.sort()
+        labels = []
+        for product_bin in unique_bins:
+            label_data = ["", "Bin: ", product_bin]
+            label = self.generate_label_base64(label_data, barcode=product_bin)
+            labels.append(label)
+
+        self._print_labels(
+            labels,
+            odoo_job_type="product_label",
+            job_name="Bin Label",
+        )
+
+    def print_product_labels(self, print_quantity: bool = False, printer_job_type: str = "product_label") -> None:
+        labels = []
+        for product in self:
+            mpn = product.mpn.strip() if product.mpn else ""
+            if "," in mpn:
+                mpn = mpn.split(",")[0].strip()
+            label_data = [
+                f"SKU: {product.default_code}",
+                "MPN: ",
+                f"(SM){mpn}",
+                f"{product.motor.motor_number or '       '}",
+                product.condition.name if product.condition else "",
+            ]
+            quantity = getattr(product, "qty_available", 1) if print_quantity else 1
+            label = self.generate_label_base64(
+                label_data,
+                bottom_text=self.wrap_text(product.name, 50),
+                barcode=product.default_code,
+                quantity=quantity,
+            )
+            labels.append(label)
+        self._print_labels(
+            labels,
+            odoo_job_type=printer_job_type,
+            job_name="Product Label",
+        )

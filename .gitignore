@@ -189,4 +189,4 @@ cython_debug/
 
 odoo.*.cfg
 init_done.flag
-product_connect/services/generated/
+product_connect/services/generated

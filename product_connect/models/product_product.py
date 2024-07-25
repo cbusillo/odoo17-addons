@@ -1,8 +1,7 @@
 from odoo import fields, models
-from ..mixins.notification_manager import NotificationManagerMixin
 
 
-class ProductProduct(NotificationManagerMixin, models.Model):
+class ProductProduct(models.Model):
     _inherit = "product.product"
     _description = "Product"
 
@@ -17,7 +16,7 @@ class ProductProduct(NotificationManagerMixin, models.Model):
     def update_quantity(self, quantity: float) -> None:
         stock_location_ref = "stock.stock_location_stock"
         if not self.env.ref(stock_location_ref, raise_if_not_found=False):
-            self.notify_channel_on_error("Stock Location Not Found", stock_location_ref)
+            self.product_tmpl_id.notify_channel_on_error("Stock Location Not Found", stock_location_ref)
         stock_location = self.env.ref(stock_location_ref)
         if not stock_location.id:
             return

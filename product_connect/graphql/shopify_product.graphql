@@ -1,0 +1,83 @@
+
+query GetOrdersLineItems($limit: Int!, $query: String!, $cursor: String) {
+    orders(first: $limit, query: $query, after: $cursor) {
+        edges {
+            cursor
+            node {
+                id
+                lineItems(first: 10) {
+                    edges {
+                        node {
+                            id
+                            product {
+                                id
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        pageInfo {
+            hasNextPage
+        }
+    }
+}
+
+mutation CreateProduct($input: ProductInput!) {
+    productCreate(input: $input) {
+        product {
+            id
+            metafields(first: 15, namespace: "custom") {
+                edges {
+                    node {
+                        id
+                        key
+                    }
+                }
+            }
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+
+mutation UpdateProduct($input: ProductInput!) {
+    productUpdate(input: $input) {
+        product {
+            id
+            metafields(first: 15, namespace: "custom") {
+                edges {
+                    node {
+                        id
+                        key
+                    }
+                }
+            }
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+
+query GetLocations {
+    locations(first: 5) {
+        edges {
+            node {
+                id
+            }
+        }
+    }
+}
+
+mutation UpdatePublications($id: ID!, $input: [PublicationInput!]!) {
+    publishablePublish(id: $id, input: $input) {
+        userErrors {
+            field
+            message
+        }
+    }
+}

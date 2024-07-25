@@ -17,8 +17,13 @@ export async function resizeImage(file, maxWidth, maxHeight) {
 
                 const ctx = canvas.getContext('2d')
                 ctx.drawImage(image, 0, 0, width, height)
+                let outputType = file.type
+                if (file.type === 'image/heic') {
+                    outputType = 'image/jpeg'
+                    file.name = file.name.replace(/\.heic$/, '.jpg')
+                }
 
-                resolve(canvas.toDataURL(file.type, 0.8).split(',')[1])
+                resolve(canvas.toDataURL(outputType, 0.8).split(',')[1])
             }
             image.onerror = (error) => reject(error)
             image.src = e.target.result
