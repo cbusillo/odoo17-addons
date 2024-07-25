@@ -5,10 +5,8 @@ class ImageMixin(models.AbstractModel):
     _description = "Image Mixin"
     _inherit = "image.mixin"
 
-    attachment = fields.Many2one(
-        "ir.attachment", compute="_compute_attachment", store=True
-    )
-    image_1920_file_size = fields.Integer(related="attachment.file_size", store=True)
+    attachment = fields.Many2one("ir.attachment", compute="_compute_attachment", store=True)
+    image_1920_file_size = fields.Integer(related="attachment.file_size", store=True, group_operator="sum")
 
     @api.depends("attachment")
     def _compute_attachment(self) -> None:

@@ -7,6 +7,7 @@
                 <field name="name"/>
                 <field name="image_1920_file_size"/>
                 <field name="image_1920" widget="image_upload"/>
+                <field name="product_tmpl_id"/>
                 <button name="action_open_full_image" type="object" string="View Full Image" class="btn btn-primary"/>
             </tree>
         </field>
