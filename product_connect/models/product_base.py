@@ -9,12 +9,6 @@ from odoo.exceptions import ValidationError, UserError
 _logger = logging.getLogger(__name__)
 
 
-class ProductImage(models.Model):
-    _inherit = "product.image"
-
-    index = fields.Integer()
-
-
 class ProductType(models.Model):
     _name = "product.type"
     _description = "Part Type"
