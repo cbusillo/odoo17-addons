@@ -91,29 +91,27 @@ class ProductBase(models.AbstractModel):
     # noinspection PyShadowingNames
     @api.model
     def read_group(
-            self,
-            domain: list,
-            fields: list,
-            groupby: list,
-            offset: int = 0,
-            limit: int | None = None,
-            orderby: str = "",
-            lazy: bool = True,
+        self,
+        domain: list,
+        fields: list,
+        groupby: list,
+        offset: int = 0,
+        limit: int | None = None,
+        orderby: str = "",
+        lazy: bool = True,
     ) -> list[dict[str, Any]]:
-        groups = super(ProductBase, self).read_group(
-            domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy
-        )
+        groups = super().read_group(domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy)
         fields_to_sum_with_qty = {"list_price", "standard_price"}
-        if fields_to_sum_with_qty.intersection(fields):
-            for group in groups:
-                if "__domain" in group:
-                    group["list_price"] = sum(
-                        product["list_price"] * product["qty_available"] for product in self.search(group["__domain"])
-                    )
-                    group["standard_price"] = sum(
-                        product["standard_price"] * product["qty_available"]
-                        for product in self.search(group["__domain"])
-                    )
+        if not fields_to_sum_with_qty.intersection(fields):
+            return groups
+        for group in groups:
+            if "__domain" in group:
+                group["list_price"] = sum(
+                    product["list_price"] * product["qty_available"] for product in self.search(group["__domain"])
+                )
+                group["standard_price"] = sum(
+                    product["standard_price"] * product["qty_available"] for product in self.search(group["__domain"])
+                )
 
         return groups
 
@@ -131,9 +129,9 @@ class ProductBase(models.AbstractModel):
         max_sku = "9" * padding
         while (new_sku := self.env["ir.sequence"].next_by_code("product.template.default_code")) <= max_sku:
             if not (
-                    self.env["motor.product"].search_count([("default_code", "=", new_sku)])
-                    or self.env["product.template"].search_count([("default_code", "=", new_sku)])
-                    or self.env["product.import"].search_count([("default_code", "=", new_sku)])
+                self.env["motor.product"].search_count([("default_code", "=", new_sku)])
+                or self.env["product.template"].search_count([("default_code", "=", new_sku)])
+                or self.env["product.import"].search_count([("default_code", "=", new_sku)])
             ):
                 return new_sku
         raise ValidationError("SKU limit reached.")
@@ -163,8 +161,11 @@ class ProductBase(models.AbstractModel):
     @api.depends("message_ids")
     def _compute_has_recent_messages(self) -> None:
         for product in self:
-            recent_messages = product.message_ids.filtered(lambda m: fields.Datetime.now() - m.create_date < timedelta(
-                minutes=30) and m.subject and "Import Error" in m.subject)
+            recent_messages = product.message_ids.filtered(
+                lambda m: fields.Datetime.now() - m.create_date < timedelta(minutes=30)
+                and m.subject
+                and "Import Error" in m.subject
+            )
             product.has_recent_messages = bool(recent_messages)
 
     def name_get(self) -> list[tuple[int, str]]:
@@ -224,7 +225,8 @@ class ProductBase(models.AbstractModel):
         if self._name in ["product.template", "product.product"]:
             raise UserError("This method is not available for Odoo base products.")
 
-        missing_data_products = self.filtered(lambda current: not (
+        missing_data_products = self.filtered(
+            lambda current: not (
                 current.default_code
                 and current.name
                 and current.sales_description
@@ -233,7 +235,9 @@ class ProductBase(models.AbstractModel):
                 and current.qty_available
                 and current.bin
                 and current.manufacturer
-        ) or len(current.images) == 0)
+            )
+            or len(current.images) == 0
+        )
 
         if missing_data_products:
             message = f"Missing data for product(s).  Please fill in all required fields for SKUs {' '.join([p.default_code for p in missing_data_products])} ."
