@@ -62,7 +62,7 @@
                                 <span class="h3">See Notes</span>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div invisible="not image_icon" class="col-md-3">
                             <field name="image_icon" widget="image" class="oe_avatar"
                                    options="{'preview_image': 'image_icon', 'size': [None, 350]}"/>
                         </div>
