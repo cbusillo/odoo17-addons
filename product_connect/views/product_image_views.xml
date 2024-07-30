@@ -3,12 +3,13 @@
         <field name="name">product.image.edit.tree</field>
         <field name="model">product.image</field>
         <field name="arch" type="xml">
-            <tree string="Product Images">
+            <tree string="Product Images" editable="bottom">
                 <field name="name"/>
-                <field name="create_date"/>
-                <field name="image_1920_file_size_kb" widget="integer"/>
                 <field name="image_1920" widget="image_upload"/>
+                <field name="create_date"/>
                 <field name="product_tmpl_id"/>
+                <field name="image_1920_resolution" string="Image Res"/>
+                <field name="image_1920_file_size_kb" widget="integer"/>
                 <button name="action_open_full_image" type="object" string="View Full Image" class="btn btn-primary"/>
             </tree>
         </field>
@@ -19,12 +20,14 @@
         <field name="model">product.image</field>
         <field name="arch" type="xml">
             <search string="Product Images">
+                <filter string="Low Resolution &lt; 1920x1920" name="filter_low_resolution"
+                        domain="[('image_1920_width', '&lt;', 1919),('image_1920_height', '&lt;', 1919)]"/>
                 <filter string="Tiny Image &lt; 20kB" name="filter_very_small_image"
                         domain="[('image_1920_file_size', '&lt;=', 1024 * 20)]"/>
                 <filter string="Small Image 20kB &lt; 75kB" name="filter_small_image"
-                        domain="[('image_1920_file_size', '&gt;', 1024 * 20), ('image_1920_file_size', '&lt;=', 1024 * 100)]"/>
+                        domain="[('image_1920_file_size', '&gt;', 1024 * 20), ('image_1920_file_size', '&lt;=', 1024 * 75)]"/>
                 <filter string="Medium Image 75kB &lt; 200kB" name="filter_medium_image"
-                        domain="[('image_1920_file_size', '&gt;', 1024 * 100), ('image_1920_file_size', '&lt;=', 1024 * 200)]"/>
+                        domain="[('image_1920_file_size', '&gt;', 1024 * 75), ('image_1920_file_size', '&lt;=', 1024 * 200)]"/>
                 <filter string="Large Image 200kB &lt; 500kB" name="filter_large_image"
                         domain="[('image_1920_file_size', '&gt;', 1024 * 200), ('image_1920_file_size', '&lt;=', 1024 * 500)]"/>
                 <filter string="Huge Image &gt; 500kB" name="filter_very_large_image"

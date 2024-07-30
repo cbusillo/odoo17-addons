@@ -215,37 +215,71 @@ class ProductBase(models.AbstractModel):
                 return existing_new_products
         return None
 
+    @api.model
+    def _check_missing_data(self, product: "odoo.model.product_base") -> list[str]:
+        required_fields = [
+            product._fields["default_code"].name,
+            product._fields["name"].name,
+            product._fields["sales_description"].name,
+            product._fields["standard_price"].name,
+            product._fields["list_price"].name,
+            product._fields["qty_available"].name,
+            product._fields["bin"].name,
+            product._fields["manufacturer"].name,
+        ]
+
+        missing_fields = [field for field in required_fields if not product[field]]
+
+        return missing_fields
+
+    @staticmethod
+    def _check_missing_images_or_small_images(images: "odoo.model.product_image") -> list[str]:
+        min_image_size = 50
+        min_image_resolution = 1920
+        missing_fields = []
+
+        if not images:
+            missing_fields.append("images")
+
+        for image in images:
+            if image.image_1920_file_size_kb < min_image_size:
+                missing_fields.append(
+                    f"Image ({image.index}) too small ({image.image_1920_file_size_kb}kB < {min_image_size}kB minimum size)"
+                )
+            if image.image_1920_width < min_image_resolution - 1 and image.image_1920_height < min_image_resolution - 1:
+                missing_fields.append(
+                    f"Image ({image.index}) too small ({image.image_1920_width}x{image.image_1920_height} < {min_image_resolution}x{min_image_resolution} minimum size)"
+                )
+
+        return missing_fields
+
+    def _post_missing_data_message(self, products: "odoo.model.product_base") -> None:
+        for product in products:
+            missing_fields = self._check_missing_data(product) + self._check_missing_images_or_small_images(
+                product.images
+            )
+            if missing_fields:
+                missing_fields_display = ", ".join(missing_fields)
+                product.message_post(
+                    body=f"Missing data: {missing_fields_display}",
+                    subject="Import Error",
+                    subtype_id=self.env.ref("mail.mt_note").id,
+                    partner_ids=[self.env.user.partner_id.id],
+                )
+
     def import_to_products(self) -> None:
         if self._name in ["product.template", "product.product"]:
             raise UserError("This method is not available for Odoo base products.")
 
-        missing_data_products = self.filtered(
-            lambda current: not (
-                current.default_code
-                and current.name
-                and current.sales_description
-                and current.standard_price
-                and current.list_price
-                and current.qty_available
-                and current.bin
-                and current.manufacturer
-            )
-            or len(current.images) == 0
-        )
+        missing_data_products = self.filtered(lambda p: self._check_missing_data(p))
+        missing_images_products = self.filtered(lambda p: self._check_missing_images_or_small_images(p.images))
 
-        if missing_data_products:
-            message = f"Missing data for product(s).  Please fill in all required fields for SKUs {' '.join([p.default_code for p in missing_data_products])} ."
-            _logger.warning(message)
-            for product in missing_data_products:
-                product.message_post(
-                    body=message,
-                    subject="Import Error (Missing Data)",
-                    message_type="notification",
-                    subtype_xmlid="mail.mt_note",
-                    partner_ids=[self.env.user.partner_id.id],
-                )
+        missing_something_products = missing_data_products + missing_images_products
 
-        for product in self - missing_data_products:
+        if missing_something_products:
+            self._post_missing_data_message(missing_something_products)
+
+        for product in self - missing_something_products:
             existing_products_with_mpn = product.products_from_mpn_condition_new()
             if existing_products_with_mpn:
                 existing_products_display = [
@@ -303,7 +337,6 @@ class ProductBase(models.AbstractModel):
             product.unlink()
 
     def print_bin_labels(self) -> None:
-        self: "odoo.model.product_base"
         unique_bins = [
             bin_location
             for bin_location in set(self.mapped("bin"))
