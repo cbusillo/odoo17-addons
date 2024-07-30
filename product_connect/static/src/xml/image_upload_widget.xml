@@ -19,6 +19,9 @@
                 previewImage="'image_' + state.size"
                 reload="false"
         />
+          <div class="text-center mt-2">
+          <small><t t-out="state.image"/></small>
+        </div>
 
       </t>
           <t t-else="">
