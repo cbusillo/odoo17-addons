@@ -215,35 +215,53 @@ class ProductBase(models.AbstractModel):
                 return existing_new_products
         return None
 
+    @api.model
+    def _check_missing_data(self, product: "odoo.model.product_base") -> list[str]:
+        min_image_size = 50
+        required_fields = [
+            product._fields["default_code"].name,
+            product._fields["name"].name,
+            product._fields["sales_description"].name,
+            product._fields["standard_price"].name,
+            product._fields["list_price"].name,
+            product._fields["qty_available"].name,
+            product._fields["bin"].name,
+            product._fields["manufacturer"].name,
+        ]
+
+        missing_fields = [field for field in required_fields if not product[field]]
+
+        if not product.images:
+            missing_fields.append("images")
+
+        for image in product.images:
+            if image.image_1920_file_size_kb < min_image_size:
+                missing_fields.append(
+                    f"Image ({image.index}) too small ({image.image_1920_file_size_kb}kB < {min_image_size}kB minimum size)"
+                )
+
+        return missing_fields
+
+    def _post_missing_data_message(self, products: "odoo.model.product_base") -> None:
+        for product in products:
+            missing_fields = self._check_missing_data(product)
+            if missing_fields:
+                missing_fields_display = ", ".join(missing_fields)
+                product.message_post(
+                    body=f"Missing data: {missing_fields_display}",
+                    subject="Import Error",
+                    subtype_id=self.env.ref("mail.mt_note").id,
+                    partner_ids=[self.env.user.partner_id.id],
+                )
+
     def import_to_products(self) -> None:
         if self._name in ["product.template", "product.product"]:
             raise UserError("This method is not available for Odoo base products.")
 
-        missing_data_products = self.filtered(
-            lambda current: not (
-                current.default_code
-                and current.name
-                and current.sales_description
-                and current.standard_price
-                and current.list_price
-                and current.qty_available
-                and current.bin
-                and current.manufacturer
-            )
-            or len(current.images) == 0
-        )
+        missing_data_products = self.filtered(lambda p: self._check_missing_data(p))
 
         if missing_data_products:
-            message = f"Missing data for product(s).  Please fill in all required fields for SKUs {' '.join([p.default_code for p in missing_data_products])} ."
-            _logger.warning(message)
-            for product in missing_data_products:
-                product.message_post(
-                    body=message,
-                    subject="Import Error (Missing Data)",
-                    message_type="notification",
-                    subtype_xmlid="mail.mt_note",
-                    partner_ids=[self.env.user.partner_id.id],
-                )
+            self._post_missing_data_message(missing_data_products)
 
         for product in self - missing_data_products:
             existing_products_with_mpn = product.products_from_mpn_condition_new()
