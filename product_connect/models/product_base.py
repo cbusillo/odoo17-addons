@@ -321,7 +321,6 @@ class ProductBase(models.AbstractModel):
             product.unlink()
 
     def print_bin_labels(self) -> None:
-        self: "odoo.model.product_base"
         unique_bins = [
             bin_location
             for bin_location in set(self.mapped("bin"))
