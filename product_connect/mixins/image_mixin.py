@@ -14,11 +14,10 @@ class ImageMixin(models.AbstractModel):
     image_1920_file_size_kb = fields.Float(compute="_compute_image_1920_file_size_kb", string="Size in kB", store=True)
     index = fields.Integer()
 
-    @api.depends("attachment")
+    @api.depends("image_1920")
     def _compute_attachment(self) -> None:
-        IrAttachment = self.env["ir.attachment"]
         for image in self:
-            image.attachment = IrAttachment.search(
+            image.attachment = self.env["ir.attachment"].search(
                 [
                     ("res_model", "=", self._name),
                     ("res_id", "=", image.id),
