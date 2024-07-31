@@ -1,13 +1,10 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
 from pydantic import HttpUrl
 
-from .shopify_base import ShopifyBase, Count
-
-if TYPE_CHECKING:
-    from .shopify_base import HasMetafields, Id
+from .shopify_base import Count, HasMetafields, Id, ShopifyBase
 
 
 class ProductStatus(Enum):

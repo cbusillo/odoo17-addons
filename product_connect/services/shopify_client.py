@@ -35,11 +35,11 @@ class ShopifyClient(models.TransientModel):
     store_url = fields.Char()
     endpoint_url = fields.Char()
 
-    _session: Session | None = None
-    _session_available_points = 2000
-    _session_last_leak_time = int(time.time())
-    _session_max_bucket_size = 2000
-    _session_leak_rate = 100
+    _cls_session: Session | None = None
+    _cls_session_available_points = 2000
+    _cls_session_last_leak_time = int(time.time())
+    _cls_session_max_bucket_size = 2000
+    _cls_session_leak_rate = 100
 
     @api.model_create_multi
     def create(self, vals_list: list["odoo.values.shopify_client"]) -> "ShopifyClient":
@@ -50,11 +50,11 @@ class ShopifyClient(models.TransientModel):
         return clients
 
     def ensure_session(self) -> Session:
-        if not self._session:
+        if not ShopifyClient._cls_session:
             self._create_session()
-        if not self._session:
+        if not ShopifyClient._cls_session:
             raise ValueError("Session not found")
-        return self._session
+        return ShopifyClient._cls_session
 
     def get_first_location(self) -> str:
         from odoo.addons.product_connect.services.models.shopify_product import Location
@@ -77,6 +77,7 @@ class ShopifyClient(models.TransientModel):
         query = self._get_query_and_fragments(query_document, query_name)
         payload = {"query": query, "variables": variables or {}}
 
+        self._wait_for_bucket(estimated_cost)
         result = self._send_request(payload, estimated_cost)
         flat_result = self._flatten_graphql_response(result)
         if return_pydantic_model:
@@ -101,9 +102,9 @@ class ShopifyClient(models.TransientModel):
             backoff_factor=0.1,
         )
         adapter = HTTPAdapter(max_retries=retry_strategy)
-        ShopifyClient._session = Session()
-        self._session.mount("https://", adapter)
-        self._session.headers.update(
+        ShopifyClient._cls_session = Session()
+        ShopifyClient._cls_session.mount("https://", adapter)
+        ShopifyClient._cls_session.headers.update(
             {
                 "X-Shopify-Access-Token": self.api_token,
                 "Content-Type": "application/json",
@@ -111,12 +112,11 @@ class ShopifyClient(models.TransientModel):
                 "Accept-Encoding": "gzip, deflate",
             }
         )
-        return self._session
+        return ShopifyClient._cls_session
 
     def _send_request(self, payload: dict[str, Any], estimated_cost: int) -> dict[str, Any]:
-        self._wait_for_bucket(estimated_cost)
         try:
-            response = self._session.post(self.endpoint_url, json=payload)
+            response = ShopifyClient._cls_session.post(self.endpoint_url, json=payload)
             response.raise_for_status()
             result = response.json()
             _logger.debug(f"Query result: {result}")
@@ -132,30 +132,34 @@ class ShopifyClient(models.TransientModel):
     def _handle_cost_info(self, cost_info: dict, estimated_cost: int) -> None:
         try:
             actual_cost = cost_info["requestedQueryCost"]
-            self._wait_for_bucket(max(0, actual_cost - estimated_cost))
+            if actual_cost > estimated_cost:
+                self._wait_for_bucket(actual_cost - estimated_cost)
             _logger.debug(f"Query cost: {cost_info}")
             throttle_status = cost_info["throttleStatus"]
-            ShopifyClient._session_max_bucket_size = throttle_status["maximumAvailable"]
-            ShopifyClient._session_leak_rate = throttle_status["restoreRate"]
+            ShopifyClient._cls_session_max_bucket_size = throttle_status["maximumAvailable"]
+            ShopifyClient._cls_session_leak_rate = throttle_status["restoreRate"]
+            ShopifyClient._cls_session_available_points = throttle_status["currentlyAvailable"]
         except KeyError:
             _logger.warning("No throttle status found in query cost info: {cost_info}")
 
     def _leak_bucket(self) -> None:
         now = int(time.time())
-        time_passed = now - self._session_last_leak_time
-        leaked_points = time_passed * self._session_leak_rate
-        ShopifyClient._session_available_points = min(
-            self._session_max_bucket_size, self._session_available_points + leaked_points
+        time_passed = now - ShopifyClient._cls_session_last_leak_time
+        leaked_points = time_passed * ShopifyClient._cls_session_leak_rate
+        ShopifyClient._cls_session_available_points = min(
+            ShopifyClient._cls_session_max_bucket_size, ShopifyClient._cls_session_available_points + leaked_points
         )
-        ShopifyClient._session_last_leak_time = now
+        ShopifyClient._cls_session_last_leak_time = now
 
     def _wait_for_bucket(self, cost: float) -> None:
-        while True:
+        while ShopifyClient._cls_session_available_points < cost:
             self._leak_bucket()
-            if self._session_available_points >= cost:
-                ShopifyClient._session_available_points -= cost
-                return
-            time.sleep(0.1)
+            if ShopifyClient._cls_session_available_points < cost:
+                sleep_time = min(
+                    (cost - ShopifyClient._cls_session_available_points) / ShopifyClient._cls_session_leak_rate, 0.1
+                )
+                time.sleep(sleep_time)
+        ShopifyClient._cls_session_available_points -= cost
 
     def _overwrite_settings_from_dotenv(self) -> None:
         load_dotenv()

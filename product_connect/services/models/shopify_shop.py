@@ -1,11 +1,8 @@
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
 from pydantic import HttpUrl
 
-from .shopify_base import ShopifyBase
-
-if TYPE_CHECKING:
-    from .shopify_base import HasMetafields
+from .shopify_base import ShopifyBase, HasMetafields
 
 
 class Domain(ShopifyBase):
@@ -14,7 +11,7 @@ class Domain(ShopifyBase):
     url: Optional[HttpUrl] = None
 
 
-class Shop(ShopifyBase, HasMetafields):
+class Shop(HasMetafields):
     id: Optional[str] = None
     name: Optional[str] = None
     primary_domain: Optional[Domain] = None
