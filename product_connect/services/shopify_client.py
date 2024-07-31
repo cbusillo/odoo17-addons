@@ -157,17 +157,3 @@ class ShopifyClient(models.TransientModel):
         self.api_token = ir_config_parameter.get_param("shopify.api_token")
         self.store_url = f"https://{self.store_url_key}.myshopify.com"
         self.endpoint_url = f"{self.store_url}/admin/api/{self.api_version}/graphql.json"
-
-    def debug_schema(self) -> str:
-        models_path = self._get_current_models_path()
-        if not models_path.exists():
-            return "Schema file does not exist"
-
-        with open(models_path) as f:
-            content = f.read()
-
-        # Check if 'Query' is defined in the schema
-        if "class Query(" in content:
-            return "Query class found in schema"
-        else:
-            return "Query class not found in schema"

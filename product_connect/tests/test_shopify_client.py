@@ -1,7 +1,6 @@
 import json
 import logging
 import sys
-import time
 import unittest
 from typing import Optional
 
@@ -74,8 +73,6 @@ class TestShopifyClientInternal(TestShopifyClientBase):
 @tagged("post_install", "-at_install", "shopify", "current")
 class TestShopifyClientExternal(TestShopifyClientBaseExternal):
     def test_execute_query(self) -> None:
-        debug_info = self.client.debug_schema()
-        _logger.info(f"Schema debug info: {debug_info}")
         _logger.info(f"Available attributes in shopify module: {dir(self.shopify_schema)}")
 
         op = Operation(self.shopify_schema.query_type)
@@ -93,55 +90,54 @@ class TestShopifyClientExternal(TestShopifyClientBaseExternal):
         self.assertIn("test", shop.name, "'test' not found in shop name")
 
         _logger.info(
-            f"Shop name: {shop.name} - {shop.description} - {shop.primary_domain.host} - {shop.primary_domain.url}")
+            f"Shop name: {shop.name} - {shop.description} - {shop.primary_domain.host} - {shop.primary_domain.url}"
+        )
 
     def test_execute_mutation(self) -> None:
         op = Operation(self.shopify_schema.mutation_type)
-        product_input = {
-            "title": "Test Product",
-            "description": f"Test Description {time.time()}",
-            "productType": "Test Type",
-            "vendor": "Test Vendor",
-            "status": "ACTIVE",
-            "options": [{"name": "Size", "values": ["Small", "Medium", "Large"]}],
-            "variants": [
-                {
-                    "price": "10.00",
-                    "sku": f"TEST-SKU-{int(time.time())}",
-                    "optionValues": [{"option": "Size", "value": "Small"}],
-                    "inventoryItem": {"tracked": True},
-                    "inventoryQuantities": [
-                        {"availableQuantity": 100, "locationId": "gid://shopify/Location/1234567890"}]
-                }
-            ],
-        }
 
-        product_set = op.product_set(input=product_input)
+        # Define the input for creating a product
+        product_input = self.shopify_schema.ProductInput(
+            title="Test Product",
+            description_html="<p>Test Description</p>",
+            product_type="Test Type",
+            vendor="Test Vendor",
+        )
 
-        product = product_set.product
+        # Use the productCreate mutation
+        product_create = op.product_create(input=product_input)
+
+        # Select fields from the response
+        product = product_create.product
         product.id()
         product.title()
-        product.description()
+        product.description_html()
         product.product_type()
         product.vendor()
         product.status()
-        product.variants().edges().node().price()
-        product.variants().edges().node().sku()
+        variants = product.variants(first=1)
+        variants.edges().node().price()
+        variants.edges().node().sku()
 
-        product.published_on_publication(publication_id="gid://shopify/Publication/1234567890")
-        product.in_collection(id="gid://shopify/Collection/1234567890")
-        product.published_in_context(context={"country": "US", "language": "EN"})
+        created_product_data = self.client.execute(op)
 
-        product_data = self.client.execute(op)
-        new_product = (op + product_data).product_set.product
+        # Extract the created product from the result
+        created_product = (op + created_product_data).product_create.product
 
-        self.assertTrue(product, "Product data not found")
-        self.assertIn("Test Product", new_product.name, "'Test Product' not found in product name")
-        self.assertIn("Test Description", new_product.description,
-                      "'Test Description' not found in product description")
-        self.assertIn("10.00", new_product.price, "'10.00' not found in product price")
+        # Assertions
+        self.assertIsNotNone(created_product, "Product was not created")
+        self.assertEqual(created_product.title, "Test Product", "Product title does not match")
+        self.assertEqual(
+            created_product.description_html, "<p>Test Description</p>", "Product description does not match"
+        )
+        self.assertEqual(created_product.product_type, "Test Type", "Product type does not match")
+        self.assertEqual(created_product.vendor, "Test Vendor", "Product vendor does not match")
+        self.assertTrue(len(created_product.variants.edges) > 0, "No variants were created")
+        self.assertEqual(created_product.variants.edges[0].node.price, "10.00", "Product price does not match")
 
-        _logger.info(f"Product created: {new_product.name} - {new_product.description} - {new_product.price}")
+        _logger.info(
+            f"Product created: {created_product.title} - {created_product.description_html} - {created_product.variants[0].edges[0].nodes[0].price}"
+        )
 
 
 @tagged("post_install", "-at_install", "shopify", "slow")
