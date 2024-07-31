@@ -63,7 +63,7 @@ sync_from_prod() {
 
     echo "Database restore completed."
 
-    $ODOO_SHELL --no-http <<EOF
+    $ODOO_SHELL --no-http -u product_connect <<EOF
 from odoo import api, SUPERUSER_ID
 
 # Initialize the environment for script execution

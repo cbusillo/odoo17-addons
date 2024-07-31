@@ -13,12 +13,12 @@ import qrcode
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError, UserError
 
-from ..mixins.label import LabelMixin
 from ..utils import constants
 
 
-class Motor(models.Model, LabelMixin):
+class Motor(models.Model):
     _name = "motor"
+    _inherit = ["label.mixin"]
     _description = "Motor Information"
     _order = "id desc"
 
@@ -490,3 +490,10 @@ class Motor(models.Model, LabelMixin):
             "type": "motor_product_update",
         }
         self.env["bus.bus"]._sendone(channel, "notification", message)
+
+    def print_motor_labels(self, printer_job_type: str = "motor_label") -> None:
+        report_name = "product_connect.report_motortemplatelabel4x2noprice"
+        report_object = self.env["ir.actions.report"]._get_report_from_name(report_name)
+        pdf_data, _ = report_object._render_qweb_pdf(report_name, res_ids=self.ids)
+
+        self._print_labels(pdf_data, odoo_job_type=printer_job_type, job_name="Motor Label")

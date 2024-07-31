@@ -9,12 +9,6 @@ from odoo.exceptions import ValidationError, UserError
 _logger = logging.getLogger(__name__)
 
 
-class ProductImage(models.Model):
-    _inherit = "product.image"
-
-    index = fields.Integer()
-
-
 class ProductType(models.Model):
     _name = "product.type"
     _description = "Part Type"
@@ -46,10 +40,7 @@ class ProductCondition(models.Model):
 
 class ProductBase(models.AbstractModel):
     _name = "product.base"
-    _inherit = [
-        "mail.thread",
-        "label.mixin",
-    ]
+    _inherit = ["mail.thread", "label.mixin"]
     _description = "Product Base"
     _order = "create_date desc"
     _sql_constraints = [
@@ -103,20 +94,18 @@ class ProductBase(models.AbstractModel):
         orderby: str = "",
         lazy: bool = True,
     ) -> list[dict[str, Any]]:
-        groups = super(ProductBase, self).read_group(
-            domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy
-        )
+        groups = super().read_group(domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy)
         fields_to_sum_with_qty = {"list_price", "standard_price"}
-        if fields_to_sum_with_qty.intersection(fields):
-            for group in groups:
-                if "__domain" in group:
-                    group["list_price"] = sum(
-                        product["list_price"] * product["qty_available"] for product in self.search(group["__domain"])
-                    )
-                    group["standard_price"] = sum(
-                        product["standard_price"] * product["qty_available"]
-                        for product in self.search(group["__domain"])
-                    )
+        if not fields_to_sum_with_qty.intersection(fields):
+            return groups
+        for group in groups:
+            if "__domain" in group:
+                group["list_price"] = sum(
+                    product["list_price"] * product["qty_available"] for product in self.search(group["__domain"])
+                )
+                group["standard_price"] = sum(
+                    product["standard_price"] * product["qty_available"] for product in self.search(group["__domain"])
+                )
 
         return groups
 
@@ -226,36 +215,71 @@ class ProductBase(models.AbstractModel):
                 return existing_new_products
         return None
 
+    @api.model
+    def _check_missing_data(self, product: "odoo.model.product_base") -> list[str]:
+        required_fields = [
+            product._fields["default_code"].name,
+            product._fields["name"].name,
+            product._fields["sales_description"].name,
+            product._fields["standard_price"].name,
+            product._fields["list_price"].name,
+            product._fields["qty_available"].name,
+            product._fields["bin"].name,
+            product._fields["manufacturer"].name,
+        ]
+
+        missing_fields = [field for field in required_fields if not product[field]]
+
+        return missing_fields
+
+    @staticmethod
+    def _check_missing_images_or_small_images(images: "odoo.model.product_image") -> list[str]:
+        min_image_size = 50
+        min_image_resolution = 1920
+        missing_fields = []
+
+        if not images:
+            missing_fields.append("images")
+
+        for image in images:
+            if image.image_1920_file_size_kb < min_image_size:
+                missing_fields.append(
+                    f"Image ({image.index}) too small ({image.image_1920_file_size_kb}kB < {min_image_size}kB minimum size)"
+                )
+            if image.image_1920_width < min_image_resolution - 1 and image.image_1920_height < min_image_resolution - 1:
+                missing_fields.append(
+                    f"Image ({image.index}) too small ({image.image_1920_width}x{image.image_1920_height} < {min_image_resolution}x{min_image_resolution} minimum size)"
+                )
+
+        return missing_fields
+
+    def _post_missing_data_message(self, products: "odoo.model.product_base") -> None:
+        for product in products:
+            missing_fields = self._check_missing_data(product) + self._check_missing_images_or_small_images(
+                product.images
+            )
+            if missing_fields:
+                missing_fields_display = ", ".join(missing_fields)
+                product.message_post(
+                    body=f"Missing data: {missing_fields_display}",
+                    subject="Import Error",
+                    subtype_id=self.env.ref("mail.mt_note").id,
+                    partner_ids=[self.env.user.partner_id.id],
+                )
+
     def import_to_products(self) -> None:
         if self._name in ["product.template", "product.product"]:
             raise UserError("This method is not available for Odoo base products.")
 
-        missing_data_products = self.filtered(
-            lambda current: not (
-                current.default_code
-                and current.name
-                and current.sales_description
-                and current.standard_price
-                and current.list_price
-                and current.qty_available
-                and current.bin
-                and current.manufacturer
-            )
-            or len(current.images) == 0
-        )
-        if missing_data_products:
-            message = f"Missing data for product(s).  Please fill in all required fields for SKUs {' '.join([p.default_code for p in missing_data_products])} ."
-            _logger.warning(message)
-            for product in missing_data_products:
-                product.message_post(
-                    body=message,
-                    subject="Import Error (Missing Data)",
-                    message_type="notification",
-                    subtype_xmlid="mail.mt_note",
-                    partner_ids=[self.env.user.partner_id.id],
-                )
+        missing_data_products = self.filtered(lambda p: self._check_missing_data(p))
+        missing_images_products = self.filtered(lambda p: self._check_missing_images_or_small_images(p.images))
 
-        for product in self - missing_data_products:
+        missing_something_products = missing_data_products + missing_images_products
+
+        if missing_something_products:
+            self._post_missing_data_message(missing_something_products)
+
+        for product in self - missing_something_products:
             existing_products_with_mpn = product.products_from_mpn_condition_new()
             if existing_products_with_mpn:
                 existing_products_display = [
@@ -311,3 +335,49 @@ class ProductBase(models.AbstractModel):
                 )
                 image.unlink()
             product.unlink()
+
+    def print_bin_labels(self) -> None:
+        unique_bins = [
+            bin_location
+            for bin_location in set(self.mapped("bin"))
+            if bin_location and bin_location.strip().lower() not in ["", " ", "back"]
+        ]
+        unique_bins.sort()
+        labels = []
+        for product_bin in unique_bins:
+            label_data = ["", "Bin: ", product_bin]
+            label = self.generate_label_base64(label_data, barcode=product_bin)
+            labels.append(label)
+
+        self._print_labels(
+            labels,
+            odoo_job_type="product_label",
+            job_name="Bin Label",
+        )
+
+    def print_product_labels(self, print_quantity: bool = False, printer_job_type: str = "product_label") -> None:
+        labels = []
+        for product in self:
+            mpn = product.mpn.strip() if product.mpn else ""
+            if "," in mpn:
+                mpn = mpn.split(",")[0].strip()
+            label_data = [
+                f"SKU: {product.default_code}",
+                "MPN: ",
+                f"(SM){mpn}",
+                f"{product.motor.motor_number or '       '}",
+                product.condition.name if product.condition else "",
+            ]
+            quantity = getattr(product, "qty_available", 1) if print_quantity else 1
+            label = self.generate_label_base64(
+                label_data,
+                bottom_text=self.wrap_text(product.name, 50),
+                barcode=product.default_code,
+                quantity=quantity,
+            )
+            labels.append(label)
+        self._print_labels(
+            labels,
+            odoo_job_type=printer_job_type,
+            job_name="Product Label",
+        )

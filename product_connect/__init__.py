@@ -1,1 +1,1 @@
-from . import controllers, models, services, wizards
+from . import mixins, controllers, models, services, wizards
