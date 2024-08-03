@@ -216,7 +216,13 @@ class ProductBase(models.AbstractModel):
         return None
 
     @api.model
-    def _check_missing_data(self, product: "odoo.model.product_base") -> list[str]:
+    def _check_fields_and_images(self, product: "odoo.model.product_base") -> list[str]:
+        missing_fields = self._check_missing_fields(product)
+        missing_fields += self._check_missing_images_or_small_images(product.images)
+        return missing_fields
+
+    @api.model
+    def _check_missing_fields(self, product: "odoo.model.product_base") -> list[str]:
         required_fields = [
             product._fields["default_code"].name,
             product._fields["name"].name,
@@ -233,15 +239,16 @@ class ProductBase(models.AbstractModel):
         return missing_fields
 
     @staticmethod
-    def _check_missing_images_or_small_images(images: "odoo.model.product_image") -> list[str]:
+    def _check_missing_images_or_small_images(all_images: "odoo.model.product_image") -> list[str]:
         min_image_size = 50
         min_image_resolution = 1920
         missing_fields = []
+        images_with_data = all_images.filtered(lambda i: i.image_1920)
 
-        if not images:
+        if not images_with_data:
             missing_fields.append("images")
 
-        for image in images:
+        for image in images_with_data:
             if image.image_1920_file_size_kb < min_image_size:
                 missing_fields.append(
                     f"Image ({image.index}) too small ({image.image_1920_file_size_kb}kB < {min_image_size}kB minimum size)"
@@ -255,9 +262,7 @@ class ProductBase(models.AbstractModel):
 
     def _post_missing_data_message(self, products: "odoo.model.product_base") -> None:
         for product in products:
-            missing_fields = self._check_missing_data(product) + self._check_missing_images_or_small_images(
-                product.images
-            )
+            missing_fields = self._check_fields_and_images(product)
             if missing_fields:
                 missing_fields_display = ", ".join(missing_fields)
                 product.message_post(
@@ -271,15 +276,12 @@ class ProductBase(models.AbstractModel):
         if self._name in ["product.template", "product.product"]:
             raise UserError("This method is not available for Odoo base products.")
 
-        missing_data_products = self.filtered(lambda p: self._check_missing_data(p))
-        missing_images_products = self.filtered(lambda p: self._check_missing_images_or_small_images(p.images))
+        product_not_ready = self.filtered(lambda p: self._check_fields_and_images(p))
 
-        missing_something_products = missing_data_products + missing_images_products
+        if product_not_ready:
+            self._post_missing_data_message(product_not_ready)
 
-        if missing_something_products:
-            self._post_missing_data_message(missing_something_products)
-
-        for product in self - missing_something_products:
+        for product in self - product_not_ready:
             existing_products_with_mpn = product.products_from_mpn_condition_new()
             if existing_products_with_mpn:
                 existing_products_display = [
