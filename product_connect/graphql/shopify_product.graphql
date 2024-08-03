@@ -93,6 +93,39 @@ query GetProducts($first: Int!, $after: String, $query: String, $quantityNames: 
     }
 }
 
+mutation updateProduct($input: ProductInput!, $quantityNames: [String!]!, $locationId: ID!) {
+    productUpdate(input: $input) {
+        product {
+            ...ProductFragment
+            variants(first: 1) {
+                edges {
+                    node {
+                        ...VariantFragment
+                    }
+                }
+            }
+            images(first: 24) {
+                edges {
+                    node {
+                        ...ImageFragment
+                    }
+                }
+            }
+            metafields(first: 10) {
+                edges {
+                    node {
+                        ...MetafieldFragment
+                    }
+                }
+            }
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+
 query GetLocations {
     locations(first: 5) {
         edges {
