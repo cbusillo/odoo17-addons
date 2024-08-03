@@ -35,8 +35,13 @@ class ImageMixin(models.AbstractModel):
             image.image_1920_file_size_kb = round(image.image_1920_file_size / 1024, 2)
             db_name = self.env.cr.dbname
             filestore_path = Path(config.filestore(db_name))
+            if not image.attachment.store_fname:
+                _logger.warning(f"Image: {image} has no store_fname")
+                self._reset_image_details(image)
+                continue
+            image_path = filestore_path / Path(image.attachment.store_fname)
+
             try:
-                image_path = filestore_path / Path(image.attachment.store_fname)
                 with Image.open(image_path) as img:
                     width, height = img.size
                     image.image_1920_width = width
