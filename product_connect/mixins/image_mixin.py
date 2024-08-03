@@ -42,18 +42,24 @@ class ImageMixin(models.AbstractModel):
                     image.image_1920_width = width
                     image.image_1920_height = height
                     image.image_1920_resolution = f"{width}x{height}"
-            except (UnidentifiedImageError, FileNotFoundError, TypeError) as e:
-                if not image.attachment.exists():
-                    _logger.warning(f"Image: {image} has no attachment")
-                elif "svg" in image.attachment.mimetype:
+            except FileNotFoundError:
+                _logger.warning(f"Image: {image} file not found")
+                self._reset_image_details(image)
+            except UnidentifiedImageError as e:
+                if "svg" in image.attachment.mimetype:
                     _logger.info(f"Image: {image.attachment} is an SVG")
+                    self._reset_image_details(image)
                 else:
-                    _logger.warning(f"Image: {image.attachment} error {e}")
+                    _logger.warning(f"Image: {image.attachment} unidentified image {e}")
                     raise e
-                image.image_1920_width = None
-                image.image_1920_height = None
-                image.image_1920_resolution = None
-                image.image_1920_file_size_kb = None
+
+    @staticmethod
+    def _reset_image_details(image) -> None:
+        image.image_1920_file_size = None
+        image.image_1920_file_size_kb = None
+        image.image_1920_width = None
+        image.image_1920_height = None
+        image.image_1920_resolution = None
 
     def action_open_full_image(self) -> dict:
         self.ensure_one()
