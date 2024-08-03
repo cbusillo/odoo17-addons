@@ -43,7 +43,7 @@ class ImageMixin(models.AbstractModel):
                     image.image_1920_height = height
                     image.image_1920_resolution = f"{width}x{height}"
             except (UnidentifiedImageError, FileNotFoundError, TypeError) as e:
-                if not image.attachment:
+                if not image.attachment.exists():
                     _logger.warning(f"Image: {image} has no attachment")
                 elif "svg" in image.attachment.mimetype:
                     _logger.info(f"Image: {image.attachment} is an SVG")
