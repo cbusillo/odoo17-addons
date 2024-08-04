@@ -12,16 +12,16 @@ class ImageMixin(models.AbstractModel):
     _description = "Image Mixin"
     _inherit = "image.mixin"
 
-    attachment = fields.Many2one("ir.attachment", compute="_compute_image_details", store=True)
+    attachment = fields.Many2one("ir.attachment", compute="_compute_attachment", store=True)
     image_1920_file_size = fields.Integer(related="attachment.file_size", store=True)
-    image_1920_file_size_kb = fields.Float(string="kB", compute="_compute_image_details", store=True)
-    image_1920_width = fields.Integer(compute="_compute_image_details", store=True)
-    image_1920_height = fields.Integer(compute="_compute_image_details", store=True)
-    image_1920_resolution = fields.Char(compute="_compute_image_details", store=True, string="Image Res")
+    image_1920_file_size_kb = fields.Float(string="kB", compute="_compute_file_size_kb", store=True)
+    image_1920_width = fields.Integer(compute="_compute_image_dimensions", store=True)
+    image_1920_height = fields.Integer(compute="_compute_image_dimensions", store=True)
+    image_1920_resolution = fields.Char(compute="_compute_image_dimensions", store=True, string="Image Res")
     index = fields.Integer()
 
     @api.depends("image_1920")
-    def _compute_image_details(self) -> None:
+    def _compute_attachment(self) -> None:
         for image in self:
             image.attachment = self.env["ir.attachment"].search(
                 [
@@ -32,7 +32,14 @@ class ImageMixin(models.AbstractModel):
                 limit=1,
             )
 
+    @api.depends("attachment.file_size")
+    def _compute_file_size_kb(self) -> None:
+        for image in self:
             image.image_1920_file_size_kb = round(image.image_1920_file_size / 1024, 2)
+
+    @api.depends("attachment.store_fname")
+    def _compute_image_dimensions(self) -> None:
+        for image in self:
             db_name = self.env.cr.dbname
             filestore_path = Path(config.filestore(db_name))
             if not image.attachment.store_fname:
