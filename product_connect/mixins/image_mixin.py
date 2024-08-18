@@ -12,16 +12,16 @@ class ImageMixin(models.AbstractModel):
     _description = "Image Mixin"
     _inherit = "image.mixin"
 
-    attachment = fields.Many2one("ir.attachment", compute="_compute_image_details", store=True)
+    attachment = fields.Many2one("ir.attachment", compute="_compute_attachment", store=True)
     image_1920_file_size = fields.Integer(related="attachment.file_size", store=True)
-    image_1920_file_size_kb = fields.Float(string="kB", compute="_compute_image_details", store=True)
-    image_1920_width = fields.Integer(compute="_compute_image_details", store=True)
-    image_1920_height = fields.Integer(compute="_compute_image_details", store=True)
-    image_1920_resolution = fields.Char(compute="_compute_image_details", store=True, string="Image Res")
+    image_1920_file_size_kb = fields.Float(string="kB", compute="_compute_file_size_kb", store=True)
+    image_1920_width = fields.Integer(compute="_compute_image_dimensions", store=True)
+    image_1920_height = fields.Integer(compute="_compute_image_dimensions", store=True)
+    image_1920_resolution = fields.Char(compute="_compute_image_dimensions", store=True, string="Image Res")
     index = fields.Integer()
 
     @api.depends("image_1920")
-    def _compute_image_details(self) -> None:
+    def _compute_attachment(self) -> None:
         for image in self:
             image.attachment = self.env["ir.attachment"].search(
                 [
@@ -32,28 +32,46 @@ class ImageMixin(models.AbstractModel):
                 limit=1,
             )
 
+    @api.depends("attachment.file_size")
+    def _compute_file_size_kb(self) -> None:
+        for image in self:
             image.image_1920_file_size_kb = round(image.image_1920_file_size / 1024, 2)
+
+    @api.depends("attachment.store_fname")
+    def _compute_image_dimensions(self) -> None:
+        for image in self:
             db_name = self.env.cr.dbname
             filestore_path = Path(config.filestore(db_name))
+            if not image.attachment.store_fname:
+                _logger.warning(f"Image: {image} has no store_fname")
+                self._reset_image_details(image)
+                continue
+            image_path = filestore_path / Path(image.attachment.store_fname)
+
             try:
-                image_path = filestore_path / Path(image.attachment.store_fname)
                 with Image.open(image_path) as img:
                     width, height = img.size
                     image.image_1920_width = width
                     image.image_1920_height = height
                     image.image_1920_resolution = f"{width}x{height}"
-            except (UnidentifiedImageError, FileNotFoundError, TypeError) as e:
-                if not image.attachment:
-                    _logger.warning(f"Image: {image} has no attachment")
-                elif "svg" in image.attachment.mimetype:
+            except FileNotFoundError:
+                _logger.warning(f"Image: {image} file not found\n {image_path}")
+                self._reset_image_details(image)
+            except UnidentifiedImageError as e:
+                if "svg" in image.attachment.mimetype:
                     _logger.info(f"Image: {image.attachment} is an SVG")
+                    self._reset_image_details(image)
                 else:
-                    _logger.warning(f"Image: {image.attachment} error {e}")
+                    _logger.warning(f"Image: {image.attachment} unidentified image {e}")
                     raise e
-                image.image_1920_width = None
-                image.image_1920_height = None
-                image.image_1920_resolution = None
-                image.image_1920_file_size_kb = None
+
+    @staticmethod
+    def _reset_image_details(image) -> None:
+        image.image_1920_file_size = None
+        image.image_1920_file_size_kb = None
+        image.image_1920_width = None
+        image.image_1920_height = None
+        image.image_1920_resolution = None
 
     def action_open_full_image(self) -> dict:
         self.ensure_one()
