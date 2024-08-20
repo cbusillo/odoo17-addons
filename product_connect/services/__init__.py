@@ -1,1 +1,1 @@
-from . import shopify_client
+from . import shopify_client, shopify_interface

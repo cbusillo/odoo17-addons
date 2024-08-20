@@ -3,7 +3,7 @@ import os
 import time
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Generator
 
 import requests
 from dotenv import load_dotenv
@@ -76,7 +76,9 @@ class ShopifyConfig(models.Model):
 class ShopifyClientService:
     _session: Session | None = None
 
-    def __init__(self, env: Environment, from_dot_env: bool = False) -> None:
+    def __init__(
+        self, env: Environment, from_dot_env: bool = True
+    ) -> None:  # TODO: change from_dot_env to False in production
         self.env = env
         self.from_dot_env = from_dot_env
 
@@ -108,13 +110,12 @@ class ShopifyClientService:
             )
         return self._session
 
-    def execute_query(
+    def execute_query_without_pagination(
         self,
         query_type: str,
         query_name: str,
         variables: dict[str, Any] | None = None,
         estimated_cost: int = 500,
-        return_pydantic_model: bool = True,
         pydantic_model: type[T] | None = None,
     ) -> dict[str, Any] | list[dict[str, Any]] | T | list[T]:
         query_document = self._load_query_file(query_type)
@@ -124,9 +125,45 @@ class ShopifyClientService:
         self._wait_for_bucket(estimated_cost)
         result = self._send_request(payload, estimated_cost)
         flat_result = self._flatten_graphql_response(result)
-        if return_pydantic_model:
+        if pydantic_model:
             return self._convert_to_pydantic_model(flat_result, pydantic_model)
         return flat_result
+
+    def execute_query(
+        self,
+        query_type: str,
+        query_name: str,
+        variables: dict[str, Any] | None = None,
+        pydantic_model: type[T] | None = None,
+    ) -> Generator[T | dict[str, Any], None, None]:
+        has_next_page = True
+        cursor = None
+
+        if not variables:
+            variables = {}
+
+        while has_next_page:
+            if cursor:
+                variables["cursor"] = cursor
+
+            result = self.execute_query_without_pagination(
+                query_type, query_name, variables, pydantic_model=pydantic_model
+            )
+
+            if isinstance(result, list):
+                yield from result
+            if isinstance(result, dict):
+                edges = result.get("edges", [])
+                for edge in edges:
+                    yield edge["node"]
+                page_info = result.get("pageInfo", {})
+                has_next_page = page_info.get("hasNextPage", False)
+                cursor = page_info.get("endCursor")
+            else:
+                yield result
+
+            if not has_next_page:
+                break
 
     @staticmethod
     def _convert_to_pydantic_model(data: dict[str, Any], model: type[T] | None) -> T | list[T]:
@@ -243,42 +280,3 @@ class ShopifyClientService:
             return [self._flatten_graphql_response(item) for item in data]
         else:
             return data
-
-
-class ShopifyClient(models.TransientModel):
-    _name = "shopify.client"
-    _description = "Shopify GraphQL Client"
-
-    from_dot_env = fields.Boolean(default=False)
-
-    @api.model
-    def create(self, vals: "odoo.values.shopify_client") -> "odoo.model.shopify_client":
-        result = super().create(vals)
-
-        return result
-
-    @api.model
-    def execute_query(
-        self,
-        query_type: str,
-        query_name: str,
-        variables: dict[str, Any] | None = None,
-        estimated_cost: int = 500,
-        return_pydantic_model: bool = True,
-        pydantic_model: type[T] | None = None,
-    ) -> dict[str, Any] | list[dict[str, Any]] | T | list[T]:
-        client = ShopifyClientService(self.env, self.from_dot_env)
-        return client.execute_query(
-            query_type, query_name, variables, estimated_cost, return_pydantic_model, pydantic_model
-        )
-
-    def get_first_location(self) -> str:
-        from odoo.addons.product_connect.services.models.shopify_product import Location
-
-        location = self.execute_query("store", "GetLocation", pydantic_model=Location)
-        return location.id
-
-    @property
-    def endpoint_url(self) -> str:
-        client = ShopifyClientService(self.env, self.from_dot_env)
-        return client.endpoint_url
