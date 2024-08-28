@@ -7,6 +7,8 @@ class MotorProductTemplate(models.Model):
     _description = "Motor Product Template"
     _order = "sequence, id"
 
+    _TEMPLATE_TAGS = {"model": "product.model", "year": "product.year", "stroke": "motor.stroke"}
+
     name = fields.Char(required=True)
 
     stroke = fields.Many2many("motor.stroke")
@@ -25,6 +27,11 @@ class MotorProductTemplate(models.Model):
     bin = fields.Char()
     weight = fields.Float()
     sequence = fields.Integer(default=10, index=True)
+    website_description = fields.Html(string="HTML Description")
+
+    @api.model
+    def get_template_tags(self) -> list[str]:
+        return list(self._TEMPLATE_TAGS.keys())
 
 
 class MotorProductImage(models.Model):

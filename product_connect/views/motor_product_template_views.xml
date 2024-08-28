@@ -85,6 +85,10 @@
                             <field name="excluded_parts"/>
                             <field name="excluded_tests"/>
                         </group>
+                        <group string="HTML Description" colspan="2">
+                            <field name="website_description" widget="html_template"
+                                   options="{'codeview': true, 'resizable': true, 'minHeight': '400px'}"/>
+                        </group>
                         <group string="Miscellaneous">
                             <field name="sequence"/>
                         </group>
