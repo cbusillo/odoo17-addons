@@ -1,44 +1,8 @@
 /** @odoo-module **/
-import { Component, onWillStart, useState, xml } from "@odoo/owl"
+import { onWillStart, useState } from "@odoo/owl"
 import { useService } from "@web/core/utils/hooks"
-import { Dialog } from "@web/core/dialog/dialog"
 import { HtmlField, htmlField } from "@web_editor/js/backend/html_field"
 import { registry } from "@web/core/registry"
-
-class TagsDialog extends Component {
-    static template = 'product_connect.TagsDialog';
-    static components = { Dialog };
-    static props = {
-        close: Function,
-        title: String,
-        tags: Object,
-        onInsertTag: Function,
-    };
-
-    setup() {
-        this.tags = this.props.tags;
-    }
-
-    onTagClick(value) {
-        this.props.onInsertTag(value);
-        this.props.close();
-    }
-}
-
-TagsDialog.template = xml`
-    <Dialog title="props.title" size="'md'">
-        <div class="p-3">
-            <t t-foreach="tags" t-as="tag" t-key="tag">
-                <button class="btn btn-secondary m-1" t-on-click="() => this.onTagClick(tag)">
-                    <t t-esc="tag" />
-                </button>
-            </t>
-        </div>
-        <t t-set-slot="footer">
-            <button class="btn btn-secondary" t-on-click="props.close">Close</button>
-        </t>
-    </Dialog>
-`;
 
 export class HtmlTemplateWidget extends HtmlField {
     static template = "web_editor.HtmlField"
@@ -52,7 +16,6 @@ export class HtmlTemplateWidget extends HtmlField {
     setup() {
         super.setup()
         this.orm = useService("orm")
-        this.dialogService = useService("dialog");
         this.serverTagModel = this.props.serverTagModel || this.props.record.resModel
         this.serverTagMethod = this.props.serverTagMethod || "get_template_tags"
         this.state = useState({
@@ -80,30 +43,52 @@ export class HtmlTemplateWidget extends HtmlField {
     }
 
     async startWysiwyg(wysiwyg) {
-        await super.startWysiwyg(wysiwyg);
+        await super.startWysiwyg(wysiwyg)
+        this.addInsertTagButton()
+        this.addTemplateTagsCommands()
 
-        // Add custom button for inserting tags
-        const insertTagsButton = document.createElement('button');
-        insertTagsButton.className = 'o_insert_tags_btn btn btn-secondary';
-        insertTagsButton.title = 'Insert Tags';
-        insertTagsButton.innerHTML = '<i class="fa fa-tags"></i>';
-        insertTagsButton.addEventListener('click', this.openTagsDialog.bind(this));
-
-        const buttonGroup = document.createElement('div');
-        buttonGroup.className = 'btn-group';
-        buttonGroup.appendChild(insertTagsButton);
-
-        // Append the button to the toolbar
-        if (this.wysiwyg.toolbarEl) {
-            this.wysiwyg.toolbarEl.appendChild(buttonGroup);
-        }
     }
 
-    openTagsDialog() {
-        this.dialogService.add(TagsDialog, {
-            title: "Insert Template Tag",
-            tags: this.state.tags,
-            onInsertTag: this.insertTag.bind(this),
+    addInsertTagButton() {
+        const insertTagButton = `
+            <button class="o_codeview_btn btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fa fa-tags"></i>
+            </button>
+            <ul class="dropdown-menu">
+                ${this.state.tags.map(tag => `
+                    <li>
+                         <a class="dropdown-item insert-tag-item" href="#">${tag}</a>
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+
+        const toolbar = this.wysiwyg.odooEditor.toolbar;  // Get the toolbar element
+        const buttonGroup = document.createElement('div');
+        buttonGroup.id = 'insert-tags-btn-group';
+        buttonGroup.className = 'btn-group';
+        buttonGroup.innerHTML = insertTagButton;
+        toolbar.appendChild(buttonGroup);
+
+        const items = buttonGroup.querySelectorAll('.insert-tag-item');
+        items.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                this.insertTag(this.state.tags[index]);
+            });
+        });
+    }
+
+    addTemplateTagsCommands() {
+        this.state.tags.forEach((tag, index) => {
+            // noinspection JSUnusedGlobalSymbols
+            this.wysiwyg.odooEditor.powerbox.commands.push({
+                category: 'Template Tags',
+                name: tag,
+                priority: 10 + index,
+                description: 'Insert template tag: ' + tag,
+                fontawesome: 'fa-tag',
+                callback: () => this.insertTag(tag),
+            });
         });
     }
 
