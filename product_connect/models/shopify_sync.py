@@ -389,7 +389,7 @@ class ShopifySync(models.AbstractModel):
         odoo_product_data = {
             "name": shopify_product_data["title"],
             "default_code": shopify_product_data["sku"],
-            "description_sale": shopify_product_data["description_html"],
+            "website_description": shopify_product_data["description_html"],
             "shopify_product_id": shopify_product_data["id"],
             "shopify_variant_id": shopify_product_data["variant_id"],
             "shopify_created_at": parse_to_utc(shopify_product_data["created_at"])
@@ -612,7 +612,7 @@ class ShopifySync(models.AbstractModel):
         _logger.debug("Starting export to Shopify...")
 
         odoo_products = self.env["product.product"].search(
-            [("sale_ok", "=", True), ("description_sale", "!=", False), ("description_sale", "!=", "")]
+            [("sale_ok", "=", True), ("website_description", "!=", False), ("website_description", "!=", "")]
         )
 
         odoo_products = odoo_products.filtered(
@@ -681,7 +681,7 @@ class ShopifySync(models.AbstractModel):
             try:
                 shopify_product_data = {
                     "title": odoo_product.name,
-                    "bodyHtml": odoo_product.description_sale,
+                    "bodyHtml": odoo_product.website_description,
                     "vendor": (odoo_product.manufacturer.name if odoo_product.manufacturer else None),
                     "productType": (odoo_product.part_type.name if odoo_product.part_type else None),
                     "status": "ACTIVE" if odoo_product.qty_available > 0 else "DRAFT",

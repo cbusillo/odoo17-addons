@@ -77,6 +77,15 @@
                 <field name="shopify_product_admin_url" widget="CopyClipboardURL"/>
 
             </field>
+            <xpath expr="//group[@name='description']" position="attributes">
+                <attribute name="colspan">2</attribute>
+            </xpath>
+            <field name="description_sale" position="before">
+                <label for="website_description" colspan="2"/>
+                <field name="website_description" nolabel="1" colspan="2"
+                       options="{'codeview': true, 'resizable': true, 'minHeight': '400px'}"/>
+                <label for="description_sale" colspan="2"/>
+            </field>
             <xpath expr="//group[@name='group_lots_and_weight']/div[@name='weight']" position="after">
                 <div class="o_row">
                     <span>Dimensions (in)</span>
@@ -111,7 +120,7 @@
                         ('name', 'ilike', self),
                         ('mpn', 'ilike', self),
                         ('bin', 'ilike', self),
-                        ('description_sale', 'ilike', self),
+                        ('website_description', 'ilike', self),
                         ('default_code', 'ilike', self),
                     ]
                 </attribute>

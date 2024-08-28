@@ -76,7 +76,7 @@ class ProductBase(models.AbstractModel):
     list_price = fields.Float(string="Price")
     standard_price = fields.Float(string="Cost")
 
-    sales_description = fields.Text(string="Descr")
+    website_description = fields.Html()
 
     active = fields.Boolean(default=True)
     has_recent_messages = fields.Boolean(compute="_compute_has_recent_messages", store=True)
@@ -226,7 +226,7 @@ class ProductBase(models.AbstractModel):
         required_fields = [
             product._fields["default_code"].name,
             product._fields["name"].name,
-            product._fields["sales_description"].name,
+            product._fields["website_description"].name,
             product._fields["standard_price"].name,
             product._fields["list_price"].name,
             product._fields["qty_available"].name,
@@ -305,7 +305,7 @@ class ProductBase(models.AbstractModel):
                     "manufacturer": product.manufacturer.id,
                     "bin": product.bin,
                     "name": product.name,
-                    "description_sale": product.sales_description,
+                    "website_description": product.website_description,
                     "part_type": product.part_type.id,
                     "weight": product.weight,
                     "list_price": product.list_price,
