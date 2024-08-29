@@ -77,10 +77,8 @@ class MotorProductTemplate(models.Model):
                 for field in tag_value.split("."):
                     value = getattr(value, field, "")
 
-            # if isinstance(value, models.BaseModel):
-            #     value = getattr(value, "name", value)
             if isinstance(value, list):
-                value = ", ".join(getattr(v, "name", v) for v in value)
+                value = ", ".join(v for v in value)
             values[tag] = str(value)
 
         description = self.website_description
