@@ -17,7 +17,7 @@ export class HtmlTemplateWidget extends HtmlField {
         super.setup()
         this.orm = useService("orm")
         this.serverTagModel = this.props.serverTagModel || this.props.record.resModel
-        this.serverTagMethod = this.props.serverTagMethod || "get_template_tags"
+        this.serverTagMethod = this.props.serverTagMethod || "get_template_tags_list"
         this.state = useState({
             propTags: this.props.propTags || [],
             tags: [],

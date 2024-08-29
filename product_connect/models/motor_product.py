@@ -32,6 +32,7 @@ class MotorProductTemplate(models.Model):
     @api.model
     def get_template_tags(self) -> list[str]:
         return list(self._TEMPLATE_TAGS.keys())
+    def get_template_tags_list(self) -> list[str]:
 
 
 class MotorProductImage(models.Model):
