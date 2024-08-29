@@ -46,10 +46,12 @@ class Motor(models.Model):
         return [(str(year), str(year)) for year in range(fields.Date.today().year + 1, 1960, -1)]
 
     year = fields.Selection(_get_years, string="Model Year")
-    hours = fields.Float(compute="_compute_hours")
-    shaft_length = fields.Char(compute="_compute_shaft_length")
     color = fields.Many2one("product.color", domain="[('applicable_tags.name', '=', 'Motors')]")
     cost = fields.Float()
+
+    # from tests
+    hours = fields.Float(compute="_compute_hours")
+    shaft_length = fields.Char(compute="_compute_shaft_length")
 
     is_tag_readable = fields.Selection(constants.YES_NO_SELECTION, default=constants.YES)
     notes = fields.Text()
@@ -139,7 +141,7 @@ class Motor(models.Model):
 
         return motors
 
-    def write(self, vals: "odoo.values.motor") -> Self:
+    def write(self, vals: "odoo.values.motor") -> bool:
         if self.env.context.get("_stage_updating"):
             return super().write(vals)
         vals = self._sanitize_vals(vals)
