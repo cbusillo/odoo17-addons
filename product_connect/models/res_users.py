@@ -6,3 +6,6 @@ class Users(models.Model):
     _inherit = "res.users"
 
     is_technician = fields.Boolean(default=True)
+
+    def __str__(self) -> str:
+        return self.name

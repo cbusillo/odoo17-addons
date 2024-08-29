@@ -16,3 +16,6 @@ class ProductColor(models.Model):
     name = fields.Char(required=True)
     color_code = fields.Char(help="The HEX color code, e.g., #FFFFFF for white.")
     applicable_tags = fields.Many2many("product.color.tag", string="Applicable For")
+
+    def __str__(self) -> str:
+        return self.name

@@ -36,6 +36,9 @@ class MotorStroke(models.Model):
     code = fields.Char(required=True, index=True, readonly=True)
     sequence = fields.Integer(default=10, index=True)
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class MotorConfiguration(models.Model):
     _name = "motor.configuration"
@@ -45,3 +48,6 @@ class MotorConfiguration(models.Model):
     name = fields.Char(required=True)
     code = fields.Char(required=True, index=True, readonly=True)
     sequence = fields.Integer(default=10, index=True)
+
+    def __str__(self) -> str:
+        return self.name

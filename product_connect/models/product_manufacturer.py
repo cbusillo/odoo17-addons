@@ -28,3 +28,6 @@ class ProductManufacturer(models.Model):
     @staticmethod
     def normalize_name(name: str) -> str:
         return re.sub(r"\W+", "", name).lower() if name else ""
+
+    def __str__(self) -> str:
+        return self.name
