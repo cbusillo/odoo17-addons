@@ -1,3 +1,6 @@
+import re
+from typing import Self
+
 import odoo
 from odoo import api, fields, models
 
@@ -6,8 +9,6 @@ class MotorProductTemplate(models.Model):
     _name = "motor.product.template"
     _description = "Motor Product Template"
     _order = "sequence, id"
-
-    _TEMPLATE_TAGS = {"model": "product.model", "year": "product.year", "stroke": "motor.stroke"}
 
     name = fields.Char(required=True)
 
@@ -30,9 +31,62 @@ class MotorProductTemplate(models.Model):
     website_description = fields.Html(string="HTML Description")
 
     @api.model
-    def get_template_tags(self) -> list[str]:
-        return list(self._TEMPLATE_TAGS.keys())
     def get_template_tags_list(self) -> list[str]:
+        return list(self.get_template_tags().keys())
+
+    def get_template_tags(self) -> dict[str, str]:
+        all_tags = self.get_template_tags_from_motor_model()
+        all_tags.update(self.get_template_tags_from_test_tags())
+        return all_tags
+
+    def get_template_tags_from_test_tags(self) -> dict[str, str]:
+        test_tags = self.env["motor.test.tag"].search([])
+        return {tag.name: tag.value for tag in test_tags}
+
+    def get_template_tags_from_motor_model(self) -> dict[str, str]:
+        template_tags = {}
+        fields_to_skip = ("uid", "stage", "is_")
+        motor_model = self.env["motor"]
+        for field_name, field in motor_model._fields.items():
+            if any(skip in field_name for skip in fields_to_skip):
+                continue
+            if isinstance(field, (fields.Selection, fields.Selection, fields.Many2one, fields.Float, fields.Text)):
+                template_tags[field_name] = field_name
+
+        return template_tags
+
+    def get_templated_description(self, motor: "odoo.model.motor") -> str:
+        if not self.website_description:
+            return ""
+
+        used_tags = re.findall(r"{(.*?)}", self.website_description)
+        template_tags = self.get_template_tags()
+        test_templates = self.env["motor.test.template"].search([])
+        values = {}
+
+        for tag in used_tags:
+            tag = tag.lower()
+            tag_value = template_tags.get(tag, tag)
+
+            if tag_value.startswith("tests."):
+                test_index = int(tag_value.split(".")[1])
+                test = motor.tests.filtered(lambda t: t.template.id == test_index)
+                value = test[0].computed_result
+            else:
+                value = motor
+                for field in tag_value.split("."):
+                    value = getattr(value, field, "")
+
+            # if isinstance(value, models.BaseModel):
+            #     value = getattr(value, "name", value)
+            if isinstance(value, list):
+                value = ", ".join(getattr(v, "name", v) for v in value)
+            values[tag] = str(value)
+
+        description = self.website_description
+        for tag, value in values.items():
+            description = description.replace(f"{{{tag}}}", value)
+        return description
 
 
 class MotorProductImage(models.Model):
@@ -75,6 +129,14 @@ class MotorProduct(models.Model):
     is_pictured = fields.Boolean(default=False)
     is_pictured_qc = fields.Boolean(default=False)
     is_ready_to_list = fields.Boolean(compute="_compute_ready_to_list", store=True)
+
+    @api.model_create_multi
+    def create(self, vals_list: list["odoo.values.motor_product"]) -> Self:
+        motor_products = super().create(vals_list)
+        for product in motor_products:
+            product.website_description = product.template.get_templated_description(product.motor)
+
+        return motor_products
 
     def write(self, vals: "odoo.values.motor_product") -> bool:
         qc_reset_fields = {

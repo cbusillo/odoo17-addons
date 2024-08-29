@@ -53,6 +53,19 @@
             </form>
         </field>
     </record>
+    <record id="view_motor_test_tag_tree" model="ir.ui.view">
+        <field name="name">motor.test.tag.tree</field>
+        <field name="model">motor.test.tag</field>
+        <field name="arch" type="xml">
+            <tree string="Motor Test Tags" editable="bottom">
+                <field name="name"/>
+                <field name="value" readonly="1"/>
+                <field name="templates"/>
+                <field name="sequence"/>
+                <field name="sequence" widget="handle"/>
+            </tree>
+        </field>
+    </record>
 
     <!-- Action -->
     <record id="action_motor_test_template" model="ir.actions.act_window">
@@ -62,8 +75,17 @@
         <field name="view_mode">tree,form</field>
     </record>
 
+    <record id="action_motor_test_tag" model="ir.actions.act_window">
+        <field name="name">Motor Test Tags</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">motor.test.tag</field>
+        <field name="view_mode">tree</field>
+    </record>
+
     <!-- Menu -->
     <menuitem id="menu_motor_test_template" name="Motor Tests" parent="menu_subheader_config_motor"
               action="action_motor_test_template" sequence="30"/>
+    <menuitem id="menu_motor_test_tag" name="Motor Test Tags" parent="menu_subheader_config_motor"
+              action="action_motor_test_tag" sequence="40"/>
 
 </odoo>

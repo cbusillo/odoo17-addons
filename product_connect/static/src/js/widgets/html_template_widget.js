@@ -93,7 +93,7 @@ export class HtmlTemplateWidget extends HtmlField {
     }
 
     insertTag(value) {
-        this.wysiwyg.odooEditor.execCommand('insert', `{{ ${value} }}`);
+        this.wysiwyg.odooEditor.execCommand('insert', `{${value}}`);
     }
 }
 

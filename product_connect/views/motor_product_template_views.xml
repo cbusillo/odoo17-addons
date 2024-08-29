@@ -106,5 +106,5 @@
     </record>
 
     <menuitem id="menu_product_motor_product" name="Motor Products" parent="menu_subheader_config_motor"
-              action="action_motor_product_template" sequence="40"/>
+              action="action_motor_product_template" sequence="50"/>
 </odoo>

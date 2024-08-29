@@ -1,4 +1,5 @@
 from odoo import api, fields, models
+
 from ..utils.constants import YES_NO_SELECTION
 
 
@@ -78,6 +79,23 @@ class MotorTestSelection(models.Model):
 
     def __str__(self) -> str:
         return self.name if self.name else ""
+
+
+class MotorTestTag(models.Model):
+    _name = "motor.test.tag"
+    _description = "Motor Test Tag"
+
+    name = fields.Char(required=True)
+    value = fields.Char(compute="_compute_value")
+    sequence = fields.Integer(default=10, index=True)
+    templates = fields.Many2one("motor.test.template", ondelete="cascade", required=True)
+
+    def __str__(self) -> str:
+        return self.name if self.name else ""
+
+    def _compute_value(self) -> None:
+        for test_tag in self:
+            test_tag.value = f"tests.{test_tag.templates.id}"
 
 
 class MotorTest(models.Model):
