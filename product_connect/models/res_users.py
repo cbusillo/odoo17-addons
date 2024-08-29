@@ -8,4 +8,4 @@ class Users(models.Model):
     is_technician = fields.Boolean(default=True)
 
     def __str__(self) -> str:
-        return self.name
+        return self.name if self.name else ""

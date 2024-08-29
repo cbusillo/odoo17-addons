@@ -30,4 +30,4 @@ class ProductManufacturer(models.Model):
         return re.sub(r"\W+", "", name).lower() if name else ""
 
     def __str__(self) -> str:
-        return self.name
+        return self.name if self.name else ""

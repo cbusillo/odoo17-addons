@@ -18,4 +18,4 @@ class ProductColor(models.Model):
     applicable_tags = fields.Many2many("product.color.tag", string="Applicable For")
 
     def __str__(self) -> str:
-        return self.name
+        return self.name if self.name else ""

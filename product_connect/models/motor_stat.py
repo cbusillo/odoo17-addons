@@ -37,7 +37,7 @@ class MotorStroke(models.Model):
     sequence = fields.Integer(default=10, index=True)
 
     def __str__(self) -> str:
-        return self.name
+        return self.name if self.name else ""
 
 
 class MotorConfiguration(models.Model):
@@ -50,4 +50,4 @@ class MotorConfiguration(models.Model):
     sequence = fields.Integer(default=10, index=True)
 
     def __str__(self) -> str:
-        return self.name
+        return self.name if self.name else ""
