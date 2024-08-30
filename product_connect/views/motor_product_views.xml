@@ -221,7 +221,7 @@
                                 </group>
                             </group>
                             <group>
-                                <field name="website_description"/>
+                                <field name="website_description" options="{'codeview': true}"/>
                             </group>
                         </page>
                         <page string="Images">
