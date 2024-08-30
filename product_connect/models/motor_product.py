@@ -51,7 +51,7 @@ class MotorProductTemplate(models.Model):
             if any(skip in field_name for skip in fields_to_skip):
                 continue
             if isinstance(field, (fields.Selection, fields.Selection, fields.Many2one, fields.Float, fields.Text)):
-                template_tags[field_name] = field_name
+                template_tags[f"motor_{field_name}"] = field_name
 
         return template_tags
 
