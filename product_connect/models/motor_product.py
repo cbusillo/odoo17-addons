@@ -40,8 +40,8 @@ class MotorProductTemplate(models.Model):
         return all_tags
 
     def get_template_tags_from_test_tags(self) -> dict[str, str]:
-        test_tags = self.env["motor.test.tag"].search([])
-        return {tag.name: tag.value for tag in test_tags}
+        tests = self.env["motor.test.template"].search([("tag", "!=", "")])
+        return {test.tag: test.tag_value for test in tests}
 
     def get_template_tags_from_motor_model(self) -> dict[str, str]:
         template_tags = {}

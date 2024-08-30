@@ -19,8 +19,11 @@ class MotorTestTemplate(models.Model):
     _name = "motor.test.template"
     _description = "Motor Test Template"
     _order = "sequence, id"
+    _sql_constraints = [("unique_tag", "unique(tag)", "The tag must be unique.")]
 
     name = fields.Char("Test Name", required=True)
+    tag = fields.Char()
+    tag_value = fields.Char(compute="_compute_value")
     result_type = fields.Selection(
         [
             ("yes_no", "Yes/No"),
@@ -52,6 +55,13 @@ class MotorTestTemplate(models.Model):
     section = fields.Many2one("motor.test.section")
     sequence = fields.Integer(default=10, index=True)
 
+    def _compute_value(self) -> None:
+        for test in self:
+            if test.tag:
+                test.tag_value = f"tests.{test.id}"
+            else:
+                test.tag_value = ""
+
 
 class MotorTestTemplateCondition(models.Model):
     _name = "motor.test.template.condition"
@@ -79,23 +89,6 @@ class MotorTestSelection(models.Model):
 
     def __str__(self) -> str:
         return self.name if self.name else ""
-
-
-class MotorTestTag(models.Model):
-    _name = "motor.test.tag"
-    _description = "Motor Test Tag"
-
-    name = fields.Char(required=True)
-    value = fields.Char(compute="_compute_value")
-    sequence = fields.Integer(default=10, index=True)
-    templates = fields.Many2one("motor.test.template", ondelete="cascade", required=True)
-
-    def __str__(self) -> str:
-        return self.name if self.name else ""
-
-    def _compute_value(self) -> None:
-        for test_tag in self:
-            test_tag.value = f"tests.{test_tag.templates.id}"
 
 
 class MotorTest(models.Model):
