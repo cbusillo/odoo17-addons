@@ -61,7 +61,6 @@ class MotorProductTemplate(models.Model):
 
         used_tags = re.findall(r"{(.*?)}", self.website_description)
         template_tags = self.get_template_tags()
-        test_templates = self.env["motor.test.template"].search([])
         values = {}
 
         for tag in used_tags:
