@@ -185,7 +185,7 @@ class MotorProduct(models.Model):
                 continue
             products = self.env["product.template"].search([("mpn", "!=", False)])
             matching_products = products.filtered(
-                lambda p: any(mpn.lower() in p.mpn.lower() for mpn in motor_product.mpn.split(","))
+                lambda p: any(mpn.lower() in p.mpn.lower() for mpn in p.get_list_of_mpns())
             )
             latest_product = max(matching_products, key=lambda p: p.create_date, default=None)
             if latest_product:

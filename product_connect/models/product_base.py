@@ -146,7 +146,18 @@ class ProductBase(models.AbstractModel):
     @api.depends("mpn")
     def _compute_first_mpn(self) -> None:
         for product in self:
-            product.first_mpn = product.mpn.split(",")[0].strip() if product.mpn else ""
+            list_of_mpns = product.get_list_of_mpns()
+            if list_of_mpns:
+                product.first_mpn = product.get_list_of_mpns()[0]
+            else:
+                product.first_mpn = ""
+
+    def get_list_of_mpns(self) -> list[str]:
+        for product in self:
+            if not product.mpn or not product.mpn.strip():
+                return []
+            mpn_parts = re.split(r"[, ]", product.mpn)
+            return [mpn.strip() for mpn in mpn_parts if mpn.strip()]
 
     def _compute_image_count(self) -> None:
         for product in self:
@@ -305,7 +316,9 @@ class ProductBase(models.AbstractModel):
                     "manufacturer": product.manufacturer.id,
                     "bin": product.bin,
                     "name": product.name,
-                    "website_description": product.website_description,
+                    "website_description": product.website_description.replace(
+                        "{mpn}", " ".join(product.get_list_of_mpns())
+                    ),
                     "part_type": product.part_type.id,
                     "weight": product.weight,
                     "list_price": product.list_price,
