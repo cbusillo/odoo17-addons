@@ -87,6 +87,8 @@
                                 <field name="year" widget="resettable_selection_badge"/>
                                 <field name="color" widget="resettable_selection_badge" required="1"/>
                                 <field name="cost"/>
+                                <field name="vendor"/>
+                                <field name="lot_id"/>
                                 <field name="is_tag_readable" widget="resettable_selection_badge"/>
                                 <field name="notes"/>
                             </group>

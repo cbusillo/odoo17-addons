@@ -32,6 +32,8 @@ class Motor(models.Model):
         domain="['|', ('id', '=', technician), '&', ('is_technician', '=', True), ('active', '=', True)]",
         ondelete="restrict",
     )
+    vendor = fields.Many2one("res.partner")
+    lot_id = fields.Char(size=5)
     manufacturer = fields.Many2one("product.manufacturer", domain="[('is_motor_manufacturer', '=', True)]")
     horsepower = fields.Float(digits=(3, 1), string="HP")
     horsepower_formatted = fields.Char(compute="_compute_horsepower_formatted")
