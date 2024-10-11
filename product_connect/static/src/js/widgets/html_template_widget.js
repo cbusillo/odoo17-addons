@@ -79,7 +79,7 @@ export class HtmlTemplateWidget extends HtmlField {
     }
 
     addTemplateTagsCommands() {
-        this.state.tags.forEach((tag, index) => {
+        this.state.tags.slice().reverse().forEach((tag, index) => {
             // noinspection JSUnusedGlobalSymbols
             this.wysiwyg.odooEditor.powerbox.commands.push({
                 category: 'Template Tags',
