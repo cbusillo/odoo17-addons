@@ -5,6 +5,13 @@ import odoo
 from odoo import api, fields, models
 
 
+class MotorDismantleResult(models.Model):
+    _name = "motor.dismantle.result"
+    _description = "Motor Dismantle Result"
+
+    name = fields.Char(required=True)
+
+
 class MotorProductTemplate(models.Model):
     _name = "motor.product.template"
     _description = "Motor Product Template"
@@ -126,6 +133,9 @@ class MotorProduct(models.Model):
     sequence = fields.Integer(related="template.sequence", index=True, store=True)
     excluded_parts = fields.Many2many("motor.part.template", related="template.excluded_parts")
     excluded_tests = fields.Many2many("motor.test.template", related="template.excluded_tests")
+
+    dismantle_notes = fields.Text()
+    dismantle_results = fields.Many2one(comodel_name="motor.dismantle.result")
 
     is_dismantled = fields.Boolean(default=False)
     is_dismantled_qc = fields.Boolean(default=False)
