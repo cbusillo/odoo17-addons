@@ -19,9 +19,9 @@ class MotorProductTemplate(models.Model):
     excluded_tests = fields.Many2many("motor.test.template")
     is_quantity_listing = fields.Boolean(default=False)
     include_year_in_name = fields.Boolean(default=True)
-    include_hp_in_name = fields.Boolean(default=True)
+    include_hp_in_name = fields.Boolean(default=True, string="Include HP in Name")
     include_model_in_name = fields.Boolean(default=True)
-    include_oem_in_name = fields.Boolean(default=True)
+    include_oem_in_name = fields.Boolean(default=True, string="Include OEM in Name")
 
     part_type = fields.Many2one("product.type", index=True)
     qty_available = fields.Float()
