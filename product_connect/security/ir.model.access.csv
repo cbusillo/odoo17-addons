@@ -8,6 +8,7 @@ access_printnode_interface,access.printnode_interface,model_printnode_interface,
 access_product_color,product.color,model_product_color,base.group_user,1,1,1,0
 access_product_color_tag,product.color.tag,model_product_color_tag,base.group_user,1,1,1,0
 access_product_condition,product.condition,model_product_condition,base.group_user,1,1,1,0
+access_product_import_image_wizard,access_product_import_image_wizard,model_product_import_image_wizard,base.group_user,1,1,1,1
 
 access_motor,access_motor,model_motor,base.group_user,1,1,1,0
 access_motor_stroke,access_motor_stroke,model_motor_stroke,base.group_user,1,0,0,0
@@ -22,7 +23,6 @@ access_motor_test,access_motor_test,model_motor_test,base.group_user,1,1,1,1
 access_motor_test_selection,access_motor_test_selection,model_motor_test_selection,base.group_user,1,1,1,1
 access_motor_test_section,access_motor_test_section,model_motor_test_section,base.group_user,1,1,1,1
 access_motor_test_template_condition,access_motor_test_template_condition,model_motor_test_template_condition,base.group_user,1,1,1,1
-access_product_import_image_wizard,access_product_import_image_wizard,model_product_import_image_wizard,base.group_user,1,1,1,1
 
 access_motor_product,access_motor_product,model_motor_product,base.group_user,1,1,1,1
 access_motor_product_template,access_motor_product_template,model_motor_product_template,base.group_user,1,1,1,1
