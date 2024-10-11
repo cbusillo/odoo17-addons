@@ -135,6 +135,7 @@ class MotorProduct(models.Model):
     excluded_tests = fields.Many2many("motor.test.template", related="template.excluded_tests")
 
     dismantle_notes = fields.Text()
+    template_name_with_dismantle_notes = fields.Char(compute="_compute_template_name_with_dismantle_notes", store=False)
     dismantle_results = fields.Many2one(comodel_name="motor.dismantle.result")
 
     is_dismantled = fields.Boolean(default=False)
@@ -200,6 +201,15 @@ class MotorProduct(models.Model):
             latest_product = max(matching_products, key=lambda p: p.create_date, default=None)
             if latest_product:
                 motor_product.reference_product = latest_product
+
+    @api.depends("template_name", "dismantle_notes")
+    def _compute_template_name_with_dismantle_notes(self) -> None:
+        for product in self:
+            product.template_name_with_dismantle_notes = (
+                f"{product.template_name}\n({product.dismantle_notes})"
+                if product.dismantle_notes
+                else product.template_name
+            )
 
     @api.depends("name", "computed_name", "default_code")
     def _compute_display_name(self) -> None:

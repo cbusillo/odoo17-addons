@@ -73,8 +73,7 @@
             <tree string="Motor Products" editable="bottom" open_form_view="1" create="0" delete="0">
                 <field name="qty_available" widget="integer"/>
                 <field name="first_mpn"/>
-                <field name="template_name"/>
-                <field name="dismantle_notes" readonly="1"/>
+                <field name="template_name_with_dismantle_notes" widget="section_and_note_text"/>
                 <field name="dismantle_results" widget="selection"/>
                 <field name="is_dismantled" widget="boolean_toggle" string="Done"/>
                 <field name="is_dismantled_qc" widget="boolean_toggle" string="QC" readonly="not is_dismantled"/>
