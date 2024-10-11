@@ -32,7 +32,10 @@ class MotorProductTemplate(models.Model):
 
     @api.model
     def get_template_tags_list(self) -> list[str]:
-        return list(self.get_template_tags().keys())
+        tag_keys = list(self.get_template_tags().keys())
+        tag_keys += ["mpn"]
+        sorted_tags = sorted(tag_keys)
+        return sorted_tags
 
     def get_template_tags(self) -> dict[str, str]:
         all_tags = self.get_template_tags_from_motor_model()
@@ -65,12 +68,17 @@ class MotorProductTemplate(models.Model):
 
         for tag in used_tags:
             tag = tag.lower()
+            if tag not in template_tags:
+                continue
             tag_value = template_tags.get(tag, tag)
 
             if tag_value.startswith("tests."):
                 test_index = int(tag_value.split(".")[1])
-                test = motor.tests.filtered(lambda t: t.template.id == test_index)
-                value = test[0].computed_result
+                test = motor.tests.filtered(lambda t: t.template.id == test_index)[0]
+                if test.selection_result:
+                    value = test.selection_result.display_value
+                else:
+                    value = test.computed_result
             else:
                 value = motor
                 for field in tag_value.split("."):
