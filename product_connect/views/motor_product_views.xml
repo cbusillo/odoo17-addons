@@ -117,9 +117,6 @@
                 <field name="template_name"/>
                 <field name="bin" width="30px" placeholder="A01A1"/>
                 <field name="weight" widget="integer" width="30px"/>
-                <field name="length" string="L" width="5"/>
-                <field name="width" string="W" width="5"/>
-                <field name="height" string="H" width="5"/>
             </tree>
         </field>
     </record>
@@ -212,9 +209,6 @@
                                     <field name="default_code"/>
                                     <field name="qty_available" widget="integer"/>
                                     <field name="weight" widget="integer"/>
-                                    <field name="length"/>
-                                    <field name="width"/>
-                                    <field name="height"/>
                                 </group>
                                 <group>
                                     <field name="is_listable" widget="boolean_toggle"/>

@@ -158,9 +158,6 @@ class MotorProduct(models.Model):
             "is_pictured_qc",
             "bin",
             "weight",
-            "length",
-            "width",
-            "height",
         }
 
         for field in qc_reset_fields:
@@ -236,9 +233,6 @@ class MotorProduct(models.Model):
         "is_pictured_qc",
         "bin",
         "weight",
-        "length",
-        "width",
-        "height",
     )
     def _compute_ready_to_list(self) -> None:
         for product in self:
@@ -252,9 +246,6 @@ class MotorProduct(models.Model):
                     product.is_pictured_qc,
                     product.bin,
                     product.weight,
-                    product.length,
-                    product.width,
-                    product.height,
                 ]
             )
 
