@@ -195,12 +195,10 @@ class MotorProduct(models.Model):
                 motor_product.reference_product = False
                 continue
             products = self.env["product.template"].search([("mpn", "!=", False)])
-            matching_products = products.filtered(
-                lambda p: any(mpn.lower() in p.mpn.lower() for mpn in p.get_list_of_mpns())
-            )
+            product_mpns = motor_product.get_list_of_mpns()
+            matching_products = products.filtered(lambda p: any(mpn.lower() in p.mpn.lower() for mpn in product_mpns))
             latest_product = max(matching_products, key=lambda p: p.create_date, default=None)
-            if latest_product:
-                motor_product.reference_product = latest_product
+            motor_product.reference_product = latest_product
 
     @api.depends("template_name", "dismantle_notes")
     def _compute_template_name_with_dismantle_notes(self) -> None:
