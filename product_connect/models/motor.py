@@ -157,10 +157,13 @@ class Motor(models.Model):
 
     @api.depends("products.reference_product", "products.reference_product.image_256")
     def _compute_products_with_reference(self) -> None:
-        for record in self:
-            record.products_with_reference_product = record.products.filtered(
+        for motor in self:
+            reference_products = motor.products.filtered(
                 lambda p: p.reference_product and p.reference_product.image_256
             )
+
+            if reference_products != motor.products_with_reference_product:
+                motor.products_with_reference_product = reference_products
 
     def _compute_image_count(self) -> None:
         for motor in self:
