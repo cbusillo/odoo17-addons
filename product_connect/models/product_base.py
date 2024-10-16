@@ -180,11 +180,15 @@ class ProductBase(models.AbstractModel):
             result.append((product.id, name))
         return result
 
-    @api.onchange("bin", "mpn")
-    def _onchange_format_fields_upper(self) -> None:
-        for product in self:
-            product.mpn = product.mpn.upper() if product.mpn else False
-            product.bin = product.bin.upper() if product.bin else False
+    @api.onchange("mpn")
+    def _onchange_format_mpn_upper(self) -> None:
+        for product in self.filtered(lambda p: p.mpn and p.mpn.upper() != p.mpn):
+            product.mpn = product.mpn.upper()
+
+    @api.onchange("bin")
+    def _onchange_format_bin_upper(self) -> None:
+        for product in self.filtered(lambda p: p.bin and p.bin.upper() != p.bin):
+            product.bin = product.bin.upper()
 
     def _products_from_existing_products(self, field_name: str, field_value: str) -> list[dict[str, str]]:
         is_new_product = isinstance(self.id, models.NewId)
