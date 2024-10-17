@@ -560,8 +560,8 @@ class ShopifySync(models.AbstractModel):
         ):
             image_data = {
                 "mediaContentType": "IMAGE",
-                "altText": odoo_product.name,
-                "url": base_url + "/web/image/product.image/" + str(odoo_image.id) + "/image_1920",
+                "alt": odoo_product.name,
+                "originalSource": base_url + "/web/image/product.image/" + str(odoo_image.id) + "/image_1920",
             }
             media_list.append(image_data)
         return media_list
@@ -709,7 +709,7 @@ class ShopifySync(models.AbstractModel):
                     )
                     images = self.prepare_odoo_product_image_data_for_export(base_url, odoo_product)
                     try:
-                        result = graphql_client.execute(
+                        graphql_client.execute(
                             query=graphql_document,
                             variables={
                                 "productId": shopify_product_id,
@@ -717,11 +717,11 @@ class ShopifySync(models.AbstractModel):
                             },
                             operation_name="createProductMedia",
                         )
-                    except Exception as error:
+                    except ValueError as error:
                         _logger.error("Failed to export images to Shopify: %s", error)
                         graphql_client.execute(
                             query=graphql_document,
-                            variables={"input": shopify_product_id},
+                            variables={"input": {"id": shopify_product_id}},
                             operation_name="DeleteProduct",
                         )
                         raise error
