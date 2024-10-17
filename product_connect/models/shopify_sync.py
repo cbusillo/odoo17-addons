@@ -148,7 +148,7 @@ class ShopifySync(models.AbstractModel):
     def initialize_shopify_session(self) -> None:
         shop_url = self.env["ir.config_parameter"].sudo().get_param("shopify.shop_url")
         token = self.env["ir.config_parameter"].sudo().get_param("shopify.api_token")
-        shopify_session = shopify.Session(f"{shop_url}.myshopify.com", token=token, version="2023-10")
+        shopify_session = shopify.Session(f"{shop_url}.myshopify.com", token=token, version="2024-01")
         shopify.ShopifyResource.activate_session(shopify_session)
 
     def fetch_import_timestamps(self) -> tuple[str, datetime, datetime]:
@@ -559,8 +559,9 @@ class ShopifySync(models.AbstractModel):
             key=lambda image: image.name,
         ):
             image_data = {
+                "mediaContentType": "IMAGE",
                 "altText": odoo_product.name,
-                "src": base_url + "/web/image/product.image/" + str(odoo_image.id) + "/image_1920",
+                "url": base_url + "/web/image/product.image/" + str(odoo_image.id) + "/image_1920",
             }
             media_list.append(image_data)
         return media_list
@@ -612,8 +613,8 @@ class ShopifySync(models.AbstractModel):
         _logger.debug("Starting export to Shopify...")
 
         odoo_products = self.env["product.product"].search(
-            [("sale_ok", "=", True), ("website_description", "!=", False), ("website_description", "!=", "")]
-        )
+            [("sale_ok", "=", True), ("website_description", "!=", False), ("website_description", "!=", "")], limit=1
+        )  # TODO: Remove limit
 
         odoo_products = odoo_products.filtered(
             lambda p: p.shopify_next_export is True
@@ -697,14 +698,33 @@ class ShopifySync(models.AbstractModel):
                         operation_name="UpdateProduct",
                     )
                 else:
-                    shopify_product_data["images"] = self.prepare_odoo_product_image_data_for_export(
-                        base_url, odoo_product
-                    )
                     result = graphql_client.execute(
                         query=graphql_document,
                         variables={"input": shopify_product_data},
                         operation_name="CreateProduct",
                     )
+                    result_dict = self.parse_and_validate_shopify_response(result)
+                    shopify_product_id = (
+                        result_dict.get("data", {}).get("productCreate", {}).get("product", {}).get("id")
+                    )
+                    images = self.prepare_odoo_product_image_data_for_export(base_url, odoo_product)
+                    try:
+                        result = graphql_client.execute(
+                            query=graphql_document,
+                            variables={
+                                "productId": shopify_product_id,
+                                "media": images,
+                            },
+                            operation_name="createProductMedia",
+                        )
+                    except Exception as error:
+                        _logger.error("Failed to export images to Shopify: %s", error)
+                        graphql_client.execute(
+                            query=graphql_document,
+                            variables={"input": shopify_product_id},
+                            operation_name="DeleteProduct",
+                        )
+                        raise error
 
                 _logger.debug("Shopify export result: %s", shopify_product_data)
                 result_dict = self.parse_and_validate_shopify_response(result)
