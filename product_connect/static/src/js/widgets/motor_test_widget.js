@@ -20,6 +20,10 @@ import { PdfViewerField } from '@web/views/fields/pdf_viewer/pdf_viewer_field'
  * @property {Array<ConditionalTest>} data.conditional_tests
  * @property {number} data.section_sequence
  */
+/**
+ * @typedef {Object} MotorPartRecord
+ * @property {boolean} data.is_missing
+ */
 export class MotorTestWidget extends Component {
     static template = 'product_connect.MotorTestWidget'
     static components = {
