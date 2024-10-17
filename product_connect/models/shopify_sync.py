@@ -613,8 +613,8 @@ class ShopifySync(models.AbstractModel):
         _logger.debug("Starting export to Shopify...")
 
         odoo_products = self.env["product.product"].search(
-            [("sale_ok", "=", True), ("website_description", "!=", False), ("website_description", "!=", "")], limit=1
-        )  # TODO: Remove limit
+            [("sale_ok", "=", True), ("website_description", "!=", False), ("website_description", "!=", "")]
+        )
 
         odoo_products = odoo_products.filtered(
             lambda p: p.shopify_next_export is True
