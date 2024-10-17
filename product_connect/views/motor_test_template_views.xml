@@ -45,7 +45,7 @@
                     <label for="conditional_tests" string="Tests using the result of this test"/>
                     <field name="conditional_tests" readonly="1">
                         <tree editable="bottom">
-                            <field name="conditional_test" string="Test Name"/>
+                            <field name="template" string="Test Name"/>
                             <field name="action_type"/>
                             <field name="condition_value"/>
                         </tree>
