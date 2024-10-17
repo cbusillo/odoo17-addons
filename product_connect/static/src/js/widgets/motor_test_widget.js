@@ -79,7 +79,7 @@ export class MotorTestWidget extends Component {
 
             this.conditionsById = Object.fromEntries(
                 conditions.map((condition) => [
-                    condition.conditional_test[0],
+                    condition.id,
                     condition,
                 ]),
             )
@@ -183,7 +183,7 @@ export class MotorTestWidget extends Component {
 
         const showConditions = test.data.conditional_tests.records.map(
             (condition) => {
-                const conditionRecord = this.conditionsById[condition.data.id]
+                const conditionRecord = this.conditionsById[condition.resId]
                 if (conditionRecord && conditionRecord.action_type === 'show') {
                     return conditionRecord
                 }
