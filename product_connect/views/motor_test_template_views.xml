@@ -50,7 +50,13 @@
                             <field name="condition_value"/>
                         </tree>
                     </field>
-
+                    <label for="missing_parts" string="Missing Parts that affect this test"/>
+                    <field name="missing_parts" readonly="1">
+                        <tree>
+                            <field name="name"/>
+                            <field name="hidden_tests"/>
+                        </tree>
+                    </field>
                 </sheet>
             </form>
         </field>

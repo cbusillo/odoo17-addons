@@ -45,6 +45,11 @@ class MotorTestTemplate(models.Model):
         "motor.test.template.condition",
         "conditional_test",
     )
+    missing_parts = fields.Many2many(
+        "motor.part.template",
+        string="Missing Parts",
+        domain=lambda self: [("hidden_tests", "=", self.ids)],
+    )
     stage = fields.Selection(
         [
             ("basic", "Basic Testing"),
