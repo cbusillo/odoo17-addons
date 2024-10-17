@@ -68,6 +68,16 @@ query GetProducts($cursor: String, $limit: Int!, $query: String) {
     }
 }
 
+mutation DeleteProduct($input: ProductDeleteInput!) {
+    productDelete(input: $input) {
+        deletedProductId
+        userErrors {
+            field
+            message
+        }
+    }
+}
+
 query GetOrdersLineItems($limit: Int!, $query: String!, $cursor: String) {
     orders(first: $limit, query: $query, after: $cursor) {
         edges {
@@ -138,7 +148,6 @@ mutation createProductMedia($media: [CreateMediaInput!]!, $productId: ID!) {
             alt
             mediaContentType
             status
-            alt
         }
         mediaUserErrors {
             field
