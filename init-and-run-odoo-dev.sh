@@ -77,7 +77,7 @@ with db_registry.cursor() as cr:
         env['ir.config_parameter'].sudo().set_param('mail.catchall.domain', False)
         env['ir.config_parameter'].sudo().set_param('mail.catchall.alias', False)
         env['ir.config_parameter'].sudo().set_param('mail.bounce.alias', False)
-        env['ir.config_parameter'].sudo().set_param('shopify.last_import_time', '2000-07-16T17:41:53Z')
+        # env['ir.config_parameter'].sudo().set_param('shopify.last_import_time', '2000-07-16T17:41:53Z')
         # Deactivate scheduled actions
         env['ir.cron'].search([]).write({'active': False})
         cr.commit()
