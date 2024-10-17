@@ -132,6 +132,23 @@ mutation UpdateProduct($input: ProductInput!) {
     }
 }
 
+mutation createProductMedia($media: [CreateMediaInput!]!, $productId: ID!) {
+    productCreateMedia(media: $media, productId: $productId) {
+        media {
+            alt
+            mediaContentType
+            status
+            alt
+        }
+        mediaUserErrors {
+            field
+            message
+        }
+    }
+}
+
+
+
 query GetLocations {
     locations(first: 5) {
         edges {
