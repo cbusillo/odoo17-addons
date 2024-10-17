@@ -63,7 +63,7 @@ export class MotorTestWidget extends Component {
         const { name, record } = props
         this.allTests = record.data[name].records
         const missingParts = record.data.parts.records.filter(
-            (part) => part.data.missing,
+            (part) => part.data.is_missing,
         )
 
         const conditionIds = this.allTests.flatMap(
